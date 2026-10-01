@@ -15,18 +15,21 @@ const getTransporter = () => {
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = Number(process.env.SMTP_PORT) || 465;
 
-    // Render free cloud containers do not support outbound IPv6, which causes ENETUNREACH.
-    // family: 4 forces Node to resolve and connect via standard IPv4.
+    const dns = require('dns');
     return nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
       secure: true,
-      family: 4,
       auth: { user, pass },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 15000,
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 20000,
+      lookup: (hostname, options, callback) => {
+        // Enforce IPv4 only to avoid Render Linux container IPv6 ENETUNREACH
+        dns.lookup(hostname, { family: 4 }, callback);
+      },
       tls: {
+        servername: 'smtp.gmail.com',
         rejectUnauthorized: false
       }
     });
