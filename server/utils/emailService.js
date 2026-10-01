@@ -103,7 +103,7 @@ const sendEmailVerificationOtp = async ({ toEmail, name, otp }) => {
   }
   console.log(`======================================================\n`);
 
-  return { delivered, devOtp: otp };
+  return { delivered, deliveryError, devOtp: otp };
 };
 
 /**
