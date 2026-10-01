@@ -15,11 +15,13 @@ const getTransporter = () => {
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = Number(process.env.SMTP_PORT) || 465;
 
-    // Do not cache permanently across long idle periods if socket dies
+    // Render free cloud containers do not support outbound IPv6, which causes ENETUNREACH.
+    // family: 4 forces Node to resolve and connect via standard IPv4.
     return nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
       secure: true,
+      family: 4,
       auth: { user, pass },
       connectionTimeout: 10000,
       greetingTimeout: 10000,
