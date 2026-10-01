@@ -16,6 +16,8 @@ const getTransporter = () => {
     const port = Number(process.env.SMTP_PORT) || 465;
 
     const dns = require('dns');
+    const tls = require('tls');
+
     return nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
@@ -24,13 +26,18 @@ const getTransporter = () => {
       connectionTimeout: 15000,
       greetingTimeout: 15000,
       socketTimeout: 20000,
-      lookup: (hostname, options, callback) => {
-        // Enforce IPv4 only to avoid Render Linux container IPv6 ENETUNREACH
-        dns.lookup(hostname, { family: 4 }, callback);
-      },
-      tls: {
-        servername: 'smtp.gmail.com',
-        rejectUnauthorized: false
+      // Render Linux container has broken IPv6 routes. Custom socket guarantees IPv4 TLS socket.
+      getSocket: (options, callback) => {
+        dns.lookup('smtp.gmail.com', { family: 4 }, (err, address) => {
+          if (err) return callback(err);
+          const socket = tls.connect({
+            host: address,
+            port: 465,
+            servername: 'smtp.gmail.com',
+            rejectUnauthorized: false
+          });
+          callback(null, socket);
+        });
       }
     });
   }
