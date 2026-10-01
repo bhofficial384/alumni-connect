@@ -15,20 +15,16 @@ const getTransporter = () => {
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = Number(process.env.SMTP_PORT) || 465;
 
-    // For Gmail accounts, using service: 'gmail' uses Nodemailer's built-in Google port/socket handling
-    if (host.includes('gmail') || user.endsWith('@gmail.com')) {
-      cachedTransporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user, pass }
-      });
-      return cachedTransporter;
-    }
-
+    // Render free tier blocks outbound port 587 (SMTP STARTTLS), but port 465 (SSL/SMTPS) is open.
+    // Explicitly configure smtp.gmail.com on port 465 with secure: true and connectionTimeout: 10000
     cachedTransporter = nodemailer.createTransport({
-      host: host,
-      port: port,
-      secure: port === 465,
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: { user, pass },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
       tls: {
         rejectUnauthorized: false
       }
