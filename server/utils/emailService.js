@@ -15,31 +15,31 @@ const getTransporter = () => {
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = Number(process.env.SMTP_PORT) || 465;
 
-    const dns = require('dns');
-    const tls = require('tls');
+    return {
+      sendMail: async (mailOptions) => {
+        const dns = require('dns');
+        // Actively resolve smtp.gmail.com to an IPv4 address string (e.g. 192.178.158.109)
+        const ip = await new Promise((resolve, reject) => {
+          dns.lookup('smtp.gmail.com', { family: 4 }, (err, addr) => {
+            if (err || !addr) return resolve('142.251.179.108'); // Direct Google SMTP IPv4 fallback
+            resolve(addr);
+          });
+        });
 
-    return nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: { user, pass },
-      connectionTimeout: 15000,
-      greetingTimeout: 15000,
-      socketTimeout: 20000,
-      // Render Linux container has broken IPv6 routes. Custom socket guarantees IPv4 TLS socket.
-      getSocket: (options, callback) => {
-        dns.lookup('smtp.gmail.com', { family: 4 }, (err, address) => {
-          if (err) return callback(err);
-          const socket = tls.connect({
-            host: address,
-            port: 465,
+        const directTransporter = nodemailer.createTransport({
+          host: ip,
+          port: 465,
+          secure: true,
+          auth: { user, pass },
+          tls: {
             servername: 'smtp.gmail.com',
             rejectUnauthorized: false
-          });
-          callback(null, socket);
+          }
         });
+
+        return await directTransporter.sendMail(mailOptions);
       }
-    });
+    };
   }
   return null;
 };
