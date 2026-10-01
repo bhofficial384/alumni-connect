@@ -15,12 +15,17 @@ const getTransporter = () => {
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = Number(process.env.SMTP_PORT) || 465;
 
-    // Use connection pool: true and keepAlive for ultra-fast, instant dispatch
+    // For Gmail accounts, using service: 'gmail' uses Nodemailer's built-in Google port/socket handling
+    if (host.includes('gmail') || user.endsWith('@gmail.com')) {
+      cachedTransporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user, pass }
+      });
+      return cachedTransporter;
+    }
+
     cachedTransporter = nodemailer.createTransport({
-      pool: true,
-      maxConnections: 5,
-      maxMessages: 100,
-      host: host.includes('gmail') ? 'smtp.gmail.com' : host,
+      host: host,
       port: port,
       secure: port === 465,
       auth: { user, pass },
