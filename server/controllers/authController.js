@@ -178,20 +178,14 @@ const register = async (req, res) => {
       console.error('Email OTP dispatch error:', err.message);
     }
 
-    // 2. Return response with delivery status and helpful message banner
-    const msg = emailResult.delivered
-      ? `A 6-digit verification code has been dispatched to your email ${user.email}.`
-      : `We sent a code to ${user.email}. (Cloud delivery delay? Your code is ${otp})`;
-
+    // 2. Return standard clean response without OTP on screen
     res.status(201).json({
       success: true,
       requiresOtp: true,
       verificationType: 'email',
-      message: msg,
+      message: `A 6-digit verification code has been dispatched to ${user.email}. Please check your inbox and spam folder.`,
       email: user.email,
-      role: user.role,
-      delivered: emailResult.delivered,
-      devOtp: !emailResult.delivered ? otp : undefined
+      role: user.role
     });
   } catch (error) {
     console.error('Registration error:', error);
