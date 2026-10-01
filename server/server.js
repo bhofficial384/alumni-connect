@@ -60,31 +60,7 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/api/test-email', async (req, res) => {
-  try {
-    const to = req.query.to || 'bhofficialcollege@gmail.com';
-    const emailService = require('./utils/emailService');
-    const result = await emailService.sendEmailVerificationOtp({
-      toEmail: to,
-      name: 'Diagnostic Test',
-      otp: '777888'
-    });
-    res.json({
-      success: true,
-      to,
-      smtpUserConfigured: !!process.env.SMTP_USER,
-      smtpPassConfigured: !!process.env.SMTP_PASS,
-      smtpUserValue: process.env.SMTP_USER ? process.env.SMTP_USER.slice(0, 4) + '***' : null,
-      result
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-      stack: err.stack
-    });
-  }
-});
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/mentors', mentorRoutes);
