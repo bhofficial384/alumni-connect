@@ -50,6 +50,16 @@ const adminRoutes = require('./routes/admin');
 const contactRoutes = require('./routes/contact');
 const aiRoutes = require('./routes/ai');
 
+// Health check and root route
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'online',
+    message: 'AlumniConnect API is running successfully',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/mentors', mentorRoutes);
 app.use('/api/sessions', sessionRoutes);
