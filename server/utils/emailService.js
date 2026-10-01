@@ -8,18 +8,18 @@ const getTransporter = () => {
   const pass = (process.env.SMTP_PASS || '').replace(/\s+/g, ''); // Auto-clean spaces from Google App Passwords
 
   if (user && pass) {
-    const host = (process.env.SMTP_HOST || 'smtp.gmail.com').toLowerCase();
-    if (host.includes('gmail')) {
-      return nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user, pass }
-      });
-    }
+    const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
+    const port = Number(process.env.SMTP_PORT) || 465;
+
+    // Use direct SSL (Port 465) for Google SMTP which is the most reliable in cloud environments (Render, AWS, etc.)
     return nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_PORT === '465',
-      auth: { user, pass }
+      host: host.includes('gmail') ? 'smtp.gmail.com' : host,
+      port: port,
+      secure: port === 465,
+      auth: { user, pass },
+      tls: {
+        rejectUnauthorized: false
+      }
     });
   }
   return null;
@@ -60,7 +60,7 @@ const sendEmailVerificationOtp = async ({ toEmail, name, otp }) => {
 
   if (transporter) {
     try {
-      const fromAddress = process.env.SMTP_FROM || `"AlumniConnect Security" <${process.env.SMTP_USER || 'security@alumniconnect.com'}>`;
+      const fromAddress = process.env.SMTP_FROM || `"AlumniConnect" <${process.env.SMTP_USER || 'bhofficialcollege@gmail.com'}>`;
       await transporter.sendMail({
         from: fromAddress,
         to: toEmail,
@@ -70,8 +70,10 @@ const sendEmailVerificationOtp = async ({ toEmail, name, otp }) => {
       delivered = true;
     } catch (err) {
       deliveryError = err.message;
-      console.warn('⚠️ [SMTP Delivery Failed]:', err.message);
+      console.error('❌ [SMTP Delivery Error]:', err.message);
     }
+  } else {
+    console.error('❌ [SMTP Not Configured]: SMTP_USER or SMTP_PASS missing');
   }
 
   // Log in server console for visibility & audit trail
