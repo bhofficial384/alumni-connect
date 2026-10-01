@@ -1,7 +1,7 @@
 const { validationResult, body } = require('express-validator');
 
 const registerRules = [
-  body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+  body('email').trim().isEmail().withMessage('Please provide a valid email'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('role').optional().isIn(['student', 'mentor']).withMessage('Role must be either student or mentor'),
   body('name').optional().trim(),
