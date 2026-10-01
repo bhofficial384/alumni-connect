@@ -75,41 +75,56 @@ const sendEmailVerificationOtp = async ({ toEmail, name, otp }) => {
     </div>
   `;
 
-  const transporter = getTransporter();
+  const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
   let delivered = false;
   let deliveryError = null;
 
-  if (transporter) {
+  // 1. Primary: Resend HTTPS API (Works 100% on Render Free Cloud without SMTP port blocking)
+  if (resendApiKey) {
     try {
-      const fromAddress = process.env.SMTP_FROM || `"AlumniConnect" <${process.env.SMTP_USER || 'bhofficialcollege@gmail.com'}>`;
-      await transporter.sendMail({
-        from: fromAddress,
+      const { Resend } = require('resend');
+      const resend = new Resend(resendApiKey);
+      const fromAddr = process.env.FROM_EMAIL || 'AlumniConnect <onboarding@resend.dev>';
+      const resendResult = await resend.emails.send({
+        from: fromAddr,
         to: toEmail,
         subject,
-        html,
+        html
       });
+
+      if (resendResult.error) {
+        throw new Error(resendResult.error.message || 'Resend API dispatch error');
+      }
+
       delivered = true;
+      console.log(`✅ [RESEND API] 6-digit OTP delivered successfully to ${toEmail} (ID: ${resendResult.data?.id})`);
     } catch (err) {
       deliveryError = err.message;
-      console.error('❌ [SMTP Delivery Error]:', err.message);
+      console.warn(`⚠️ [Resend API Failed]: ${err.message}. Trying SMTP fallback...`);
     }
-  } else {
-    console.error('❌ [SMTP Not Configured]: SMTP_USER or SMTP_PASS missing');
   }
 
-  // Log in server console for visibility & audit trail
-  console.log(`\n======================================================`);
-  console.log(`📧 [EMAIL SERVICE] 6-Digit Email Verification OTP`);
-  console.log(`To: ${toEmail} | Name: ${name || 'User'}`);
-  console.log(`OTP Code: [ ${otp} ] (Valid for 10 minutes)`);
-  if (delivered) {
-    console.log(`Delivered via SMTP: YES ✅ (Sent to ${toEmail} inbox)`);
-  } else if (deliveryError) {
-    console.log(`Delivered via SMTP: FAILED ❌ (${deliveryError})`);
-  } else {
-    console.log(`Delivered via SMTP: Awaiting SMTP_USER / SMTP_PASS in server/.env (Logged above for verification)`);
+  // 2. Fallback: SMTP transporter (if Resend not configured or fails)
+  if (!delivered) {
+    const transporter = getTransporter();
+    if (transporter) {
+      try {
+        const fromAddress = process.env.SMTP_FROM || `"AlumniConnect" <${process.env.SMTP_USER || 'bhofficialcollege@gmail.com'}>`;
+        await transporter.sendMail({
+          from: fromAddress,
+          to: toEmail,
+          subject,
+          html,
+        });
+        delivered = true;
+        deliveryError = null;
+        console.log(`✅ [SMTP Delivery] OTP delivered successfully to ${toEmail}`);
+      } catch (err) {
+        deliveryError = deliveryError ? `${deliveryError} | SMTP: ${err.message}` : err.message;
+        console.error('❌ [SMTP Delivery Error]:', err.message);
+      }
+    }
   }
-  console.log(`======================================================\n`);
 
   return { delivered, deliveryError, devOtp: otp };
 };
@@ -143,22 +158,43 @@ const sendPasswordResetOtp = async ({ toEmail, name, otp }) => {
     </div>
   `;
 
-  const transporter = getTransporter();
+  const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
   let delivered = false;
+  let deliveryError = null;
 
-  if (transporter) {
+  if (resendApiKey) {
     try {
-      const fromAddress = process.env.SMTP_FROM || `"AlumniConnect Security" <${process.env.SMTP_USER || 'security@alumniconnect.com'}>`;
-      await transporter.sendMail({
-        from: fromAddress,
+      const { Resend } = require('resend');
+      const resend = new Resend(resendApiKey);
+      const fromAddr = process.env.FROM_EMAIL || 'AlumniConnect <onboarding@resend.dev>';
+      await resend.emails.send({
+        from: fromAddr,
         to: toEmail,
         subject,
-        html,
+        html
       });
       delivered = true;
     } catch (err) {
       deliveryError = err.message;
-      console.warn('⚠️ [SMTP Reset Password Delivery Failed]:', err.message);
+    }
+  }
+
+  if (!delivered) {
+    const transporter = getTransporter();
+    if (transporter) {
+      try {
+        const fromAddress = process.env.SMTP_FROM || `"AlumniConnect" <${process.env.SMTP_USER || 'bhofficialcollege@gmail.com'}>`;
+        await transporter.sendMail({
+          from: fromAddress,
+          to: toEmail,
+          subject,
+          html,
+        });
+        delivered = true;
+      } catch (err) {
+        deliveryError = err.message;
+        console.warn('⚠️ [SMTP Reset Password Delivery Failed]:', err.message);
+      }
     }
   }
 
