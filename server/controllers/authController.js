@@ -188,7 +188,8 @@ const register = async (req, res) => {
         : `Verification code generated. Please check your inbox or spam folder.`,
       email: user.email,
       role: user.role,
-      delivered: emailResult.delivered
+      delivered: emailResult.delivered,
+      deliveryError: emailResult.deliveryError || null
     });
   } catch (error) {
     console.error('Registration error:', error);

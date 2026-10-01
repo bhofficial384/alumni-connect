@@ -15,9 +15,8 @@ const getTransporter = () => {
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = Number(process.env.SMTP_PORT) || 465;
 
-    // Render free tier blocks outbound port 587 (SMTP STARTTLS), but port 465 (SSL/SMTPS) is open.
-    // Explicitly configure smtp.gmail.com on port 465 with secure: true and connectionTimeout: 10000
-    cachedTransporter = nodemailer.createTransport({
+    // Do not cache permanently across long idle periods if socket dies
+    return nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
       secure: true,
@@ -29,7 +28,6 @@ const getTransporter = () => {
         rejectUnauthorized: false
       }
     });
-    return cachedTransporter;
   }
   return null;
 };
