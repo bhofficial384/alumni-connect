@@ -3,7 +3,11 @@ const nodemailer = require('nodemailer');
 /**
  * Configure Nodemailer transporter if SMTP settings are present in .env
  */
+let cachedTransporter = null;
+
 const getTransporter = () => {
+  if (cachedTransporter) return cachedTransporter;
+
   const user = (process.env.SMTP_USER || '').trim();
   const pass = (process.env.SMTP_PASS || '').replace(/\s+/g, ''); // Auto-clean spaces from Google App Passwords
 
@@ -11,8 +15,11 @@ const getTransporter = () => {
     const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
     const port = Number(process.env.SMTP_PORT) || 465;
 
-    // Use direct SSL (Port 465) for Google SMTP which is the most reliable in cloud environments (Render, AWS, etc.)
-    return nodemailer.createTransport({
+    // Use connection pool: true and keepAlive for ultra-fast, instant dispatch
+    cachedTransporter = nodemailer.createTransport({
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
       host: host.includes('gmail') ? 'smtp.gmail.com' : host,
       port: port,
       secure: port === 465,
@@ -21,6 +28,7 @@ const getTransporter = () => {
         rejectUnauthorized: false
       }
     });
+    return cachedTransporter;
   }
   return null;
 };

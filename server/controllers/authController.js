@@ -166,13 +166,7 @@ const register = async (req, res) => {
       });
     }
 
-    // Dispatch 6-digit OTP directly to user email
-    await emailService.sendEmailVerificationOtp({
-      toEmail: user.email,
-      name: user.name,
-      otp
-    }).catch(err => console.warn('Email OTP notification warning:', err.message));
-
+    // 1. Immediately send success response so frontend transitions instantly to OTP screen (0ms delay)
     res.status(201).json({
       success: true,
       requiresOtp: true,
@@ -181,6 +175,13 @@ const register = async (req, res) => {
       email: user.email,
       role: user.role
     });
+
+    // 2. Dispatch 6-digit OTP asynchronously in the background via persistent pooled SMTP
+    emailService.sendEmailVerificationOtp({
+      toEmail: user.email,
+      name: user.name,
+      otp
+    }).catch(err => console.error('Background Email OTP dispatch error:', err.message));
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ message: 'Server error during registration', error: error.message });
@@ -628,17 +629,17 @@ const sendEmailVerificationOtp = async (req, res) => {
     user.emailVerificationOtpExpires = expires;
     await user.save();
 
-    const { devOtp } = await emailService.sendEmailVerificationOtp({
-      toEmail: user.email,
-      name: user.name,
-      otp
-    });
-
     res.status(200).json({
       success: true,
       message: `A 6-digit verification code has been dispatched to ${user.email}.`,
       expiresIn: '10 minutes'
     });
+
+    emailService.sendEmailVerificationOtp({
+      toEmail: user.email,
+      name: user.name,
+      otp
+    }).catch(err => console.error('Background Resend OTP dispatch error:', err.message));
   } catch (error) {
     console.error('Send Email Verification OTP Error:', error);
     res.status(500).json({ message: 'Server error generating verification code', error: error.message });
