@@ -17,27 +17,29 @@ const getTransporter = () => {
 
     return {
       sendMail: async (mailOptions) => {
-        const dns = require('dns');
-        // Actively resolve smtp.gmail.com to an IPv4 address string (e.g. 192.178.158.109)
-        const ip = await new Promise((resolve, reject) => {
-          dns.lookup('smtp.gmail.com', { family: 4 }, (err, addr) => {
-            if (err || !addr) return resolve('142.251.179.108'); // Direct Google SMTP IPv4 fallback
-            resolve(addr);
+        // Try Port 587 (STARTTLS standard submission) first, then Port 465 (SSL)
+        try {
+          const t587 = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: { user, pass },
+            connectionTimeout: 7000
           });
-        });
-
-        const directTransporter = nodemailer.createTransport({
-          host: ip,
-          port: 465,
-          secure: true,
-          auth: { user, pass },
-          tls: {
-            servername: 'smtp.gmail.com',
-            rejectUnauthorized: false
-          }
-        });
-
-        return await directTransporter.sendMail(mailOptions);
+          return await t587.sendMail(mailOptions);
+        } catch (e587) {
+          console.warn('Port 587 attempt failed, trying Port 465 SSL:', e587.message);
+          const t465 = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: { user, pass },
+            connectionTimeout: 7000,
+            tls: { rejectUnauthorized: false }
+          });
+          return await t465.sendMail(mailOptions);
+        }
       }
     };
   }
