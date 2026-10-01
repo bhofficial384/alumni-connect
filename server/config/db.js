@@ -10,30 +10,21 @@ const seedInitialDataIfEmpty = async () => {
 
 const connectDB = async () => {
   const uri = process.env.MONGODB_URI;
-  const isInvalidAtlasSql = uri && uri.includes('atlas-sql');
 
-  if (uri && !isInvalidAtlasSql) {
-    try {
-      const conn = await mongoose.connect(uri, { serverSelectionTimeoutMS: 12000 });
-      console.log(`MongoDB Connected: ${conn.connection.host}`);
-      await seedInitialDataIfEmpty();
-      return;
-    } catch (error) {
-      console.warn(`Primary MongoDB connection failed (${error.message}). Falling back to local memory database...`);
-    }
+  if (!uri) {
+    console.error('CRITICAL ERROR: MONGODB_URI environment variable is not defined.');
+    process.exit(1);
   }
 
-  // Fallback to in-memory MongoDB
   try {
-    const { MongoMemoryServer } = require('mongodb-memory-server');
-    mongoMemoryServer = await MongoMemoryServer.create();
-    const memoryUri = mongoMemoryServer.getUri();
-    await mongoose.connect(memoryUri);
-    console.log(`⚡ In-Memory MongoDB Connected at: ${memoryUri}`);
-    console.log(`💡 Tip: To persist data across server restarts, set a valid MONGODB_URI in server/.env`);
+    const conn = await mongoose.connect(uri, { serverSelectionTimeoutMS: 15000 });
+    console.log(`MongoDB Connected successfully: ${conn.connection.host}`);
     await seedInitialDataIfEmpty();
   } catch (error) {
-    console.error(`In-memory database error: ${error.message}`);
+    console.error(`MongoDB Connection Failed: ${error.message}`);
+    console.error('Please verify that:');
+    console.error('1. MongoDB Atlas Network Access has 0.0.0.0/0 (Allow Access from Anywhere) enabled.');
+    console.error('2. MONGODB_URI is correctly configured in your environment variables.');
     process.exit(1);
   }
 };
