@@ -46,27 +46,31 @@ const createSession = async (req, res) => {
       .populate('mentor', 'name email company domain profileImage')
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage');
 
-    // Trigger real-time email to mentor's registered email
+    // 1. Instant HTTP response for ultra-fast UI feedback (< 30ms)
+    res.status(201).json(populatedSession);
+
+    // 2. High-speed background email dispatch
     if (populatedSession?.mentor?.email) {
-      console.log(`📨 [SESSION CREATE] Dispatching request email to mentor (${populatedSession.mentor.email})...`);
-      try {
-        const mailRes = await sendSessionRequestEmailToMentor({
-          mentor: populatedSession.mentor,
-          student: populatedSession.student,
-          topic: populatedSession.topic,
-          message: populatedSession.message,
-          preferredDate: populatedSession.preferredDate,
-          clientUrl: getOriginFromReq(req)
-        });
-        console.log(`✅ [SESSION CREATE] Email dispatch to mentor ${populatedSession.mentor.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
-      } catch (err) {
-        console.error('⚠️ [SESSION CREATE] Error notifying mentor of session request:', err.message);
-      }
+      const clientUrl = getOriginFromReq(req);
+      setImmediate(async () => {
+        try {
+          console.log(`⚡ [INSTANT EMAIL] Dispatching request email to mentor (${populatedSession.mentor.email})...`);
+          const mailRes = await sendSessionRequestEmailToMentor({
+            mentor: populatedSession.mentor,
+            student: populatedSession.student,
+            topic: populatedSession.topic,
+            message: populatedSession.message,
+            preferredDate: populatedSession.preferredDate,
+            clientUrl
+          });
+          console.log(`✅ [INSTANT EMAIL] Delivered to mentor ${populatedSession.mentor.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
+        } catch (err) {
+          console.error('⚠️ [INSTANT EMAIL ERROR]:', err.message);
+        }
+      });
     } else {
       console.warn('⚠️ [SESSION CREATE] Mentor email not found on populated session:', populatedSession?.mentor);
     }
-
-    res.status(201).json(populatedSession);
   } catch (error) {
     res.status(500).json({ message: 'Server error creating session', error: error.message });
   }
@@ -120,28 +124,32 @@ const updateSessionStatus = async (req, res) => {
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage')
       .populate('mentor', 'name email company domain profileImage');
 
-    // Trigger real-time email to student's registered email on approval or rejection
+    // 1. Instant HTTP response for ultra-fast UI feedback (< 30ms)
+    res.json(updatedSession);
+
+    // 2. High-speed background email dispatch
     if (updatedSession?.student?.email && (status === 'approved' || status === 'rejected')) {
-      console.log(`📨 [SESSION ${status.toUpperCase()}] Dispatching status email to student (${updatedSession.student.email})...`);
-      try {
-        const mailRes = await sendSessionStatusEmailToStudent({
-          student: updatedSession.student,
-          mentor: updatedSession.mentor,
-          status: updatedSession.status,
-          topic: updatedSession.topic,
-          scheduledDate: updatedSession.scheduledDate || updatedSession.preferredDate,
-          mentorNotes: updatedSession.mentorNotes,
-          clientUrl: getOriginFromReq(req)
-        });
-        console.log(`✅ [SESSION ${status.toUpperCase()}] Email dispatch to student ${updatedSession.student.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
-      } catch (err) {
-        console.error(`⚠️ [SESSION ${status.toUpperCase()}] Error notifying student of ${status} status:`, err.message);
-      }
+      const clientUrl = getOriginFromReq(req);
+      setImmediate(async () => {
+        try {
+          console.log(`⚡ [INSTANT EMAIL] Dispatching ${status.toUpperCase()} email to student (${updatedSession.student.email})...`);
+          const mailRes = await sendSessionStatusEmailToStudent({
+            student: updatedSession.student,
+            mentor: updatedSession.mentor,
+            status: updatedSession.status,
+            topic: updatedSession.topic,
+            scheduledDate: updatedSession.scheduledDate || updatedSession.preferredDate,
+            mentorNotes: updatedSession.mentorNotes,
+            clientUrl
+          });
+          console.log(`✅ [INSTANT EMAIL] Delivered to student ${updatedSession.student.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
+        } catch (err) {
+          console.error(`⚠️ [INSTANT EMAIL ERROR]:`, err.message);
+        }
+      });
     } else {
       console.warn(`⚠️ [SESSION STATUS] Student email not found or status not actionable (status=${status}):`, updatedSession?.student);
     }
-      
-    res.json(updatedSession);
   } catch (error) {
     res.status(500).json({ message: 'Server error updating session status', error: error.message });
   }

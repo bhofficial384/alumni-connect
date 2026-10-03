@@ -1,7 +1,12 @@
+const dns = require('dns');
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
+
 const nodemailer = require('nodemailer');
 
 /**
- * Configure Nodemailer transporter if SMTP settings are present in .env
+ * Configure Nodemailer transporter with Gmail credentials and fast direct delivery
  */
 let cachedTransporter = null;
 
@@ -14,10 +19,7 @@ const getTransporter = () => {
   if (user && pass) {
     cachedTransporter = nodemailer.createTransport({
       service: 'gmail',
-      auth: { user, pass },
-      pool: true,
-      maxConnections: 5,
-      maxMessages: 100
+      auth: { user, pass }
     });
     return cachedTransporter;
   }
@@ -174,7 +176,13 @@ const dispatchEmail = async ({ toEmail, subject, html, text }) => {
         to: toEmail,
         subject,
         html,
-        text
+        text,
+        priority: 'high',
+        headers: {
+          'X-Priority': '1 (Highest)',
+          'X-MSMail-Priority': 'High',
+          'Importance': 'high'
+        }
       });
       delivered = true;
       console.log(`✅ [SMTP Delivery] Email sent successfully to ${toEmail} | Subject: "${subject}" | MessageId: ${info?.messageId || 'OK'}`);
