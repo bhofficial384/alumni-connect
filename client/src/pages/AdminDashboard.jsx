@@ -948,7 +948,7 @@ const AdminDashboard = () => {
                           </div>
                         </div>
 
-                        {/* Interactive Approval & Delete Actions */}
+                        {/* Interactive Approval Actions */}
                         <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2 mt-2">
                           {!m.isApproved ? (
                             <div className="flex items-center gap-2 w-full">
@@ -978,17 +978,6 @@ const AdminDashboard = () => {
                                   Reject
                                 </button>
                               )}
-
-                              <button
-                                type="button"
-                                onClick={() => setMentorToDelete(m)}
-                                className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/20 text-rose-400 hover:text-rose-200 text-xs transition-all cursor-pointer flex items-center justify-center shrink-0"
-                                title={`Delete ${m.name}`}
-                              >
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </button>
                             </div>
                           ) : (
                             <div className="flex items-center justify-between w-full">
@@ -996,27 +985,14 @@ const AdminDashboard = () => {
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 Live in Directory
                               </span>
-                              <div className="flex items-center gap-1.5">
-                                <button
-                                  type="button"
-                                  onClick={() => handleMentorApproval(m._id, 'rejected')}
-                                  disabled={actionLoadingId === m._id}
-                                  className="py-1 px-2.5 rounded-lg bg-white/[0.04] hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-white/10 hover:border-rose-500/30 text-[11px] font-medium transition-all cursor-pointer"
-                                >
-                                  Revoke
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setMentorToDelete(m)}
-                                  className="py-1 px-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/20 text-rose-400 hover:text-rose-200 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
-                                  title="Delete mentor data"
-                                >
-                                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                  </svg>
-                                  <span>Delete</span>
-                                </button>
-                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleMentorApproval(m._id, 'rejected')}
+                                disabled={actionLoadingId === m._id}
+                                className="py-1 px-2.5 rounded-lg bg-white/[0.04] hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-white/10 hover:border-rose-500/30 text-[11px] font-medium transition-all cursor-pointer"
+                              >
+                                Revoke
+                              </button>
                             </div>
                           )}
                         </div>
