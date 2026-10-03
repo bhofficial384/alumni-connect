@@ -40,6 +40,37 @@ const AdminDashboard = () => {
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [isDeletingStudent, setIsDeletingStudent] = useState(false);
 
+  // Direct Add Student Modal state
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [newStudentData, setNewStudentData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+    registrationNumber: '',
+    rollNumber: '',
+    branch: '',
+    semester: '',
+    assignedMentor: ''
+  });
+  const [isCreatingStudent, setIsCreatingStudent] = useState(false);
+
+  // Direct Add Mentor Modal state
+  const [showAddMentorModal, setShowAddMentorModal] = useState(false);
+  const [newMentorData, setNewMentorData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+    company: '',
+    domain: 'Software Engineering',
+    graduationYear: '',
+    linkedIn: '',
+    bio: '',
+    approvalStatus: 'approved'
+  });
+  const [isCreatingMentor, setIsCreatingMentor] = useState(false);
+
   // Contact inquiries state
   const [contacts, setContacts] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
@@ -186,6 +217,104 @@ const AdminDashboard = () => {
       });
     } finally {
       setIsDeletingStudent(false);
+    }
+  };
+
+  const handleCreateStudent = async (e) => {
+    e.preventDefault();
+    setIsCreatingStudent(true);
+    setActionFeedback({ text: '', type: '' });
+    try {
+      const res = await api.post('/admin/students', newStudentData);
+      const created = res.data.student;
+      setStudents(prev => [created, ...prev]);
+      setStats(prev => {
+        if (!prev?.users) return prev;
+        return {
+          ...prev,
+          users: {
+            ...prev.users,
+            totalStudents: (prev.users.totalStudents || 0) + 1,
+            total: (prev.users.total || 0) + 1
+          }
+        };
+      });
+      setShowAddStudentModal(false);
+      setNewStudentData({
+        name: '',
+        email: '',
+        password: '',
+        phoneNumber: '',
+        registrationNumber: '',
+        rollNumber: '',
+        branch: '',
+        semester: '',
+        assignedMentor: ''
+      });
+      setActionFeedback({
+        text: res.data.message || `Student ${created.name} added successfully!`,
+        type: 'success'
+      });
+      setTimeout(() => setActionFeedback({ text: '', type: '' }), 4500);
+    } catch (err) {
+      console.error('Failed to create student:', err);
+      setActionFeedback({
+        text: err.response?.data?.message || 'Failed to add student.',
+        type: 'error'
+      });
+    } finally {
+      setIsCreatingStudent(false);
+    }
+  };
+
+  const handleCreateMentor = async (e) => {
+    e.preventDefault();
+    setIsCreatingMentor(true);
+    setActionFeedback({ text: '', type: '' });
+    try {
+      const res = await api.post('/admin/mentors', newMentorData);
+      const created = res.data.mentor;
+      setMentors(prev => [created, ...prev]);
+      setStats(prev => {
+        if (!prev?.users) return prev;
+        const isApproved = created.isApproved || created.approvalStatus === 'approved';
+        return {
+          ...prev,
+          users: {
+            ...prev.users,
+            totalMentors: (prev.users.totalMentors || 0) + 1,
+            approvedMentors: isApproved ? (prev.users.approvedMentors || 0) + 1 : (prev.users.approvedMentors || 0),
+            pendingMentors: !isApproved ? (prev.users.pendingMentors || 0) + 1 : (prev.users.pendingMentors || 0),
+            total: (prev.users.total || 0) + 1
+          }
+        };
+      });
+      setShowAddMentorModal(false);
+      setNewMentorData({
+        name: '',
+        email: '',
+        password: '',
+        phoneNumber: '',
+        company: '',
+        domain: 'Software Engineering',
+        graduationYear: '',
+        linkedIn: '',
+        bio: '',
+        approvalStatus: 'approved'
+      });
+      setActionFeedback({
+        text: res.data.message || `Mentor ${created.name} added successfully!`,
+        type: 'success'
+      });
+      setTimeout(() => setActionFeedback({ text: '', type: '' }), 4500);
+    } catch (err) {
+      console.error('Failed to create mentor:', err);
+      setActionFeedback({
+        text: err.response?.data?.message || 'Failed to add mentor.',
+        type: 'error'
+      });
+    } finally {
+      setIsCreatingMentor(false);
     }
   };
 
@@ -668,9 +797,19 @@ const AdminDashboard = () => {
                     </button>
                   </div>
 
-                  <span className="text-xs text-slate-400">
-                    Showing <strong className="text-white">{filteredMentors.length}</strong> mentors
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-slate-400 hidden sm:inline">
+                      Showing <strong className="text-white">{filteredMentors.length}</strong> mentors
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddMentorModal(true)}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+                    >
+                      <span>➕</span>
+                      <span>Direct Add Mentor</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Mentors Cards Grid */}
@@ -794,12 +933,36 @@ const AdminDashboard = () => {
 
             {/* TAB: Students Directory */}
             {activeTab === 'students' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredStudents.length === 0 ? (
-                  <div className="col-span-full py-16 text-center text-slate-500">
-                    No students matched your search query.
+              <div className="space-y-6">
+                {/* Students Action Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-slate-900/70 border border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-slate-300">
+                      Enrolled Students: <strong className="text-cyan-400 font-bold">{students.length}</strong>
+                    </span>
+                    {searchQuery && (
+                      <span className="text-xs text-slate-400">
+                        (Filtered: <strong className="text-white">{filteredStudents.length}</strong>)
+                      </span>
+                    )}
                   </div>
-                ) : (
+
+                  <button
+                    type="button"
+                    onClick={() => setShowAddStudentModal(true)}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/25 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer ml-auto"
+                  >
+                    <span>➕</span>
+                    <span>Direct Add Student</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredStudents.length === 0 ? (
+                    <div className="col-span-full py-16 text-center text-slate-500">
+                      No students matched your search query.
+                    </div>
+                  ) : (
                   filteredStudents.map((s) => (
                     <div key={s._id} className="glass-card-dark rounded-2xl p-4 border border-white/10 flex flex-col justify-between hover:border-purple-500/40 transition-all shadow-xl group">
                       <div>
@@ -954,6 +1117,7 @@ const AdminDashboard = () => {
                     </div>
                   ))
                 )}
+                </div>
               </div>
             )}
 
@@ -1548,6 +1712,417 @@ const AdminDashboard = () => {
                   )}
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Direct Add Student */}
+        {showAddStudentModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn" onClick={() => setShowAddStudentModal(false)}>
+            <div 
+              className="relative w-full max-w-lg bg-[#0C101B] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300 text-lg">
+                    🎓
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white leading-tight">
+                      Direct Add Student
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Create an enrolled student account directly without waiting for self-registration.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAddStudentModal(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateStudent} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Rahul Sharma"
+                      value={newStudentData.name}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, name: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. rahul@college.edu"
+                      value={newStudentData.email}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, email: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Temporary Password
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Defaults to student123"
+                      value={newStudentData.password}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, password: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    />
+                    <span className="text-[10px] text-slate-500 mt-0.5 block">Leave blank for default: student123</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g. 9876543210"
+                      value={newStudentData.phoneNumber}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, phoneNumber: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Branch / Department
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Computer Science"
+                      value={newStudentData.branch}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, branch: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Semester
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 6th Semester"
+                      value={newStudentData.semester}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, semester: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Registration Number
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. REG-2023-089"
+                      value={newStudentData.registrationNumber}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, registrationNumber: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Roll Number
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 21CS042"
+                      value={newStudentData.rollNumber}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, rollNumber: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                    Assign Alumni Mentor (Optional)
+                  </label>
+                  <select
+                    value={newStudentData.assignedMentor}
+                    onChange={(e) => setNewStudentData({ ...newStudentData, assignedMentor: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
+                  >
+                    <option value="">No Mentor Assigned</option>
+                    {mentors.map(m => (
+                      <option key={m._id} value={m._id}>
+                        {m.name} ({m.company || m.domain || 'Mentor'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddStudentModal(false)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isCreatingStudent}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isCreatingStudent ? (
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Adding Student...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>➕</span>
+                        <span>Add Student</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Direct Add Mentor */}
+        {showAddMentorModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn" onClick={() => setShowAddMentorModal(false)}>
+            <div 
+              className="relative w-full max-w-lg bg-[#0C101B] border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 text-lg">
+                    ⭐
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white leading-tight">
+                      Direct Add Mentor
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Directly onboard an alumni mentor into the verified directory.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAddMentorModal(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateMentor} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Priya Sharma"
+                      value={newMentorData.name}
+                      onChange={(e) => setNewMentorData({ ...newMentorData, name: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. priya@google.com"
+                      value={newMentorData.email}
+                      onChange={(e) => setNewMentorData({ ...newMentorData, email: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Temporary Password
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Defaults to mentor123"
+                      value={newMentorData.password}
+                      onChange={(e) => setNewMentorData({ ...newMentorData, password: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                    />
+                    <span className="text-[10px] text-slate-500 mt-0.5 block">Leave blank for default: mentor123</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Company / Organization
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Google, Microsoft"
+                      value={newMentorData.company}
+                      onChange={(e) => setNewMentorData({ ...newMentorData, company: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Primary Domain
+                    </label>
+                    <select
+                      value={newMentorData.domain}
+                      onChange={(e) => setNewMentorData({ ...newMentorData, domain: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+                    >
+                      <option value="Software Engineering">Software Engineering</option>
+                      <option value="Data Science">Data Science</option>
+                      <option value="Product Management">Product Management</option>
+                      <option value="Finance">Finance</option>
+                      <option value="Consulting">Consulting</option>
+                      <option value="Design">Design</option>
+                      <option value="Core Engineering">Core Engineering</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Graduation Year
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 2021"
+                      value={newMentorData.graduationYear}
+                      onChange={(e) => setNewMentorData({ ...newMentorData, graduationYear: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g. 9876543210"
+                      value={newMentorData.phoneNumber}
+                      onChange={(e) => setNewMentorData({ ...newMentorData, phoneNumber: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Approval Status
+                    </label>
+                    <select
+                      value={newMentorData.approvalStatus}
+                      onChange={(e) => setNewMentorData({ ...newMentorData, approvalStatus: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+                    >
+                      <option value="approved">Approved (Live Immediately)</option>
+                      <option value="pending">Pending Review</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                    LinkedIn Profile URL
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://linkedin.com/in/username"
+                    value={newMentorData.linkedIn}
+                    onChange={(e) => setNewMentorData({ ...newMentorData, linkedIn: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                    Bio / Experience Summary
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Brief overview of mentorship focus and background..."
+                    value={newMentorData.bio}
+                    onChange={(e) => setNewMentorData({ ...newMentorData, bio: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddMentorModal(false)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isCreatingMentor}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isCreatingMentor ? (
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Adding Mentor...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>➕</span>
+                        <span>Add Mentor</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

@@ -209,11 +209,159 @@ const deleteContact = async (req, res) => {
   }
 };
 
+/**
+ * Direct Add Student by Admin
+ * POST /api/admin/students
+ */
+const createStudent = async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const {
+      name,
+      email,
+      password,
+      phoneNumber,
+      registrationNumber,
+      rollNumber,
+      branch,
+      semester,
+      assignedMentor
+    } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: 'Student name is required' });
+    }
+    if (!email || !email.trim()) {
+      return res.status(400).json({ message: 'Student email is required' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const existing = await User.findOne({ email: normalizedEmail });
+    if (existing) {
+      return res.status(400).json({ message: `A user with email ${normalizedEmail} already exists (${existing.role})` });
+    }
+
+    // Default or specified password (minimum 6 characters)
+    const rawPassword = (password && password.trim().length >= 6) ? password.trim() : 'student123';
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(rawPassword, salt);
+
+    let validMentorId = undefined;
+    if (assignedMentor && assignedMentor !== 'none') {
+      const mentorDoc = await User.findOne({ _id: assignedMentor, role: 'mentor' });
+      if (mentorDoc) {
+        validMentorId = mentorDoc._id;
+      }
+    }
+
+    const student = await User.create({
+      name: name.trim(),
+      email: normalizedEmail,
+      password: hashedPassword,
+      role: 'student',
+      phoneNumber: phoneNumber ? phoneNumber.trim() : '',
+      registrationNumber: registrationNumber ? registrationNumber.trim() : '',
+      rollNumber: rollNumber ? rollNumber.trim() : '',
+      branch: branch ? branch.trim() : '',
+      semester: semester ? String(semester).trim() : '',
+      assignedMentor: validMentorId,
+      isEmailVerified: true, // Directly verified by admin
+      isProfileComplete: true
+    });
+
+    const populatedStudent = await User.findById(student._id)
+      .select('-password')
+      .populate('assignedMentor', 'name email company domain profileImage');
+
+    res.status(201).json({
+      success: true,
+      message: `Student "${populatedStudent.name}" created successfully.`,
+      student: populatedStudent
+    });
+  } catch (error) {
+    console.error('Direct Create Student Error:', error);
+    res.status(500).json({ message: 'Server error creating student', error: error.message });
+  }
+};
+
+/**
+ * Direct Add Mentor by Admin
+ * POST /api/admin/mentors
+ */
+const createMentor = async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const {
+      name,
+      email,
+      password,
+      phoneNumber,
+      company,
+      domain,
+      bio,
+      graduationYear,
+      linkedIn,
+      approvalStatus = 'approved' // Direct additions by admin default to approved
+    } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: 'Mentor name is required' });
+    }
+    if (!email || !email.trim()) {
+      return res.status(400).json({ message: 'Mentor email is required' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const existing = await User.findOne({ email: normalizedEmail });
+    if (existing) {
+      return res.status(400).json({ message: `A user with email ${normalizedEmail} already exists (${existing.role})` });
+    }
+
+    const rawPassword = (password && password.trim().length >= 6) ? password.trim() : 'mentor123';
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(rawPassword, salt);
+
+    const isApproved = approvalStatus === 'approved';
+
+    const mentor = await User.create({
+      name: name.trim(),
+      email: normalizedEmail,
+      password: hashedPassword,
+      role: 'mentor',
+      phoneNumber: phoneNumber ? phoneNumber.trim() : '',
+      company: company ? company.trim() : '',
+      domain: domain ? domain.trim() : 'Software Engineering',
+      bio: bio ? bio.trim() : '',
+      graduationYear: graduationYear ? Number(graduationYear) : undefined,
+      linkedIn: linkedIn ? linkedIn.trim() : '',
+      isApproved,
+      approvalStatus,
+      approvedAt: isApproved ? new Date() : undefined,
+      approvedBy: isApproved && req.user ? req.user._id : undefined,
+      isEmailVerified: true, // Directly verified by admin
+      isProfileComplete: true
+    });
+
+    const populatedMentor = await User.findById(mentor._id).select('-password');
+
+    res.status(201).json({
+      success: true,
+      message: `Mentor "${populatedMentor.name}" created successfully.`,
+      mentor: populatedMentor
+    });
+  } catch (error) {
+    console.error('Direct Create Mentor Error:', error);
+    res.status(500).json({ message: 'Server error creating mentor', error: error.message });
+  }
+};
+
 module.exports = {
   getStudents,
+  createStudent,
   updateStudent,
   deleteStudent,
   getMentors,
+  createMentor,
   updateMentorApproval,
   getStats,
   getContacts,
