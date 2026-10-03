@@ -305,33 +305,6 @@ const Landing = () => {
                   );
                 })}
               </div>
-
-              {liveMentors.length > 4 && (
-                <div className="mt-10 text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (showAllMentors) {
-                        setShowAllMentors(false);
-                        const el = document.getElementById('mentors');
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                      } else {
-                        setShowAllMentors(true);
-                      }
-                    }}
-                    className="px-7 py-3 rounded-full text-sm font-semibold bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 hover:border-blue-500/40 text-slate-200 hover:text-white transition-all duration-300 shadow-lg shadow-black/40 inline-flex items-center gap-2 group cursor-pointer"
-                  >
-                    <span>
-                      {showAllMentors
-                        ? 'Show less (top 4 mentors)'
-                        : `View all (${liveMentors.length}) alumni mentors`}
-                    </span>
-                    <span className="transition-transform group-hover:translate-x-0.5">
-                      {showAllMentors ? '↑' : '→'}
-                    </span>
-                  </button>
-                </div>
-              )}
             </>
           ) : (
             <div className="rounded-[28px] bg-[#0E121C] border border-white/[0.08] p-10 text-center max-w-xl mx-auto shadow-xl">
