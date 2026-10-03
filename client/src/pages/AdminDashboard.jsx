@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import LoadingSpinner from '../components/LoadingSpinner';
 import TiltCard3D from '../components/TiltCard3D';
 import CameraCaptureModal from '../components/CameraCaptureModal';
+import UniversalProfileDetailsModal from '../components/UniversalProfileDetailsModal';
 import { getInitials, compressAndResizeImage } from '../utils/imageUtils';
 
 /**
@@ -23,6 +24,7 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [actionLoadingId, setActionLoadingId] = useState(null);
   const [actionFeedback, setActionFeedback] = useState({ text: '', type: '' });
+  const [viewingProfileUser, setViewingProfileUser] = useState(null);
 
   // Student editing modal state
   const [selectedStudentToEdit, setSelectedStudentToEdit] = useState(null);
@@ -831,8 +833,12 @@ const AdminDashboard = () => {
                       <div key={m._id} className="glass-card-dark rounded-2xl p-5 border border-white/10 flex flex-col justify-between hover:border-purple-500/40 transition-all">
                         <div>
                           <div className="flex items-start justify-between gap-3 mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-lg font-bold text-white shadow-md shrink-0">
+                            <div 
+                              className="flex items-center gap-3 cursor-pointer group/mentor"
+                              onClick={() => setViewingProfileUser(m)}
+                              title="Click to view full mentor profile"
+                            >
+                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-lg font-bold text-white shadow-md shrink-0 group-hover/mentor:scale-105 transition-transform">
                                 {m.profileImage ? (
                                   <img src={m.profileImage} alt={m.name} className="w-full h-full object-cover" />
                                 ) : (
@@ -840,7 +846,7 @@ const AdminDashboard = () => {
                                 )}
                               </div>
                               <div>
-                                <h4 className="font-bold text-white text-base leading-tight">{m.name}</h4>
+                                <h4 className="font-bold text-white text-base leading-tight group-hover/mentor:text-purple-300 transition-colors">{m.name}</h4>
                                 <p className="text-xs text-cyan-400 font-medium">{m.domain || m.currentRole || 'Alumni Mentor'}</p>
                               </div>
                             </div>
@@ -976,8 +982,12 @@ const AdminDashboard = () => {
                       <div>
                         {/* Student Profile Card Header */}
                         <div className="flex items-start justify-between gap-2.5 mb-2.5">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="w-9 h-9 rounded-xl p-[1.5px] bg-gradient-to-tr from-purple-500 via-indigo-500 to-cyan-400 shadow-sm overflow-hidden shrink-0">
+                          <div 
+                            className="flex items-center gap-2.5 min-w-0 cursor-pointer group/student"
+                            onClick={() => setViewingProfileUser(s)}
+                            title="Click to view full student profile"
+                          >
+                            <div className="w-9 h-9 rounded-xl p-[1.5px] bg-gradient-to-tr from-purple-500 via-indigo-500 to-cyan-400 shadow-sm overflow-hidden shrink-0 group-hover/student:scale-105 transition-transform">
                               {s.profileImage ? (
                                 <img src={s.profileImage} alt={s.name} className="w-full h-full rounded-[10px] object-cover" />
                               ) : (
@@ -987,7 +997,7 @@ const AdminDashboard = () => {
                               )}
                             </div>
                             <div className="min-w-0">
-                              <h4 className="font-bold text-white text-sm leading-tight group-hover:text-purple-300 transition-colors truncate">
+                              <h4 className="font-bold text-white text-sm leading-tight group-hover/student:text-cyan-300 transition-colors truncate">
                                 {s.name}
                               </h4>
                               <p className="text-[11px] text-slate-400 truncate max-w-[155px]" title={s.email}>
@@ -1071,9 +1081,13 @@ const AdminDashboard = () => {
                           </div>
 
                           {s.assignedMentor ? (
-                            <div className="p-2.5 rounded-xl bg-gradient-to-r from-cyan-950/40 to-blue-950/30 border border-cyan-500/30 flex items-center justify-between gap-2 shadow-inner">
+                            <div 
+                              onClick={() => typeof s.assignedMentor === 'object' && setViewingProfileUser({ ...s.assignedMentor, role: 'mentor' })}
+                              className="p-2.5 rounded-xl bg-gradient-to-r from-cyan-950/40 to-blue-950/30 border border-cyan-500/30 flex items-center justify-between gap-2 shadow-inner cursor-pointer hover:border-cyan-400/60 transition-all group/mentorPill"
+                              title="Click to view mentor details"
+                            >
                               <div className="flex items-center gap-2.5 overflow-hidden">
-                                <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden">
+                                <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden group-hover/mentorPill:scale-105 transition-transform">
                                   {s.assignedMentor.profileImage ? (
                                     <img src={s.assignedMentor.profileImage} alt={s.assignedMentor.name} className="w-full h-full object-cover" />
                                   ) : (
@@ -1081,7 +1095,7 @@ const AdminDashboard = () => {
                                   )}
                                 </div>
                                 <div className="truncate">
-                                  <p className="text-xs font-bold text-white truncate leading-tight">
+                                  <p className="text-xs font-bold text-white group-hover/mentorPill:text-cyan-300 transition-colors truncate leading-tight">
                                     {s.assignedMentor.name}
                                   </p>
                                   <p className="text-[11px] text-cyan-300 truncate">
@@ -2271,6 +2285,12 @@ const AdminDashboard = () => {
             }
             setCameraModalTarget(null);
           }}
+        />
+        {/* Universal Profile Details Modal */}
+        <UniversalProfileDetailsModal
+          user={viewingProfileUser}
+          isOpen={!!viewingProfileUser}
+          onClose={() => setViewingProfileUser(null)}
         />
       </main>
     </div>

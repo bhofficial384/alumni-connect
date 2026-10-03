@@ -305,9 +305,14 @@ const StudentDashboard = () => {
                 {sessions.map(session => (
                   <div key={session._id || session.id} className="glass-card-dark rounded-2xl border border-white/10 p-5 shadow-lg hover:border-purple-500/40 transition-all">
                     <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-semibold text-white text-base">
-                          {session.mentor?.name || 'Mentor'}
+                      <div 
+                        className="cursor-pointer group/sessionMentor"
+                        onClick={() => session.mentor && setViewingMentor(session.mentor)}
+                        title="Click to view mentor details"
+                      >
+                        <h3 className="font-semibold text-white group-hover/sessionMentor:text-cyan-300 transition-colors text-base flex items-center gap-1.5">
+                          <span>{session.mentor?.name || 'Mentor'}</span>
+                          <span className="text-[10px] text-cyan-400 font-normal">↗</span>
                         </h3>
                         <p className="text-xs text-cyan-400 font-medium">
                           {session.mentor?.company || ''}

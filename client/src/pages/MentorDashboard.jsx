@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import AICopilot from '../components/AICopilot';
 import ProfileModal from '../components/ProfileModal';
 import ApproveScheduleModal from '../components/ApproveScheduleModal';
+import UniversalProfileDetailsModal from '../components/UniversalProfileDetailsModal';
 import { getInitials } from '../utils/imageUtils';
 
 /**
@@ -24,6 +25,7 @@ const MentorDashboard = () => {
   const [savingAvailability, setSavingAvailability] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [selectedSessionToApprove, setSelectedSessionToApprove] = useState(null);
+  const [viewingStudent, setViewingStudent] = useState(null);
 
   // Fetch incoming session requests from the API
   const fetchData = async () => {
@@ -306,8 +308,12 @@ const MentorDashboard = () => {
                 {requests.map(req => (
                   <div key={req._id || req.id} className="glass-card-dark rounded-2xl border border-white/10 p-6 shadow-lg hover:border-purple-500/40 transition-all">
                     <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-md">
+                      <div 
+                        className="flex items-center gap-3 cursor-pointer group/student"
+                        onClick={() => req.student && setViewingStudent(req.student)}
+                        title="Click to view student profile & details"
+                      >
+                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-md group-hover/student:scale-105 transition-transform">
                           {req.student?.profileImage ? (
                             <img
                               src={req.student.profileImage}
@@ -320,7 +326,7 @@ const MentorDashboard = () => {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-base text-white">
+                            <h3 className="font-semibold text-base text-white group-hover/student:text-cyan-300 transition-colors">
                               {req.student?.name || 'Student'}
                             </h3>
                             {req.student?.branch && (
@@ -533,6 +539,13 @@ const MentorDashboard = () => {
         session={selectedSessionToApprove}
         onClose={() => setSelectedSessionToApprove(null)}
         onConfirm={handleConfirmApproval}
+      />
+
+      {/* Student Profile Details Modal */}
+      <UniversalProfileDetailsModal
+        user={viewingStudent}
+        isOpen={!!viewingStudent}
+        onClose={() => setViewingStudent(null)}
       />
     </div>
   );
