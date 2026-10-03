@@ -4,7 +4,7 @@ import api from '../api/axios';
 import Navbar from '../components/Navbar';
 import LoadingSpinner from '../components/LoadingSpinner';
 import TiltCard3D from '../components/TiltCard3D';
-import { getInitials } from '../utils/imageUtils';
+import { getInitials, compressAndResizeImage } from '../utils/imageUtils';
 
 /**
  * AdminDashboard — Overview & management panel for AlumniConnect administrators.
@@ -51,7 +51,8 @@ const AdminDashboard = () => {
     rollNumber: '',
     branch: '',
     semester: '',
-    assignedMentor: ''
+    assignedMentor: '',
+    profileImage: ''
   });
   const [isCreatingStudent, setIsCreatingStudent] = useState(false);
 
@@ -67,7 +68,8 @@ const AdminDashboard = () => {
     graduationYear: '',
     linkedIn: '',
     bio: '',
-    approvalStatus: 'approved'
+    approvalStatus: 'approved',
+    profileImage: ''
   });
   const [isCreatingMentor, setIsCreatingMentor] = useState(false);
 
@@ -249,7 +251,8 @@ const AdminDashboard = () => {
         rollNumber: '',
         branch: '',
         semester: '',
-        assignedMentor: ''
+        assignedMentor: '',
+        profileImage: ''
       });
       setActionFeedback({
         text: res.data.message || `Student ${created.name} added successfully!`,
@@ -300,7 +303,8 @@ const AdminDashboard = () => {
         graduationYear: '',
         linkedIn: '',
         bio: '',
-        approvalStatus: 'approved'
+        approvalStatus: 'approved',
+        profileImage: ''
       });
       setActionFeedback({
         text: res.data.message || `Mentor ${created.name} added successfully!`,
@@ -1750,6 +1754,59 @@ const AdminDashboard = () => {
               </div>
 
               <form onSubmit={handleCreateStudent} className="space-y-4">
+                {/* Photo Upload & Preview */}
+                <div className="flex items-center gap-4 p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                  <div className="w-16 h-16 rounded-2xl p-[2px] bg-gradient-to-tr from-cyan-400 via-blue-500 to-indigo-500 shrink-0 shadow-md overflow-hidden relative group">
+                    {newStudentData.profileImage ? (
+                      <img
+                        src={newStudentData.profileImage}
+                        alt="Preview"
+                        className="w-full h-full object-cover rounded-[14px]"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[#111624] rounded-[14px] flex items-center justify-center text-cyan-300 font-bold text-lg">
+                        {newStudentData.name ? getInitials(newStudentData.name) : '📷'}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <span className="block text-xs font-semibold text-white mb-1">
+                      Student Profile Photo
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <label className="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 hover:text-white text-xs font-semibold cursor-pointer transition-colors inline-flex items-center gap-1.5">
+                        <span>📤 Upload Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const base64 = await compressAndResizeImage(file, 400, 400, 0.85);
+                              setNewStudentData(prev => ({ ...prev, profileImage: base64 }));
+                            } catch (err) {
+                              alert(err.message || 'Error processing image');
+                            }
+                          }}
+                        />
+                      </label>
+                      {newStudentData.profileImage && (
+                        <button
+                          type="button"
+                          onClick={() => setNewStudentData(prev => ({ ...prev, profileImage: '' }))}
+                          className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-500 mt-1 block">JPG, PNG or WEBP (automatically optimized)</span>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
@@ -1948,6 +2005,59 @@ const AdminDashboard = () => {
               </div>
 
               <form onSubmit={handleCreateMentor} className="space-y-4">
+                {/* Photo Upload & Preview */}
+                <div className="flex items-center gap-4 p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                  <div className="w-16 h-16 rounded-2xl p-[2px] bg-gradient-to-tr from-purple-500 via-indigo-500 to-pink-500 shrink-0 shadow-md overflow-hidden relative group">
+                    {newMentorData.profileImage ? (
+                      <img
+                        src={newMentorData.profileImage}
+                        alt="Preview"
+                        className="w-full h-full object-cover rounded-[14px]"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[#111624] rounded-[14px] flex items-center justify-center text-purple-300 font-bold text-lg">
+                        {newMentorData.name ? getInitials(newMentorData.name) : '📷'}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <span className="block text-xs font-semibold text-white mb-1">
+                      Mentor Profile Photo
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <label className="px-3 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 hover:text-white text-xs font-semibold cursor-pointer transition-colors inline-flex items-center gap-1.5">
+                        <span>📤 Upload Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const base64 = await compressAndResizeImage(file, 400, 400, 0.85);
+                              setNewMentorData(prev => ({ ...prev, profileImage: base64 }));
+                            } catch (err) {
+                              alert(err.message || 'Error processing image');
+                            }
+                          }}
+                        />
+                      </label>
+                      {newMentorData.profileImage && (
+                        <button
+                          type="button"
+                          onClick={() => setNewMentorData(prev => ({ ...prev, profileImage: '' }))}
+                          className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-500 mt-1 block">JPG, PNG or WEBP (automatically optimized)</span>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">

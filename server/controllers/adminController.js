@@ -225,7 +225,8 @@ const createStudent = async (req, res) => {
       rollNumber,
       branch,
       semester,
-      assignedMentor
+      assignedMentor,
+      profileImage
     } = req.body;
 
     if (!name || !name.trim()) {
@@ -265,6 +266,7 @@ const createStudent = async (req, res) => {
       branch: branch ? branch.trim() : '',
       semester: semester ? String(semester).trim() : '',
       assignedMentor: validMentorId,
+      profileImage: profileImage ? profileImage.trim() : '',
       isEmailVerified: true, // Directly verified by admin
       isProfileComplete: true
     });
@@ -301,6 +303,7 @@ const createMentor = async (req, res) => {
       bio,
       graduationYear,
       linkedIn,
+      profileImage,
       approvalStatus = 'approved' // Direct additions by admin default to approved
     } = req.body;
 
@@ -334,6 +337,7 @@ const createMentor = async (req, res) => {
       bio: bio ? bio.trim() : '',
       graduationYear: graduationYear ? Number(graduationYear) : undefined,
       linkedIn: linkedIn ? linkedIn.trim() : '',
+      profileImage: profileImage ? profileImage.trim() : '',
       isApproved,
       approvalStatus,
       approvedAt: isApproved ? new Date() : undefined,
