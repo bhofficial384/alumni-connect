@@ -1,5 +1,9 @@
 const Session = require('../models/Session');
 const User = require('../models/User');
+const {
+  sendSessionRequestEmailToMentor,
+  sendSessionStatusEmailToStudent
+} = require('../utils/emailService');
 
 const createSession = async (req, res) => {
   try {
@@ -25,6 +29,19 @@ const createSession = async (req, res) => {
     const populatedSession = await Session.findById(session._id)
       .populate('mentor', 'name email company domain profileImage')
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage');
+
+    // Trigger asynchronous email to mentor's registered email
+    if (populatedSession?.mentor?.email) {
+      sendSessionRequestEmailToMentor({
+        mentor: populatedSession.mentor,
+        student: populatedSession.student,
+        topic: populatedSession.topic,
+        message: populatedSession.message,
+        preferredDate: populatedSession.preferredDate
+      }).catch(err => {
+        console.error('⚠️ [SESSION EMAIL] Error notifying mentor of session request:', err.message);
+      });
+    }
 
     res.status(201).json(populatedSession);
   } catch (error) {
@@ -79,6 +96,20 @@ const updateSessionStatus = async (req, res) => {
     const updatedSession = await Session.findById(session._id)
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage')
       .populate('mentor', 'name email company domain profileImage');
+
+    // Trigger asynchronous email to student's registered email on approval or rejection
+    if (updatedSession?.student?.email && (status === 'approved' || status === 'rejected')) {
+      sendSessionStatusEmailToStudent({
+        student: updatedSession.student,
+        mentor: updatedSession.mentor,
+        status: updatedSession.status,
+        topic: updatedSession.topic,
+        scheduledDate: updatedSession.scheduledDate || updatedSession.preferredDate,
+        mentorNotes: updatedSession.mentorNotes
+      }).catch(err => {
+        console.error(`⚠️ [SESSION EMAIL] Error notifying student of ${status} status:`, err.message);
+      });
+    }
       
     res.json(updatedSession);
   } catch (error) {
