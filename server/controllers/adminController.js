@@ -95,6 +95,40 @@ const deleteStudent = async (req, res) => {
   }
 };
 
+const deleteMentor = async (req, res) => {
+  try {
+    const mentorId = req.params.id;
+
+    const mentor = await User.findOne({ _id: mentorId, role: 'mentor' });
+    if (!mentor) {
+      return res.status(404).json({ message: 'Mentor not found or already deleted.' });
+    }
+
+    const mentorName = mentor.name;
+
+    // Unassign this mentor from any students who have them as assignedMentor
+    await User.updateMany(
+      { assignedMentor: mentor._id },
+      { $unset: { assignedMentor: "" } }
+    );
+
+    // Delete all mentoring sessions associated with this mentor
+    const sessionDeleteResult = await Session.deleteMany({ mentor: mentor._id });
+
+    // Permanently remove mentor account
+    await User.findByIdAndDelete(mentor._id);
+
+    res.json({
+      success: true,
+      message: `Mentor "${mentorName}" and ${sessionDeleteResult.deletedCount || 0} associated session(s) were permanently deleted.`,
+      mentorId
+    });
+  } catch (error) {
+    console.error('Delete Mentor Error:', error);
+    res.status(500).json({ message: 'Server error deleting mentor', error: error.message });
+  }
+};
+
 const getMentors = async (req, res) => {
   try {
     const mentors = await User.find({ role: 'mentor' })
@@ -367,6 +401,7 @@ module.exports = {
   getMentors,
   createMentor,
   updateMentorApproval,
+  deleteMentor,
   getStats,
   getContacts,
   deleteContact

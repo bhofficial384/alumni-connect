@@ -43,6 +43,10 @@ const AdminDashboard = () => {
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [isDeletingStudent, setIsDeletingStudent] = useState(false);
 
+  // Mentor deletion modal state
+  const [mentorToDelete, setMentorToDelete] = useState(null);
+  const [isDeletingMentor, setIsDeletingMentor] = useState(false);
+
   // Direct Add Student Modal state
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [newStudentData, setNewStudentData] = useState({
@@ -225,6 +229,43 @@ const AdminDashboard = () => {
       });
     } finally {
       setIsDeletingStudent(false);
+    }
+  };
+
+  const handleDeleteMentor = async () => {
+    if (!mentorToDelete?._id) return;
+    setIsDeletingMentor(true);
+    setActionFeedback({ text: '', type: '' });
+    try {
+      const res = await api.delete(`/admin/mentors/${mentorToDelete._id}`);
+      setMentors(prev => prev.filter(m => m._id !== mentorToDelete._id));
+      setStats(prev => {
+        if (!prev?.users) return prev;
+        return {
+          ...prev,
+          users: {
+            ...prev.users,
+            totalMentors: Math.max(0, (prev.users.totalMentors || 1) - 1),
+            total: Math.max(0, (prev.users.total || 1) - 1)
+          }
+        };
+      });
+      setActionFeedback({
+        text: res.data?.message || `Mentor "${mentorToDelete.name || ''}" has been permanently deleted.`,
+        type: 'success'
+      });
+      setMentorToDelete(null);
+      setTimeout(() => {
+        setActionFeedback({ text: '', type: '' });
+      }, 4500);
+    } catch (err) {
+      console.error('Failed to delete mentor:', err);
+      setActionFeedback({
+        text: err.response?.data?.message || 'Failed to delete mentor.',
+        type: 'error'
+      });
+    } finally {
+      setIsDeletingMentor(false);
     }
   };
 
@@ -851,20 +892,37 @@ const AdminDashboard = () => {
                               </div>
                             </div>
 
-                            {/* Approval Status Badge */}
-                            {m.isApproved ? (
-                              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shrink-0">
-                                <span>✓</span> Approved
-                              </span>
-                            ) : m.approvalStatus === 'rejected' ? (
-                              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30 shrink-0">
-                                ✕ Declined
-                              </span>
-                            ) : (
-                              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1 shadow-sm shadow-amber-500/20 shrink-0">
-                                <span>⏳</span> Pending Review
-                              </span>
-                            )}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {/* Approval Status Badge */}
+                              {m.isApproved ? (
+                                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shrink-0">
+                                  <span>✓</span> Approved
+                                </span>
+                              ) : m.approvalStatus === 'rejected' ? (
+                                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30 shrink-0">
+                                  ✕ Declined
+                                </span>
+                              ) : (
+                                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1 shadow-sm shadow-amber-500/20 shrink-0">
+                                  <span>⏳</span> Pending Review
+                                </span>
+                              )}
+
+                              {/* Delete Mentor Button in Header */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setMentorToDelete(m);
+                                }}
+                                className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/20 hover:border-rose-500/50 text-rose-400 hover:text-rose-200 text-xs transition-all shadow-sm cursor-pointer"
+                                title={`Delete Mentor ${m.name}`}
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
 
                           <div className="text-xs text-slate-400 space-y-1.5 mb-3">
@@ -890,7 +948,7 @@ const AdminDashboard = () => {
                           </div>
                         </div>
 
-                        {/* Interactive Approval Actions */}
+                        {/* Interactive Approval & Delete Actions */}
                         <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2 mt-2">
                           {!m.isApproved ? (
                             <div className="flex items-center gap-2 w-full">
@@ -920,6 +978,17 @@ const AdminDashboard = () => {
                                   Reject
                                 </button>
                               )}
+
+                              <button
+                                type="button"
+                                onClick={() => setMentorToDelete(m)}
+                                className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/20 text-rose-400 hover:text-rose-200 text-xs transition-all cursor-pointer flex items-center justify-center shrink-0"
+                                title={`Delete ${m.name}`}
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
                             </div>
                           ) : (
                             <div className="flex items-center justify-between w-full">
@@ -927,14 +996,27 @@ const AdminDashboard = () => {
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 Live in Directory
                               </span>
-                              <button
-                                type="button"
-                                onClick={() => handleMentorApproval(m._id, 'rejected')}
-                                disabled={actionLoadingId === m._id}
-                                className="py-1 px-2.5 rounded-lg bg-white/[0.04] hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-white/10 hover:border-rose-500/30 text-[11px] font-medium transition-all cursor-pointer"
-                              >
-                                Revoke
-                              </button>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleMentorApproval(m._id, 'rejected')}
+                                  disabled={actionLoadingId === m._id}
+                                  className="py-1 px-2.5 rounded-lg bg-white/[0.04] hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-white/10 hover:border-rose-500/30 text-[11px] font-medium transition-all cursor-pointer"
+                                >
+                                  Revoke
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setMentorToDelete(m)}
+                                  className="py-1 px-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/20 text-rose-400 hover:text-rose-200 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1"
+                                  title="Delete mentor data"
+                                >
+                                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                  <span>Delete</span>
+                                </button>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -1564,6 +1646,92 @@ const AdminDashboard = () => {
                     <>
                       <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       <span>Deleting Student...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>🗑️</span>
+                      <span>Confirm Delete</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Mentor Confirmation Modal */}
+        {mentorToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+            <div className="bg-[#0e121e] border border-rose-500/30 w-full max-w-md rounded-2xl p-6 shadow-2xl shadow-rose-950/40 relative">
+              {/* Warning Header */}
+              <div className="flex items-start gap-3.5 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0 text-lg">
+                  🗑️
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white leading-snug">
+                    Permanently Delete Mentor?
+                  </h3>
+                  <p className="text-xs text-rose-300/80 mt-0.5">
+                    This action is permanent and cannot be undone.
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-300 mb-4 leading-relaxed">
+                Are you sure you want to permanently delete mentor <strong className="text-white">"{mentorToDelete.name}"</strong>? All associated mentoring sessions, requests, availability schedule, and assignments with students will be permanently removed.
+              </p>
+
+              {/* Mentor Summary Card */}
+              <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 mb-5 text-xs space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">Name:</span>
+                  <span className="text-white font-semibold">{mentorToDelete.name}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">Email:</span>
+                  <span className="text-slate-300 font-mono text-[11px]">{mentorToDelete.email}</span>
+                </div>
+                {mentorToDelete.company && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Company:</span>
+                    <span className="text-cyan-300 font-semibold">{mentorToDelete.company}</span>
+                  </div>
+                )}
+                {mentorToDelete.domain && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Domain:</span>
+                    <span className="text-purple-300 truncate max-w-[200px]">{mentorToDelete.domain}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">Status:</span>
+                  <span className={`font-semibold ${mentorToDelete.isApproved ? 'text-emerald-400' : 'text-amber-400'}`}>
+                    {mentorToDelete.isApproved ? 'Approved Alumnus' : 'Pending Approval'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setMentorToDelete(null)}
+                  disabled={isDeletingMentor}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteMentor}
+                  disabled={isDeletingMentor}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isDeletingMentor ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Deleting Mentor...</span>
                     </>
                   ) : (
                     <>
