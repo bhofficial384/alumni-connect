@@ -27,6 +27,7 @@ const Landing = () => {
   const [liveMentors, setLiveMentors] = useState([]);
   const [mentorsLoading, setMentorsLoading] = useState(true);
   const [selectedMentor, setSelectedMentor] = useState(null);
+  const [showAllMentors, setShowAllMentors] = useState(false);
 
   React.useEffect(() => {
     const fetchLiveMentors = async () => {
@@ -196,19 +197,30 @@ const Landing = () => {
                 Connect with industry alumni
               </h2>
             </div>
-            <Link
-              to={
-                !user
-                  ? '/register'
-                  : user.role === 'student'
-                  ? '/dashboard/student'
-                  : `/dashboard/${user.role}`
-              }
-              className="text-sm font-semibold text-blue-400 hover:text-blue-300 inline-flex items-center gap-1.5 transition-colors"
-            >
-              <span>{liveMentors.length > 0 ? `View all (${liveMentors.length}) mentors` : 'View all mentors'}</span>
-              <span>→</span>
-            </Link>
+            {liveMentors.length > 4 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (showAllMentors) {
+                    setShowAllMentors(false);
+                    const el = document.getElementById('mentors');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    setShowAllMentors(true);
+                  }
+                }}
+                className="text-sm font-semibold text-blue-400 hover:text-blue-300 inline-flex items-center gap-1.5 transition-colors cursor-pointer group"
+              >
+                <span>{showAllMentors ? 'Show top 4 only' : `View all (${liveMentors.length}) mentors`}</span>
+                <span className="transition-transform group-hover:translate-x-0.5">
+                  {showAllMentors ? '↑' : '→'}
+                </span>
+              </button>
+            ) : liveMentors.length > 0 ? (
+              <span className="text-sm font-medium text-slate-400">
+                {liveMentors.length} Verified Mentors
+              </span>
+            ) : null}
           </div>
 
           {mentorsLoading ? (
@@ -220,78 +232,107 @@ const Landing = () => {
               <span>Loading verified mentors...</span>
             </div>
           ) : liveMentors.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {liveMentors.map((m, idx) => {
-                const avatar = m.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || 'Alumni Mentor')}&background=1D4ED8&color=fff&bold=true`;
-                return (
-                  <TiltCard3D key={m._id || idx} className="h-full">
-                    <div 
-                      onClick={() => setSelectedMentor(m)}
-                      className="rounded-[28px] bg-[#0E121C] border border-white/[0.08] p-6 shadow-xl hover:border-blue-500/40 transition-all flex flex-col justify-between h-full group cursor-pointer"
-                    >
-                      <div>
-                        <div className="flex items-center gap-3.5 mb-4">
-                          <div className="w-14 h-14 rounded-2xl p-[2px] bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 shrink-0 group-hover:scale-105 transition-transform overflow-hidden shadow-lg">
-                            <img
-                              src={avatar}
-                              alt={m.name || 'Mentor'}
-                              className="w-full h-full rounded-[14px] object-cover"
-                            />
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {(showAllMentors ? liveMentors : liveMentors.slice(0, 4)).map((m, idx) => {
+                  const avatar = m.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || 'Alumni Mentor')}&background=1D4ED8&color=fff&bold=true`;
+                  return (
+                    <TiltCard3D key={m._id || idx} className="h-full">
+                      <div 
+                        onClick={() => setSelectedMentor(m)}
+                        className="rounded-[28px] bg-[#0E121C] border border-white/[0.08] p-6 shadow-xl hover:border-blue-500/40 transition-all flex flex-col justify-between h-full group cursor-pointer"
+                      >
+                        <div>
+                          <div className="flex items-center gap-3.5 mb-4">
+                            <div className="w-14 h-14 rounded-2xl p-[2px] bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 shrink-0 group-hover:scale-105 transition-transform overflow-hidden shadow-lg">
+                              <img
+                                src={avatar}
+                                alt={m.name || 'Mentor'}
+                                className="w-full h-full rounded-[14px] object-cover"
+                              />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-white text-base leading-tight group-hover:text-blue-400 transition-colors">{m.name || 'Alumni Mentor'}</h4>
+                              <p className="text-xs text-blue-400 font-medium">{m.domain || 'Tech & Systems'}</p>
+                              <span className="text-[10px] text-slate-400">
+                                {m.graduationYear ? `Class of '${m.graduationYear}` : 'Verified Alumnus'}
+                              </span>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-bold text-white text-base leading-tight group-hover:text-blue-400 transition-colors">{m.name || 'Alumni Mentor'}</h4>
-                            <p className="text-xs text-blue-400 font-medium">{m.domain || 'Tech & Systems'}</p>
-                            <span className="text-[10px] text-slate-400">
-                              {m.graduationYear ? `Class of '${m.graduationYear}` : 'Verified Alumnus'}
+
+                          <div className="mb-4">
+                            <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/[0.06] text-slate-200 border border-white/10">
+                              {m.company || 'Industry Alumni'}
                             </span>
                           </div>
+
+                          {m.bio ? (
+                            <p className="text-xs text-slate-400 line-clamp-2 mb-6 leading-relaxed">
+                              {m.bio}
+                            </p>
+                          ) : (
+                            <div className="flex flex-wrap gap-1.5 mb-6">
+                              <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-900 border border-slate-800 text-slate-300">
+                                Career Guidance
+                              </span>
+                              <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-900 border border-slate-800 text-slate-300">
+                                Mock Interview
+                              </span>
+                            </div>
+                          )}
                         </div>
 
-                        <div className="mb-4">
-                          <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/[0.06] text-slate-200 border border-white/10">
-                            {m.company || 'Industry Alumni'}
+                        <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                          <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            {m.availability?.length > 0 ? 'Live Slots Available' : 'Available by Request'}
                           </span>
+                          <Link
+                            to={
+                              !user
+                                ? '/login'
+                                : user.role === 'student'
+                                ? `/dashboard/student?search=${encodeURIComponent(m.company || m.name || '')}`
+                                : `/dashboard/${user.role}`
+                            }
+                            className="px-3.5 py-1.5 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold shadow-md shadow-blue-600/30 transition-all cursor-pointer"
+                          >
+                            Book Slot
+                          </Link>
                         </div>
-
-                        {m.bio ? (
-                          <p className="text-xs text-slate-400 line-clamp-2 mb-6 leading-relaxed">
-                            {m.bio}
-                          </p>
-                        ) : (
-                          <div className="flex flex-wrap gap-1.5 mb-6">
-                            <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-900 border border-slate-800 text-slate-300">
-                              Career Guidance
-                            </span>
-                            <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-900 border border-slate-800 text-slate-300">
-                              Mock Interview
-                            </span>
-                          </div>
-                        )}
                       </div>
+                    </TiltCard3D>
+                  );
+                })}
+              </div>
 
-                      <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                        <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                          {m.availability?.length > 0 ? 'Live Slots Available' : 'Available by Request'}
-                        </span>
-                        <Link
-                          to={
-                            !user
-                              ? '/login'
-                              : user.role === 'student'
-                              ? `/dashboard/student?search=${encodeURIComponent(m.company || m.name || '')}`
-                              : `/dashboard/${user.role}`
-                          }
-                          className="px-3.5 py-1.5 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-semibold shadow-md shadow-blue-600/30 transition-all cursor-pointer"
-                        >
-                          Book Slot
-                        </Link>
-                      </div>
-                    </div>
-                  </TiltCard3D>
-                );
-              })}
-            </div>
+              {liveMentors.length > 4 && (
+                <div className="mt-10 text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (showAllMentors) {
+                        setShowAllMentors(false);
+                        const el = document.getElementById('mentors');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      } else {
+                        setShowAllMentors(true);
+                      }
+                    }}
+                    className="px-7 py-3 rounded-full text-sm font-semibold bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 hover:border-blue-500/40 text-slate-200 hover:text-white transition-all duration-300 shadow-lg shadow-black/40 inline-flex items-center gap-2 group cursor-pointer"
+                  >
+                    <span>
+                      {showAllMentors
+                        ? 'Show less (top 4 mentors)'
+                        : `View all (${liveMentors.length}) alumni mentors`}
+                    </span>
+                    <span className="transition-transform group-hover:translate-x-0.5">
+                      {showAllMentors ? '↑' : '→'}
+                    </span>
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="rounded-[28px] bg-[#0E121C] border border-white/[0.08] p-10 text-center max-w-xl mx-auto shadow-xl">
               <div className="w-14 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 text-2xl mx-auto mb-4">
