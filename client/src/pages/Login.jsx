@@ -101,9 +101,8 @@ const Login = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Email or Mobile Number Field */}
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center justify-between">
-                    <span>Email Address or Mobile Number</span>
-                    <span className="text-[10px] font-normal text-cyan-400 font-mono">Email / 10-Digit Mobile</span>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                    Email Address or Mobile Number
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
