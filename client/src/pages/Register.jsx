@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SocialAuthButtons from '../components/SocialAuthButtons';
+import TiltCard3D from '../components/TiltCard3D';
 import CameraCaptureModal from '../components/CameraCaptureModal';
 import { compressAndResizeImage } from '../utils/imageUtils';
 
@@ -294,23 +295,24 @@ const Register = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#07090E] text-white selection:bg-[#2563EB] selection:text-white relative overflow-hidden">
       {/* ========================================================
-          FLUID AURORA BACKGROUND MESH (GPU Optimized)
+          FLUID AURORA BACKGROUND MESH
          ======================================================== */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-10 -right-32 w-[450px] h-[450px] bg-[#00F0FF]/10 rounded-full blur-[90px]" />
-        <div className="absolute -top-32 -left-32 w-[400px] h-[400px] bg-[#FF3366]/10 rounded-full blur-[90px]" />
-        <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-[#3B82F6]/10 rounded-full blur-[90px]" />
+        <div className="absolute top-10 -right-32 w-[600px] h-[600px] bg-[#00F0FF]/15 rounded-full blur-[170px] animate-pulse-slow" />
+        <div className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-[#FF3366]/15 rounded-full blur-[160px] animate-glow-pulse" />
+        <div className="absolute bottom-10 left-10 w-[550px] h-[550px] bg-[#3B82F6]/15 rounded-full blur-[160px]" />
+        <div className="absolute top-1/2 -right-20 w-[450px] h-[450px] bg-[#FF7A00]/10 rounded-full blur-[150px]" />
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Navbar />
 
         <main className="flex-grow flex items-center justify-center px-4 py-12 sm:py-16">
-          <div className="max-w-[520px] w-full transition-transform duration-300">
-            <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.09] shadow-[0_20px_60px_rgba(0,0,0,0.85)] p-7 sm:p-10 relative overflow-hidden backdrop-blur-md">
+          <TiltCard3D className="max-w-[520px] w-full" maxTilt={4} scale={1.01}>
+            <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.09] shadow-[0_30px_100px_rgba(0,0,0,0.85)] p-7 sm:p-10 relative overflow-hidden backdrop-blur-xl">
               
               {/* Ambient inner soft highlight */}
-              <div className="absolute -top-32 right-1/4 w-[300px] h-[180px] bg-cyan-600/10 rounded-full blur-[60px] pointer-events-none" />
+              <div className="absolute -top-32 right-1/4 w-[350px] h-[200px] bg-cyan-600/10 rounded-full blur-[90px] pointer-events-none" />
 
               {/* Progress Steps Header */}
               <div className="flex items-center justify-center gap-2.5 mb-6">
@@ -1011,7 +1013,7 @@ const Register = () => {
               )}
 
             </div>
-          </div>
+          </TiltCard3D>
         </main>
 
         <Footer />

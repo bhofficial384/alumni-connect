@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SocialAuthButtons from '../components/SocialAuthButtons';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
+import TiltCard3D from '../components/TiltCard3D';
 
 /**
  * Login — Tran Mau Tri Tam "ELITE." Dark Luxury UI
@@ -49,23 +50,24 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#07090E] text-white selection:bg-[#2563EB] selection:text-white relative overflow-hidden">
       {/* ========================================================
-          FLUID AURORA BACKGROUND MESH (GPU Optimized)
+          FLUID AURORA BACKGROUND MESH
          ======================================================== */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-32 -left-32 w-[400px] h-[400px] bg-[#FF3366]/10 rounded-full blur-[90px]" />
-        <div className="absolute top-20 -right-32 w-[450px] h-[450px] bg-[#00F0FF]/10 rounded-full blur-[90px]" />
-        <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-[#3B82F6]/10 rounded-full blur-[90px]" />
+        <div className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-[#FF3366]/15 rounded-full blur-[160px] animate-glow-pulse" />
+        <div className="absolute top-20 -right-32 w-[600px] h-[600px] bg-[#00F0FF]/15 rounded-full blur-[170px] animate-pulse-slow" />
+        <div className="absolute bottom-10 right-10 w-[550px] h-[550px] bg-[#3B82F6]/15 rounded-full blur-[160px]" />
+        <div className="absolute bottom-1/3 -left-20 w-[450px] h-[450px] bg-[#FF7A00]/10 rounded-full blur-[150px]" />
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Navbar />
 
         <main className="flex-grow flex items-center justify-center px-4 py-12 sm:py-16">
-          <div className="max-w-[460px] w-full transition-transform duration-300">
-            <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.09] shadow-[0_20px_60px_rgba(0,0,0,0.85)] p-7 sm:p-10 relative overflow-hidden backdrop-blur-md">
+          <TiltCard3D className="max-w-[460px] w-full" maxTilt={6} scale={1.01}>
+            <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.09] shadow-[0_30px_100px_rgba(0,0,0,0.85)] p-7 sm:p-10 relative overflow-hidden backdrop-blur-xl">
               
               {/* Ambient inner soft highlight */}
-              <div className="absolute -top-32 left-1/4 w-[300px] h-[180px] bg-blue-600/10 rounded-full blur-[60px] pointer-events-none" />
+              <div className="absolute -top-32 left-1/4 w-[350px] h-[200px] bg-blue-600/10 rounded-full blur-[90px] pointer-events-none" />
 
               {/* Mint / Cyan Status Kicker */}
               <div className="flex items-center justify-center gap-2 mb-3">
@@ -234,7 +236,7 @@ const Login = () => {
                 </p>
               </div>
             </div>
-          </div>
+          </TiltCard3D>
         </main>
 
         <Footer />
