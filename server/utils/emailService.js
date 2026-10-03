@@ -240,15 +240,54 @@ const formatFriendlyDate = (dateVal) => {
 };
 
 /**
+ * Safely resolves a valid frontend base URL.
+ * Discards wildcards like '*' or invalid schemes, and prioritizes dynamically detected origin.
+ */
+const resolveFrontendUrl = (clientUrl) => {
+  // 1. Direct client URL from request header (Origin or Referer)
+  if (clientUrl && typeof clientUrl === 'string') {
+    const trimmed = clientUrl.trim().replace(/\/+$/, '');
+    if (trimmed && trimmed !== '*' && !trimmed.includes('*')) {
+      if (/^https?:\/\/[^/]+/i.test(trimmed)) {
+        return trimmed;
+      }
+    }
+  }
+
+  // 2. Inspect process.env.FRONTEND_URL
+  const rawEnv = (process.env.FRONTEND_URL || '').trim();
+  if (rawEnv) {
+    const candidates = rawEnv.split(',').map(s => s.trim().replace(/\/+$/, ''));
+    for (const c of candidates) {
+      if (c && c !== '*' && !c.includes('*') && /^https?:\/\/[^/]+/i.test(c)) {
+        return c;
+      }
+    }
+  }
+
+  // 3. Inspect other common deployment environment variables
+  for (const envKey of ['CLIENT_URL', 'APP_URL', 'VERCEL_URL']) {
+    const val = (process.env[envKey] || '').trim().replace(/\/+$/, '');
+    if (val && val !== '*' && !val.includes('*')) {
+      if (/^https?:\/\/[^/]+/i.test(val)) return val;
+      return `https://${val}`;
+    }
+  }
+
+  // 4. Default fallback
+  return 'http://localhost:5173';
+};
+
+/**
  * Send Email Notification to Mentor when a student requests a new session
  */
-const sendSessionRequestEmailToMentor = async ({ mentor, student, topic, message, preferredDate }) => {
+const sendSessionRequestEmailToMentor = async ({ mentor, student, topic, message, preferredDate, clientUrl }) => {
   if (!mentor || !mentor.email) {
     console.warn('⚠️ [sendSessionRequestEmailToMentor] No mentor email found');
     return { delivered: false, error: 'No mentor email' };
   }
 
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const frontendUrl = resolveFrontendUrl(clientUrl);
   const mentorName = mentor.name || 'Alumni Mentor';
   const studentName = student?.name || 'Student Mentee';
   const studentEmail = student?.email || 'N/A';
@@ -328,13 +367,13 @@ const sendSessionRequestEmailToMentor = async ({ mentor, student, topic, message
 /**
  * Send Email Notification to Student when a mentor Approves or Rejects their session
  */
-const sendSessionStatusEmailToStudent = async ({ student, mentor, status, topic, scheduledDate, mentorNotes }) => {
+const sendSessionStatusEmailToStudent = async ({ student, mentor, status, topic, scheduledDate, mentorNotes, clientUrl }) => {
   if (!student || !student.email) {
     console.warn('⚠️ [sendSessionStatusEmailToStudent] No student email found');
     return { delivered: false, error: 'No student email' };
   }
 
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const frontendUrl = resolveFrontendUrl(clientUrl);
   const studentName = student?.name || 'Student Mentee';
   const mentorName = mentor?.name || 'Alumni Mentor';
   const mentorCompany = mentor?.company || mentor?.domain || 'Industry Alumnus';

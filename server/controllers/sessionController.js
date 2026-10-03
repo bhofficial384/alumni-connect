@@ -5,6 +5,22 @@ const {
   sendSessionStatusEmailToStudent
 } = require('../utils/emailService');
 
+const getOriginFromReq = (req) => {
+  if (!req) return null;
+  const origin = req.get('origin');
+  if (origin && origin !== 'null' && origin !== '*' && !origin.includes('*')) {
+    return origin;
+  }
+  const referer = req.get('referer');
+  if (referer) {
+    try {
+      const u = new URL(referer);
+      return u.origin;
+    } catch (e) {}
+  }
+  return null;
+};
+
 const createSession = async (req, res) => {
   try {
     const { mentorId, topic, message, preferredDate } = req.body;
@@ -39,7 +55,8 @@ const createSession = async (req, res) => {
           student: populatedSession.student,
           topic: populatedSession.topic,
           message: populatedSession.message,
-          preferredDate: populatedSession.preferredDate
+          preferredDate: populatedSession.preferredDate,
+          clientUrl: getOriginFromReq(req)
         });
         console.log(`✅ [SESSION CREATE] Email dispatch to mentor ${populatedSession.mentor.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
       } catch (err) {
@@ -113,7 +130,8 @@ const updateSessionStatus = async (req, res) => {
           status: updatedSession.status,
           topic: updatedSession.topic,
           scheduledDate: updatedSession.scheduledDate || updatedSession.preferredDate,
-          mentorNotes: updatedSession.mentorNotes
+          mentorNotes: updatedSession.mentorNotes,
+          clientUrl: getOriginFromReq(req)
         });
         console.log(`✅ [SESSION ${status.toUpperCase()}] Email dispatch to student ${updatedSession.student.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
       } catch (err) {
