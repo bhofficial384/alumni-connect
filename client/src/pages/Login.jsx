@@ -221,10 +221,9 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Social OAuth Buttons (Google & GitHub) */}
+              {/* Google Social OAuth */}
               <SocialAuthButtons
                 onGoogleSuccess={({ credential }) => googleLogin({ credential, role: 'student' })}
-                onGithubSuccess={({ code }) => githubLogin({ code, role: 'student' })}
               />
 
               {/* Register Link */}

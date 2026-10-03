@@ -375,7 +375,7 @@ const Register = () => {
                       Create your account
                     </h1>
                     <p className="text-slate-400 text-xs sm:text-sm font-normal max-w-xs mx-auto leading-relaxed">
-                      Register with your email to receive a 6-digit OTP verification code.
+                      Join the alumni network to connect with mentors and peers.
                     </p>
                   </div>
 
@@ -407,11 +407,10 @@ const Register = () => {
                     </button>
                   </div>
 
-                  {/* Social OAuth Buttons (Google & GitHub) */}
+                  {/* Google Social OAuth */}
                   <SocialAuthButtons
                     role={role}
                     onGoogleSuccess={({ credential }) => googleLogin({ credential, role })}
-                    onGithubSuccess={({ code }) => githubLogin({ code, role })}
                   />
 
                   {/* Divider */}
