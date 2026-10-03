@@ -57,7 +57,7 @@ const ApproveScheduleModal = ({ isOpen, session, onClose, onConfirm }) => {
         }
       }
       setMentorNotes(session.topic ? `Looking forward to our session on ${session.topic}. Please bring your resume & questions.` : '');
-      setMeetingLink(`https://meet.google.com/alm-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 5)}`);
+      setMeetingLink(session.meetingLink || '');
       setValidationError('');
       setSubmitting(false);
     }
@@ -531,7 +531,7 @@ const ApproveScheduleModal = ({ isOpen, session, onClose, onConfirm }) => {
                 type="text"
                 value={meetingLink}
                 onChange={(e) => setMeetingLink(e.target.value)}
-                placeholder="https://meet.google.com/..."
+                placeholder="Enter meeting link or location (e.g. Google Meet, Zoom, or Room number)"
                 className="w-full bg-[#121727] border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono"
               />
             </div>
