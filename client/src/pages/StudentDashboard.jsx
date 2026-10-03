@@ -8,6 +8,7 @@ import AICopilot from '../components/AICopilot';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmailVerificationModal from '../components/EmailVerificationModal';
 import ProfileModal from '../components/ProfileModal';
+import MentorDetailsModal from '../components/MentorDetailsModal';
 import { getInitials } from '../utils/imageUtils';
 
 /**
@@ -24,6 +25,7 @@ const StudentDashboard = () => {
   const [search, setSearch] = useState(() => searchParams.get('search') || '');
   const [domainFilter, setDomainFilter] = useState('');
   const [selectedMentor, setSelectedMentor] = useState(null);
+  const [viewingMentor, setViewingMentor] = useState(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
@@ -176,8 +178,12 @@ const StudentDashboard = () => {
           <div className="mb-8 p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-cyan-950/30 border border-purple-500/30 shadow-2xl relative overflow-hidden animate-fade-in">
             <div className="absolute top-0 right-10 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl p-[2px] bg-gradient-to-tr from-cyan-400 via-blue-500 to-purple-600 shadow-xl overflow-hidden shrink-0">
+              <div 
+                className="flex items-center gap-4 cursor-pointer group"
+                onClick={() => setViewingMentor(user.assignedMentor)}
+                title="Click to view full mentor profile"
+              >
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl p-[2px] bg-gradient-to-tr from-cyan-400 via-blue-500 to-purple-600 shadow-xl overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
                   {user.assignedMentor.profileImage ? (
                     <img
                       src={user.assignedMentor.profileImage}
@@ -194,7 +200,7 @@ const StudentDashboard = () => {
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 mb-1">
                     <span>⭐</span> Your Assigned Alumni Mentor
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-white">
+                  <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">
                     {user.assignedMentor.name}
                   </h3>
                   <p className="text-xs text-slate-300">
@@ -205,7 +211,14 @@ const StudentDashboard = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setViewingMentor(user.assignedMentor)}
+                  className="px-4 py-2.5 rounded-xl border border-white/10 hover:bg-white/[0.08] text-slate-200 font-semibold text-xs transition-all cursor-pointer"
+                >
+                  View Profile
+                </button>
                 <button
                   type="button"
                   onClick={() => setSelectedMentor(user.assignedMentor)}
@@ -382,10 +395,14 @@ const StudentDashboard = () => {
                   <p className="text-sm text-slate-400 text-center py-6">No alumni mentors found</p>
                 ) : (
                   filteredMentors.map(mentor => (
-                    <div key={mentor._id || mentor.id} className="bg-slate-900/60 border border-white/10 rounded-xl p-3.5 hover:border-blue-500/40 transition-all">
+                    <div 
+                      key={mentor._id || mentor.id} 
+                      className="bg-slate-900/60 border border-white/10 rounded-xl p-3.5 hover:border-blue-500/40 transition-all cursor-pointer group"
+                      onClick={() => setViewingMentor(mentor)}
+                    >
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-md">
+                          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-md group-hover:scale-105 transition-transform">
                             {mentor.profileImage ? (
                               <img
                                 src={mentor.profileImage}
@@ -397,7 +414,7 @@ const StudentDashboard = () => {
                             )}
                           </div>
                           <div>
-                            <h4 className="font-semibold text-sm text-white leading-tight">{mentor.name}</h4>
+                            <h4 className="font-semibold text-sm text-white group-hover:text-blue-400 transition-colors leading-tight">{mentor.name}</h4>
                             <p className="text-xs text-cyan-400 font-medium">{mentor.company || 'Alumni'}</p>
                           </div>
                         </div>
@@ -437,15 +454,24 @@ const StudentDashboard = () => {
                         </p>
                       )}
 
-                      {/* Connect Action Button */}
-                      <button
-                        type="button"
-                        onClick={() => setSelectedMentor(mentor)}
-                        className="w-full text-xs font-semibold py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-600/25 hover:shadow-blue-600/40 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <span className="text-sm">🤝</span>
-                        <span>Connect</span>
-                      </button>
+                      {/* Connect Action Buttons */}
+                      <div className="grid grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={() => setViewingMentor(mentor)}
+                          className="w-full text-xs font-semibold py-2 px-3 rounded-lg border border-white/10 hover:bg-white/[0.08] text-slate-300 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          View Details
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedMentor(mentor)}
+                          className="w-full text-xs font-semibold py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-600/25 hover:shadow-blue-600/40 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <span className="text-sm">🤝</span>
+                          <span>Connect</span>
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -476,6 +502,18 @@ const StudentDashboard = () => {
       <ProfileModal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
+      />
+
+      {/* Mentor Profile Details Modal */}
+      <MentorDetailsModal
+        mentor={viewingMentor}
+        isOpen={!!viewingMentor}
+        onClose={() => setViewingMentor(null)}
+        onConnect={(mentor) => {
+          setViewingMentor(null);
+          setSelectedMentor(mentor);
+        }}
+        connectLabel="Connect & Book Slot"
       />
     </div>
   );

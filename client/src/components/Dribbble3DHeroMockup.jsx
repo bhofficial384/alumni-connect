@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
+import MentorDetailsModal from './MentorDetailsModal';
 
 /**
  * Dribbble3DHeroMockup — Fey Website-Inspired Vertical 3D Scroll Animation
@@ -19,6 +20,7 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [mentorsList, setMentorsList] = useState(propMentors || []);
+  const [selectedMentor, setSelectedMentor] = useState(null);
 
   useEffect(() => {
     if (propMentors && propMentors.length > 0) {
@@ -42,12 +44,21 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors }) => {
     }
   };
 
+  const handleMentorClick = (mentorItem) => {
+    if (mentorItem?.rawMentor) {
+      setSelectedMentor(mentorItem.rawMentor);
+    } else {
+      setSelectedMentor(mentorItem);
+    }
+  };
+
   const displayMentors = mentorsList.length > 0
     ? mentorsList.slice(0, 4).map(m => ({
         id: m._id || m.id,
         name: m.name ? (m.name.length > 9 ? m.name.split(' ')[0] : m.name) : 'Mentor',
         role: m.company || m.domain || 'Alumni',
-        img: m.profileImage || null
+        img: m.profileImage || null,
+        rawMentor: m
       }))
     : [
         { name: 'Saurabh', role: 'Geck', img: null },
@@ -278,10 +289,11 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors }) => {
               {displayMentors.map((mentor, i) => (
                 <div
                   key={mentor.id || i}
-                  onClick={handleContinue}
+                  onClick={() => handleMentorClick(mentor)}
                   className="flex flex-col items-center group cursor-pointer"
+                  title={`View details of ${mentor.name}`}
                 >
-                  <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 to-purple-500 mb-1 group-hover:scale-105 transition-transform overflow-hidden">
+                  <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 to-purple-500 mb-1 group-hover:scale-110 transition-transform overflow-hidden shadow-md">
                     {mentor.img ? (
                       <img
                         src={mentor.img}
@@ -294,7 +306,7 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors }) => {
                       </div>
                     )}
                   </div>
-                  <span className="text-[10px] text-slate-200 font-medium truncate w-full">{mentor.name}</span>
+                  <span className="text-[10px] text-slate-200 font-medium truncate w-full group-hover:text-blue-400 transition-colors">{mentor.name}</span>
                   <span className="text-[8px] text-slate-500 truncate w-full">{mentor.role}</span>
                 </div>
               ))}
@@ -385,6 +397,18 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors }) => {
           </div>
         </div>
       </div>
+
+      {/* Mentor Profile Details Modal */}
+      <MentorDetailsModal
+        mentor={selectedMentor}
+        isOpen={!!selectedMentor}
+        onClose={() => setSelectedMentor(null)}
+        onConnect={() => {
+          setSelectedMentor(null);
+          handleContinue();
+        }}
+        connectLabel={user ? "Book 1-on-1 Session" : "Login to Book Session"}
+      />
     </div>
   );
 };

@@ -8,6 +8,7 @@ import Dribbble3DHeroMockup from '../components/Dribbble3DHeroMockup';
 import DribbbleBentoCards from '../components/DribbbleBentoCards';
 import TiltCard3D from '../components/TiltCard3D';
 import Hero3DScene from '../components/Hero3DScene';
+import MentorDetailsModal from '../components/MentorDetailsModal';
 
 /**
  * Landing — Recreating Tran Mau Tri Tam's "ELITE." Dribbble Landing Page (Shot 23209099).
@@ -25,6 +26,7 @@ const Landing = () => {
   // Live real mentors state
   const [liveMentors, setLiveMentors] = useState([]);
   const [mentorsLoading, setMentorsLoading] = useState(true);
+  const [selectedMentor, setSelectedMentor] = useState(null);
 
   React.useEffect(() => {
     const fetchLiveMentors = async () => {
@@ -220,10 +222,13 @@ const Landing = () => {
                 const avatar = m.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || 'Alumni Mentor')}&background=1D4ED8&color=fff&bold=true`;
                 return (
                   <TiltCard3D key={m._id || idx} className="h-full">
-                    <div className="rounded-[28px] bg-[#0E121C] border border-white/[0.08] p-6 shadow-xl hover:border-blue-500/40 transition-all flex flex-col justify-between h-full group">
+                    <div 
+                      onClick={() => setSelectedMentor(m)}
+                      className="rounded-[28px] bg-[#0E121C] border border-white/[0.08] p-6 shadow-xl hover:border-blue-500/40 transition-all flex flex-col justify-between h-full group cursor-pointer"
+                    >
                       <div>
                         <div className="flex items-center gap-3.5 mb-4">
-                          <div className="w-14 h-14 rounded-2xl p-[2px] bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+                          <div className="w-14 h-14 rounded-2xl p-[2px] bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 shrink-0 group-hover:scale-105 transition-transform overflow-hidden shadow-lg">
                             <img
                               src={avatar}
                               alt={m.name || 'Mentor'}
@@ -231,7 +236,7 @@ const Landing = () => {
                             />
                           </div>
                           <div>
-                            <h4 className="font-bold text-white text-base leading-tight">{m.name || 'Alumni Mentor'}</h4>
+                            <h4 className="font-bold text-white text-base leading-tight group-hover:text-blue-400 transition-colors">{m.name || 'Alumni Mentor'}</h4>
                             <p className="text-xs text-blue-400 font-medium">{m.domain || 'Tech & Systems'}</p>
                             <span className="text-[10px] text-slate-400">
                               {m.graduationYear ? `Class of '${m.graduationYear}` : 'Verified Alumnus'}
@@ -551,6 +556,24 @@ const Landing = () => {
         {/* Footer */}
         <Footer />
       </div>
+
+      {/* Mentor Details Modal */}
+      <MentorDetailsModal
+        mentor={selectedMentor}
+        isOpen={!!selectedMentor}
+        onClose={() => setSelectedMentor(null)}
+        onConnect={(m) => {
+          setSelectedMentor(null);
+          if (!user) {
+            window.location.href = '/login';
+          } else if (user.role === 'student') {
+            window.location.href = `/dashboard/student?search=${encodeURIComponent(m.company || m.name || '')}`;
+          } else {
+            window.location.href = `/dashboard/${user.role}`;
+          }
+        }}
+        connectLabel={!user ? "Login to Book Session" : "Connect & Book Slot"}
+      />
     </div>
   );
 };
