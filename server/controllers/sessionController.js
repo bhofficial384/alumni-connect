@@ -30,20 +30,21 @@ const createSession = async (req, res) => {
       .populate('mentor', 'name email company domain profileImage')
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage');
 
-    // Trigger asynchronous email to mentor's registered email
+    // Trigger real-time email to mentor's registered email
     if (populatedSession?.mentor?.email) {
       console.log(`📨 [SESSION CREATE] Dispatching request email to mentor (${populatedSession.mentor.email})...`);
-      sendSessionRequestEmailToMentor({
-        mentor: populatedSession.mentor,
-        student: populatedSession.student,
-        topic: populatedSession.topic,
-        message: populatedSession.message,
-        preferredDate: populatedSession.preferredDate
-      }).then(res => {
-        console.log(`✅ [SESSION CREATE] Email dispatch to mentor ${populatedSession.mentor.email}: ${res?.delivered ? 'SUCCESS' : 'FAILED'}`);
-      }).catch(err => {
+      try {
+        const mailRes = await sendSessionRequestEmailToMentor({
+          mentor: populatedSession.mentor,
+          student: populatedSession.student,
+          topic: populatedSession.topic,
+          message: populatedSession.message,
+          preferredDate: populatedSession.preferredDate
+        });
+        console.log(`✅ [SESSION CREATE] Email dispatch to mentor ${populatedSession.mentor.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
+      } catch (err) {
         console.error('⚠️ [SESSION CREATE] Error notifying mentor of session request:', err.message);
-      });
+      }
     } else {
       console.warn('⚠️ [SESSION CREATE] Mentor email not found on populated session:', populatedSession?.mentor);
     }
@@ -102,21 +103,22 @@ const updateSessionStatus = async (req, res) => {
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage')
       .populate('mentor', 'name email company domain profileImage');
 
-    // Trigger asynchronous email to student's registered email on approval or rejection
+    // Trigger real-time email to student's registered email on approval or rejection
     if (updatedSession?.student?.email && (status === 'approved' || status === 'rejected')) {
       console.log(`📨 [SESSION ${status.toUpperCase()}] Dispatching status email to student (${updatedSession.student.email})...`);
-      sendSessionStatusEmailToStudent({
-        student: updatedSession.student,
-        mentor: updatedSession.mentor,
-        status: updatedSession.status,
-        topic: updatedSession.topic,
-        scheduledDate: updatedSession.scheduledDate || updatedSession.preferredDate,
-        mentorNotes: updatedSession.mentorNotes
-      }).then(res => {
-        console.log(`✅ [SESSION ${status.toUpperCase()}] Email dispatch to student ${updatedSession.student.email}: ${res?.delivered ? 'SUCCESS' : 'FAILED'}`);
-      }).catch(err => {
+      try {
+        const mailRes = await sendSessionStatusEmailToStudent({
+          student: updatedSession.student,
+          mentor: updatedSession.mentor,
+          status: updatedSession.status,
+          topic: updatedSession.topic,
+          scheduledDate: updatedSession.scheduledDate || updatedSession.preferredDate,
+          mentorNotes: updatedSession.mentorNotes
+        });
+        console.log(`✅ [SESSION ${status.toUpperCase()}] Email dispatch to student ${updatedSession.student.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
+      } catch (err) {
         console.error(`⚠️ [SESSION ${status.toUpperCase()}] Error notifying student of ${status} status:`, err.message);
-      });
+      }
     } else {
       console.warn(`⚠️ [SESSION STATUS] Student email not found or status not actionable (status=${status}):`, updatedSession?.student);
     }

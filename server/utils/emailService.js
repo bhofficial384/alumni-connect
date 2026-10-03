@@ -8,8 +8,8 @@ let cachedTransporter = null;
 const getTransporter = () => {
   if (cachedTransporter) return cachedTransporter;
 
-  const user = (process.env.SMTP_USER || '').trim();
-  const pass = (process.env.SMTP_PASS || '').replace(/\s+/g, ''); // Auto-clean spaces from Google App Passwords
+  const user = (process.env.SMTP_USER || 'bhofficialcollege@gmail.com').trim();
+  const pass = (process.env.SMTP_PASS || 'xmaz whqk yvti qksx').replace(/\s+/g, ''); // Auto-clean spaces from Google App Passwords
 
   if (user && pass) {
     cachedTransporter = nodemailer.createTransport({
@@ -53,58 +53,8 @@ const sendEmailVerificationOtp = async ({ toEmail, name, otp }) => {
     </div>
   `;
 
-  const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
-  let delivered = false;
-  let deliveryError = null;
-
-  // 1. Primary: Resend HTTPS API (Works 100% on Render Free Cloud without SMTP port blocking)
-  if (resendApiKey) {
-    try {
-      const { Resend } = require('resend');
-      const resend = new Resend(resendApiKey);
-      const fromAddr = process.env.FROM_EMAIL || 'AlumniConnect <onboarding@resend.dev>';
-      const resendResult = await resend.emails.send({
-        from: fromAddr,
-        to: toEmail,
-        subject,
-        html
-      });
-
-      if (resendResult.error) {
-        throw new Error(resendResult.error.message || 'Resend API dispatch error');
-      }
-
-      delivered = true;
-      console.log(`✅ [RESEND API] 6-digit OTP delivered successfully to ${toEmail} (ID: ${resendResult.data?.id})`);
-    } catch (err) {
-      deliveryError = err.message;
-      console.warn(`⚠️ [Resend API Failed]: ${err.message}. Trying SMTP fallback...`);
-    }
-  }
-
-  // 2. Fallback: SMTP transporter (if Resend not configured or fails)
-  if (!delivered) {
-    const transporter = getTransporter();
-    if (transporter) {
-      try {
-        const fromAddress = process.env.SMTP_FROM || `"AlumniConnect" <${process.env.SMTP_USER || 'bhofficialcollege@gmail.com'}>`;
-        await transporter.sendMail({
-          from: fromAddress,
-          to: toEmail,
-          subject,
-          html,
-        });
-        delivered = true;
-        deliveryError = null;
-        console.log(`✅ [SMTP Delivery] OTP delivered successfully to ${toEmail}`);
-      } catch (err) {
-        deliveryError = deliveryError ? `${deliveryError} | SMTP: ${err.message}` : err.message;
-        console.error('❌ [SMTP Delivery Error]:', err.message);
-      }
-    }
-  }
-
-  return { delivered, deliveryError, devOtp: otp };
+  const res = await dispatchEmail({ toEmail, subject, html });
+  return { delivered: res.delivered, deliveryError: res.deliveryError, devOtp: otp };
 };
 
 /**
@@ -136,62 +86,21 @@ const sendPasswordResetOtp = async ({ toEmail, name, otp }) => {
     </div>
   `;
 
-  const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
-  let delivered = false;
-  let deliveryError = null;
-
-  if (resendApiKey) {
-    try {
-      const { Resend } = require('resend');
-      const resend = new Resend(resendApiKey);
-      const fromAddr = process.env.FROM_EMAIL || 'AlumniConnect <onboarding@resend.dev>';
-      await resend.emails.send({
-        from: fromAddr,
-        to: toEmail,
-        subject,
-        html
-      });
-      delivered = true;
-    } catch (err) {
-      deliveryError = err.message;
-    }
-  }
-
-  if (!delivered) {
-    const transporter = getTransporter();
-    if (transporter) {
-      try {
-        const fromAddress = process.env.SMTP_FROM || `"AlumniConnect" <${process.env.SMTP_USER || 'bhofficialcollege@gmail.com'}>`;
-        await transporter.sendMail({
-          from: fromAddress,
-          to: toEmail,
-          subject,
-          html,
-        });
-        delivered = true;
-      } catch (err) {
-        deliveryError = err.message;
-        console.warn('⚠️ [SMTP Reset Password Delivery Failed]:', err.message);
-      }
-    }
-  }
+  const res = await dispatchEmail({ toEmail, subject, html });
 
   // Log in server console for visibility & audit trail
   console.log(`\n======================================================`);
   console.log(`🔑 [EMAIL SERVICE] 6-Digit Password Reset OTP`);
   console.log(`To: ${toEmail} | Name: ${name || 'User'}`);
   console.log(`OTP Code: [ ${otp} ] (Valid for 10 minutes)`);
-  if (delivered) {
+  if (res.delivered) {
     console.log(`Delivered via SMTP: YES ✅ (Sent to ${toEmail} inbox)`);
-  } else if (deliveryError) {
-    console.log(`Delivered via SMTP: FAILED ❌ (${deliveryError})`);
   } else {
-    console.log(`Delivered via SMTP: Awaiting SMTP_USER / SMTP_PASS in server/.env`);
+    console.log(`Delivered via SMTP: FAILED ❌ (${res.deliveryError || 'Unknown error'})`);
   }
   console.log(`======================================================\n`);
-  console.log(`======================================================\n`);
 
-  return { delivered, devOtp: otp };
+  return { delivered: res.delivered, deliveryError: res.deliveryError, devOtp: otp };
 };
 
 /**
