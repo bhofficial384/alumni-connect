@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 
 /**
  * Dribbble3DHeroMockup — Fey Website-Inspired Vertical 3D Scroll Animation
@@ -10,9 +13,48 @@ import React, { useState, useEffect, useRef } from 'react';
  *  - Zero Horizontal Drift: Locked rotateY(0), rotateZ(0), translateX(0)
  *  - Dynamic vertical Z-plane elevation and specular light sweep
  */
-const Dribbble3DHeroMockup = () => {
+const Dribbble3DHeroMockup = ({ mentors: propMentors }) => {
   const containerRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [mentorsList, setMentorsList] = useState(propMentors || []);
+
+  useEffect(() => {
+    if (propMentors && propMentors.length > 0) {
+      setMentorsList(propMentors);
+    } else {
+      api.get('/mentors')
+        .then(res => {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            setMentorsList(res.data);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [propMentors]);
+
+  const handleContinue = () => {
+    if (user?.role) {
+      navigate(`/dashboard/${user.role}`);
+    } else {
+      navigate('/login');
+    }
+  };
+
+  const displayMentors = mentorsList.length > 0
+    ? mentorsList.slice(0, 4).map(m => ({
+        id: m._id || m.id,
+        name: m.name ? (m.name.length > 9 ? m.name.split(' ')[0] : m.name) : 'Mentor',
+        role: m.company || m.domain || 'Alumni',
+        img: m.profileImage || null
+      }))
+    : [
+        { name: 'Saurabh', role: 'Geck', img: null },
+        { name: 'Anjali', role: 'Google', img: null },
+        { name: 'Karan', role: 'AWS', img: null },
+        { name: 'Morgan', role: 'Amazon', img: null }
+      ];
 
   // Vertical scroll tracking with requestAnimationFrame for smooth 60fps performance
   useEffect(() => {
@@ -220,27 +262,37 @@ const Dribbble3DHeroMockup = () => {
             </div>
           </div>
 
-          {/* Recent Mentors / "Send Again" Avatars */}
+          {/* Recent Mentors / "Book again" Avatars with Real Database Mentors */}
           <div className="px-1 mb-3 relative z-10">
             <div className="flex items-center justify-between text-[11px] mb-2 font-medium">
               <span className="text-slate-300">Book again</span>
-              <span className="text-blue-400 cursor-pointer text-[10px]">View all</span>
+              <span
+                onClick={handleContinue}
+                className="text-blue-400 hover:text-blue-300 cursor-pointer text-[10px] transition-colors"
+              >
+                View all
+              </span>
             </div>
 
             <div className="grid grid-cols-4 gap-2 text-center">
-              {[
-                { name: 'Stacey', role: 'Google', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=60' },
-                { name: 'Oran', role: 'Apple', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=60' },
-                { name: 'Yasmeen', role: 'Meta', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60' },
-                { name: 'Morgan', role: 'Amazon', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=60' },
-              ].map((mentor, i) => (
-                <div key={i} className="flex flex-col items-center group cursor-pointer">
-                  <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 to-purple-500 mb-1 group-hover:scale-105 transition-transform">
-                    <img
-                      src={mentor.img}
-                      alt={mentor.name}
-                      className="w-full h-full rounded-full object-cover"
-                    />
+              {displayMentors.map((mentor, i) => (
+                <div
+                  key={mentor.id || i}
+                  onClick={handleContinue}
+                  className="flex flex-col items-center group cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 to-purple-500 mb-1 group-hover:scale-105 transition-transform overflow-hidden">
+                    {mentor.img ? (
+                      <img
+                        src={mentor.img}
+                        alt={mentor.name}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-full bg-[#131826] flex items-center justify-center text-[11px] font-bold text-white uppercase">
+                        {mentor.name.slice(0, 2)}
+                      </div>
+                    )}
                   </div>
                   <span className="text-[10px] text-slate-200 font-medium truncate w-full">{mentor.name}</span>
                   <span className="text-[8px] text-slate-500 truncate w-full">{mentor.role}</span>
@@ -249,8 +301,12 @@ const Dribbble3DHeroMockup = () => {
             </div>
           </div>
 
-          {/* Electric Blue Action Button */}
-          <button className="w-full py-2.5 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-lg shadow-blue-600/40 transition-all relative z-10">
+          {/* Electric Blue Action Button — Redirects to /login if not logged in, or /dashboard if logged in */}
+          <button
+            type="button"
+            onClick={handleContinue}
+            className="w-full py-2.5 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-lg shadow-blue-600/40 hover:shadow-blue-600/60 transition-all relative z-10 cursor-pointer active:scale-95"
+          >
             Continue
           </button>
         </div>
