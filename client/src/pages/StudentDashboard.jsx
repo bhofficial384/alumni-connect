@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import Navbar from '../components/Navbar';
 import RequestSessionModal from '../components/RequestSessionModal';
-import AIAssistant from '../components/AIAssistant';
+import AICopilot from '../components/AICopilot';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmailVerificationModal from '../components/EmailVerificationModal';
 import ProfileModal from '../components/ProfileModal';
@@ -419,7 +419,7 @@ const StudentDashboard = () => {
       </main>
 
       {/* AI Assistant Floating Panel */}
-      <AIAssistant />
+      <AICopilot />
 
       {/* Session Request Modal */}
       <RequestSessionModal
