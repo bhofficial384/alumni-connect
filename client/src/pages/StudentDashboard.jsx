@@ -211,8 +211,8 @@ const StudentDashboard = () => {
                   onClick={() => setSelectedMentor(user.assignedMentor)}
                   className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                 >
-                  <span>📅</span>
-                  <span>Book 1-on-1 Guidance Slot</span>
+                  <span>🤝</span>
+                  <span>Connect & Book Slot</span>
                 </button>
               </div>
             </div>
@@ -327,10 +327,10 @@ const StudentDashboard = () => {
             )}
           </div>
 
-          {/* RIGHT: Find Mentors */}
+          {/* RIGHT: Alumni Mentors Directory & Connect */}
           <div className="lg:col-span-2 space-y-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <span>Find Mentors</span>
+              <span>Alumni Mentors</span>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/10 font-normal">{filteredMentors.length}</span>
             </h2>
             <div className="glass-card-dark rounded-2xl border border-white/10 p-5">
@@ -340,7 +340,7 @@ const StudentDashboard = () => {
                   <span className="text-base">⚡</span>
                   <div>
                     <span className="text-xs font-bold text-white block">AI Matchmaker Active</span>
-                    <span className="text-[10px] text-cyan-300">Click any mentor to auto-draft requests with AI</span>
+                    <span className="text-[10px] text-cyan-300">Click Connect on any alumni to auto-draft requests with AI</span>
                   </div>
                 </div>
                 <button
@@ -356,7 +356,7 @@ const StudentDashboard = () => {
               <div className="space-y-3 mb-4">
                 <input
                   type="text"
-                  placeholder="Search name or company..."
+                  placeholder="Search alumni by name or company..."
                   className="input-field text-sm py-2.5"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
@@ -376,38 +376,75 @@ const StudentDashboard = () => {
                 </select>
               </div>
 
-              {/* Mentor List */}
-              <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
+              {/* Alumni Mentor List */}
+              <div className="space-y-3.5 max-h-[540px] overflow-y-auto pr-1">
                 {filteredMentors.length === 0 ? (
-                  <p className="text-sm text-slate-400 text-center py-6">No mentors found</p>
+                  <p className="text-sm text-slate-400 text-center py-6">No alumni mentors found</p>
                 ) : (
                   filteredMentors.map(mentor => (
-                    <div key={mentor._id || mentor.id} className="bg-slate-900/60 border border-white/10 rounded-xl p-3.5 hover:border-purple-500/40 transition-all">
-                      <div className="flex items-center gap-3 mb-2.5">
-                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-md">
-                          {mentor.profileImage ? (
-                            <img
-                              src={mentor.profileImage}
-                              alt={mentor.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            mentor.name.split(' ').map(n => n[0]).join('')
-                          )}
+                    <div key={mentor._id || mentor.id} className="bg-slate-900/60 border border-white/10 rounded-xl p-3.5 hover:border-blue-500/40 transition-all">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-md">
+                            {mentor.profileImage ? (
+                              <img
+                                src={mentor.profileImage}
+                                alt={mentor.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              mentor.name.split(' ').map(n => n[0]).join('')
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-sm text-white leading-tight">{mentor.name}</h4>
+                            <p className="text-xs text-cyan-400 font-medium">{mentor.company || 'Alumni'}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-semibold text-sm text-white leading-tight">{mentor.name}</h4>
-                          <p className="text-xs text-cyan-400">{mentor.company}</p>
-                        </div>
+
+                        {mentor.linkedIn && (
+                          <a
+                            href={mentor.linkedIn.startsWith('http') ? mentor.linkedIn : `https://${mentor.linkedIn}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="LinkedIn Profile"
+                            className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/25 text-blue-400 hover:text-blue-300 border border-blue-500/20 text-xs transition-colors shrink-0"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.64 1.64 0 0 0-1.64 1.63 1.64 1.64 0 0 0 1.64 1.63 1.64 1.64 0 0 0 1.63-1.63c0-.9-.73-1.63-1.63-1.63Z" />
+                            </svg>
+                          </a>
+                        )}
                       </div>
-                      <span className="text-[10px] uppercase font-semibold tracking-wider text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full block w-fit mb-3">
-                        {mentor.domain}
-                      </span>
+
+                      {/* Domain and Batch/Class Tag */}
+                      <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                        <span className="text-[10px] uppercase font-semibold tracking-wider text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full">
+                          {mentor.domain}
+                        </span>
+                        {mentor.graduationYear && (
+                          <span className="text-[10px] text-slate-400 bg-white/[0.04] border border-white/10 px-2 py-0.5 rounded-full">
+                            🎓 Class of {mentor.graduationYear}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Bio snippet if present */}
+                      {mentor.bio && (
+                        <p className="text-[11px] text-slate-400 line-clamp-1 mb-3 leading-snug">
+                          {mentor.bio}
+                        </p>
+                      )}
+
+                      {/* Connect Action Button */}
                       <button
+                        type="button"
                         onClick={() => setSelectedMentor(mentor)}
-                        className="w-full text-xs font-semibold btn-gold py-2 rounded-lg"
+                        className="w-full text-xs font-semibold py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-600/25 hover:shadow-blue-600/40 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
-                        Request Session
+                        <span className="text-sm">🤝</span>
+                        <span>Connect</span>
                       </button>
                     </div>
                   ))

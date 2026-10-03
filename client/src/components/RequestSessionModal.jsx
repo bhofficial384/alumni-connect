@@ -93,10 +93,10 @@ const RequestSessionModal = ({ mentor, isOpen, onClose, onSuccess }) => {
 
         <div className="mb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 mb-2">
-            Direct Mentorship Request
+            🤝 Direct Alumni Connection
           </div>
           <h2 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-indigo-100 to-cyan-300 bg-clip-text text-transparent">
-            Request Session
+            Connect & Request Session
           </h2>
           <p className="text-slate-400 text-sm mt-1">
             Connect with <span className="text-cyan-300 font-semibold">{mentor?.name}</span> ({mentor?.company || 'Alumni Mentor'})
@@ -187,7 +187,7 @@ const RequestSessionModal = ({ mentor, isOpen, onClose, onSuccess }) => {
                   Dispatching...
                 </>
               ) : (
-                'Send Request'
+                '🤝 Connect & Send Request'
               )}
             </button>
           </div>
