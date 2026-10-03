@@ -12,36 +12,14 @@ const getTransporter = () => {
   const pass = (process.env.SMTP_PASS || '').replace(/\s+/g, ''); // Auto-clean spaces from Google App Passwords
 
   if (user && pass) {
-    const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
-    const port = Number(process.env.SMTP_PORT) || 465;
-
-    return {
-      sendMail: async (mailOptions) => {
-        // Try Port 587 (STARTTLS standard submission) first, then Port 465 (SSL)
-        try {
-          const t587 = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false,
-            requireTLS: true,
-            auth: { user, pass },
-            connectionTimeout: 7000
-          });
-          return await t587.sendMail(mailOptions);
-        } catch (e587) {
-          console.warn('Port 587 attempt failed, trying Port 465 SSL:', e587.message);
-          const t465 = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: { user, pass },
-            connectionTimeout: 7000,
-            tls: { rejectUnauthorized: false }
-          });
-          return await t465.sendMail(mailOptions);
-        }
-      }
-    };
+    cachedTransporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user, pass },
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100
+    });
+    return cachedTransporter;
   }
   return null;
 };
@@ -271,15 +249,36 @@ const sendContactNotificationEmail = async ({ name, email, subject: msgSubject, 
 };
 
 /**
- * Core email dispatcher with Resend HTTPS and SMTP fallback
+ * Core email dispatcher with primary SMTP (Gmail) and fallback Resend HTTPS
  */
 const dispatchEmail = async ({ toEmail, subject, html, text }) => {
-  const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
   let delivered = false;
   let deliveryError = null;
 
-  // 1. Try Resend HTTPS API if configured
-  if (resendApiKey) {
+  // 1. Primary: SMTP Transporter (Gmail) - Delivers to ANY email without domain restrictions
+  const transporter = getTransporter();
+  if (transporter) {
+    try {
+      const fromAddress = process.env.SMTP_FROM || `"AlumniConnect" <${process.env.SMTP_USER || 'bhofficialcollege@gmail.com'}>`;
+      const info = await transporter.sendMail({
+        from: fromAddress,
+        to: toEmail,
+        subject,
+        html,
+        text
+      });
+      delivered = true;
+      console.log(`✅ [SMTP Delivery] Email sent successfully to ${toEmail} | Subject: "${subject}" | MessageId: ${info?.messageId || 'OK'}`);
+      return { delivered: true, provider: 'smtp', messageId: info?.messageId };
+    } catch (smtpErr) {
+      deliveryError = smtpErr.message;
+      console.warn(`⚠️ [SMTP Delivery Failed for ${toEmail}]:`, smtpErr.message, 'Trying Resend fallback...');
+    }
+  }
+
+  // 2. Fallback: Resend HTTPS API (Works for account owner / verified custom domain)
+  const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
+  if (!delivered && resendApiKey) {
     try {
       const { Resend } = require('resend');
       const resend = new Resend(resendApiKey);
@@ -295,38 +294,14 @@ const dispatchEmail = async ({ toEmail, subject, html, text }) => {
       if (!resendResult.error) {
         delivered = true;
         console.log(`✅ [RESEND API] Email delivered successfully to ${toEmail} | Subject: "${subject}"`);
-        return { delivered: true, provider: 'resend' };
+        return { delivered: true, provider: 'resend', id: resendResult.data?.id };
       } else {
         deliveryError = resendResult.error.message || 'Resend error';
-        console.warn(`⚠️ [Resend API Note for ${toEmail}]: ${deliveryError}. Trying SMTP fallback...`);
+        console.warn(`⚠️ [Resend API Note for ${toEmail}]: ${deliveryError}`);
       }
     } catch (err) {
-      deliveryError = err.message;
-      console.warn(`⚠️ [Resend API Failed for ${toEmail}]: ${err.message}. Trying SMTP fallback...`);
-    }
-  }
-
-  // 2. Fallback: SMTP Transporter (Gmail)
-  if (!delivered) {
-    const transporter = getTransporter();
-    if (transporter) {
-      try {
-        const fromAddress = process.env.SMTP_FROM || `"AlumniConnect" <${process.env.SMTP_USER || 'bhofficialcollege@gmail.com'}>`;
-        await transporter.sendMail({
-          from: fromAddress,
-          to: toEmail,
-          subject,
-          html,
-          text
-        });
-        delivered = true;
-        deliveryError = null;
-        console.log(`✅ [SMTP Delivery] Email delivered successfully to ${toEmail} | Subject: "${subject}"`);
-        return { delivered: true, provider: 'smtp' };
-      } catch (err) {
-        deliveryError = deliveryError ? `${deliveryError} | SMTP: ${err.message}` : err.message;
-        console.error(`❌ [SMTP Delivery Error for ${toEmail}]:`, err.message);
-      }
+      deliveryError = deliveryError ? `${deliveryError} | Resend: ${err.message}` : err.message;
+      console.warn(`⚠️ [Resend API Failed for ${toEmail}]:`, err.message);
     }
   }
 

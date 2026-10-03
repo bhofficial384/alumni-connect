@@ -32,15 +32,20 @@ const createSession = async (req, res) => {
 
     // Trigger asynchronous email to mentor's registered email
     if (populatedSession?.mentor?.email) {
+      console.log(`📨 [SESSION CREATE] Dispatching request email to mentor (${populatedSession.mentor.email})...`);
       sendSessionRequestEmailToMentor({
         mentor: populatedSession.mentor,
         student: populatedSession.student,
         topic: populatedSession.topic,
         message: populatedSession.message,
         preferredDate: populatedSession.preferredDate
+      }).then(res => {
+        console.log(`✅ [SESSION CREATE] Email dispatch to mentor ${populatedSession.mentor.email}: ${res?.delivered ? 'SUCCESS' : 'FAILED'}`);
       }).catch(err => {
-        console.error('⚠️ [SESSION EMAIL] Error notifying mentor of session request:', err.message);
+        console.error('⚠️ [SESSION CREATE] Error notifying mentor of session request:', err.message);
       });
+    } else {
+      console.warn('⚠️ [SESSION CREATE] Mentor email not found on populated session:', populatedSession?.mentor);
     }
 
     res.status(201).json(populatedSession);
@@ -99,6 +104,7 @@ const updateSessionStatus = async (req, res) => {
 
     // Trigger asynchronous email to student's registered email on approval or rejection
     if (updatedSession?.student?.email && (status === 'approved' || status === 'rejected')) {
+      console.log(`📨 [SESSION ${status.toUpperCase()}] Dispatching status email to student (${updatedSession.student.email})...`);
       sendSessionStatusEmailToStudent({
         student: updatedSession.student,
         mentor: updatedSession.mentor,
@@ -106,9 +112,13 @@ const updateSessionStatus = async (req, res) => {
         topic: updatedSession.topic,
         scheduledDate: updatedSession.scheduledDate || updatedSession.preferredDate,
         mentorNotes: updatedSession.mentorNotes
+      }).then(res => {
+        console.log(`✅ [SESSION ${status.toUpperCase()}] Email dispatch to student ${updatedSession.student.email}: ${res?.delivered ? 'SUCCESS' : 'FAILED'}`);
       }).catch(err => {
-        console.error(`⚠️ [SESSION EMAIL] Error notifying student of ${status} status:`, err.message);
+        console.error(`⚠️ [SESSION ${status.toUpperCase()}] Error notifying student of ${status} status:`, err.message);
       });
+    } else {
+      console.warn(`⚠️ [SESSION STATUS] Student email not found or status not actionable (status=${status}):`, updatedSession?.student);
     }
       
     res.json(updatedSession);
