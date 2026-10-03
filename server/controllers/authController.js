@@ -1064,6 +1064,106 @@ const updatePhoneAndResendOtp = async (req, res) => {
   }
 };
 
+/**
+ * Verify Firebase Authentication Token & Establish Session
+ * POST /api/auth/firebase-verify
+ * Cryptographically validates Firebase ID token via Google Identity Toolkit REST API,
+ * ensures emailVerified is true, persists or updates user in MongoDB Atlas, and issues JWT session.
+ */
+const firebaseVerify = async (req, res) => {
+  try {
+    const { idToken, email, password, role, name } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Firebase ID token is required for verification.'
+      });
+    }
+
+    const apiKey = process.env.FIREBASE_API_KEY || 'AIzaSyChwofze61TeyRWfIhDqv61aipo8my7Em8';
+    let verifiedEmail = (email || '').toLowerCase().trim();
+    let isEmailVerified = false;
+    let firebaseUid = '';
+
+    // Validate Firebase token with Google Identity Toolkit REST API
+    const googleRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken })
+    });
+
+    const googleData = await googleRes.json();
+    if (!googleRes.ok || !googleData.users || googleData.users.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired Firebase verification token. Please re-authenticate.'
+      });
+    }
+
+    const fbUser = googleData.users[0];
+    verifiedEmail = (fbUser.email || verifiedEmail).toLowerCase().trim();
+    isEmailVerified = fbUser.emailVerified === true || fbUser.emailVerified === 'true';
+    firebaseUid = fbUser.localId;
+
+    if (!isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Your email has not been verified yet. Please click the verification link sent to your email.'
+      });
+    }
+
+    const safeRole = role === 'mentor' ? 'mentor' : 'student';
+    let user = await User.findOne({ email: verifiedEmail }).select('+password');
+
+    let hashedPassword = null;
+    if (password && password.length >= 6) {
+      const salt = await bcrypt.genSalt(12);
+      hashedPassword = await bcrypt.hash(password, salt);
+    }
+
+    const defaultName = (name && name.trim()) || verifiedEmail.split('@')[0];
+
+    if (user) {
+      user.isEmailVerified = true;
+      user.isPhoneVerified = true;
+      if (hashedPassword && !user.password) {
+        user.password = hashedPassword;
+      }
+      if (firebaseUid && !user.firebaseUid) {
+        user.firebaseUid = firebaseUid;
+      }
+      if (role && (!user.role || user.role === 'student')) {
+        user.role = safeRole;
+      }
+      user.lastLogin = new Date();
+      await user.save();
+    } else {
+      user = await User.create({
+        name: defaultName,
+        email: verifiedEmail,
+        password: hashedPassword || (await bcrypt.hash(Math.random().toString(36), 10)),
+        role: safeRole,
+        isEmailVerified: true,
+        isPhoneVerified: true,
+        isProfileComplete: false,
+        firebaseUid: firebaseUid || undefined,
+        authProvider: 'firebase',
+        lastLogin: new Date()
+      });
+    }
+
+    sendTokenResponse(user, 200, res, 'Email verified successfully! Registration complete.');
+  } catch (error) {
+    console.error('Firebase Verify Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during Firebase verification',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -1071,6 +1171,7 @@ module.exports = {
   githubAuth,
   sendEmailVerificationOtp,
   verifyEmailOtp,
+  firebaseVerify,
   sendPhoneVerificationOtp,
   verifyPhoneOtp,
   checkAvailability,

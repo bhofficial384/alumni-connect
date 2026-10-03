@@ -7,6 +7,7 @@ const {
   githubAuth,
   sendEmailVerificationOtp,
   verifyEmailOtp,
+  firebaseVerify,
   sendPhoneVerificationOtp,
   verifyPhoneOtp,
   checkAvailability,
@@ -38,7 +39,8 @@ router.post('/phone/send-otp', sendPhoneVerificationOtp);
 router.post('/phone/verify-otp', verifyPhoneOtp);
 router.post('/phone/update-and-resend', updatePhoneAndResendOtp);
 
-// Email Verification with 6-Digit OTP
+// Email Verification (Firebase & OTP)
+router.post('/firebase-verify', firebaseVerify);
 router.post('/email/send-otp', sendEmailVerificationOtp);
 router.post('/email/verify-otp', verifyEmailOtp);
 

@@ -1,6 +1,13 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import { auth } from '../config/firebase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  reload
+} from 'firebase/auth';
 
 // Auth context for managing user authentication state across the app
 const AuthContext = createContext(null);
@@ -353,6 +360,110 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Firebase Auth: Create user & send official Google verification link
+  const firebaseRegister = async ({ email, password, role }) => {
+    setLoading(true);
+    setError(null);
+    try {
+      let userCredential;
+      const cleanEmail = email.trim();
+      try {
+        userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, password);
+      } catch (fbErr) {
+        if (fbErr.code === 'auth/email-already-in-use') {
+          try {
+            userCredential = await signInWithEmailAndPassword(auth, cleanEmail, password);
+          } catch (signInErr) {
+            throw new Error('An account with this email already exists. If it belongs to you, please log in with your password.');
+          }
+        } else if (fbErr.code === 'auth/weak-password') {
+          throw new Error('Password should be at least 6 characters.');
+        } else if (fbErr.code === 'auth/invalid-email') {
+          throw new Error('Please enter a valid email address.');
+        } else if (fbErr.code === 'auth/operation-not-allowed') {
+          throw new Error('Email/Password provider is disabled in Firebase Console. Please enable it under Authentication -> Sign-in method.');
+        } else {
+          throw new Error(fbErr.message || 'Firebase registration failed.');
+        }
+      }
+
+      // If already verified
+      if (userCredential.user.emailVerified) {
+        return {
+          success: true,
+          email: userCredential.user.email,
+          alreadyVerified: true
+        };
+      }
+
+      // Dispatch Firebase verification email
+      await sendEmailVerification(userCredential.user);
+      return {
+        success: true,
+        email: userCredential.user.email,
+        alreadyVerified: false
+      };
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Firebase Auth: Check if current user has verified their email
+  const checkFirebaseEmailVerified = async () => {
+    if (!auth.currentUser) return false;
+    await reload(auth.currentUser);
+    return Boolean(auth.currentUser.emailVerified);
+  };
+
+  // Firebase Auth: Resend verification email
+  const resendFirebaseVerification = async () => {
+    if (!auth.currentUser) {
+      throw new Error('No active registration session found. Please try signing up again.');
+    }
+    await sendEmailVerification(auth.currentUser);
+    return true;
+  };
+
+  // Firebase Auth: Finalize verification with backend MongoDB Atlas
+  const completeFirebaseVerification = async ({ email, password, role }) => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!auth.currentUser) {
+        throw new Error('Firebase session not found. Please try again.');
+      }
+      await reload(auth.currentUser);
+      if (!auth.currentUser.emailVerified) {
+        throw new Error('Email is not verified yet. Please click the link in your email inbox.');
+      }
+
+      const idToken = await auth.currentUser.getIdToken(true);
+      const response = await api.post('/auth/firebase-verify', {
+        idToken,
+        email: auth.currentUser.email || email,
+        password,
+        role
+      });
+
+      const { token: newToken, user: userData } = response.data;
+      if (newToken && userData) {
+        localStorage.setItem('alumniconnect_token', newToken);
+        setToken(newToken);
+        setUser(userData);
+      }
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || err.message || 'Firebase verification failed.';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Clear any auth errors
   const clearError = () => setError(null);
 
@@ -367,6 +478,10 @@ export const AuthProvider = ({ children }) => {
         register,
         googleLogin,
         githubLogin,
+        firebaseRegister,
+        checkFirebaseEmailVerified,
+        resendFirebaseVerification,
+        completeFirebaseVerification,
         sendEmailVerificationOtp,
         verifyEmailOtp,
         sendPhoneVerificationOtp,

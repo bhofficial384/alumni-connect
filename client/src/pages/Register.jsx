@@ -32,14 +32,13 @@ const Register = () => {
   const [termsError, setTermsError] = useState('');
   const [step1Error, setStep1Error] = useState('');
 
-  // Step 2: 6-Digit Email OTP
-  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
-  const [otpError, setOtpError] = useState('');
-  const [otpSuccess, setOtpSuccess] = useState('');
-  const [otpLoading, setOtpLoading] = useState(false);
+  // Step 2: Firebase Email Verification
+  const [verificationError, setVerificationError] = useState('');
+  const [verificationSuccess, setVerificationSuccess] = useState('');
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [step1Loading, setStep1Loading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
-  const otpInputRefs = useRef([]);
 
   // Step 3: Profile Details
   const [profileData, setProfileData] = useState({
@@ -69,6 +68,10 @@ const Register = () => {
     register,
     googleLogin,
     githubLogin,
+    firebaseRegister,
+    checkFirebaseEmailVerified,
+    resendFirebaseVerification,
+    completeFirebaseVerification,
     sendEmailVerificationOtp,
     verifyEmailOtp,
     updateProfile,
@@ -100,7 +103,7 @@ const Register = () => {
   }, [step, timeLeft]);
 
   // ========================================================
-  // STEP 1 HANDLERS: EMAIL + PASSWORD SIGNUP
+  // STEP 1 HANDLERS: EMAIL + PASSWORD SIGNUP (FIREBASE AUTH)
   // ========================================================
   const handleStep1Submit = async (e) => {
     e.preventDefault();
@@ -127,106 +130,109 @@ const Register = () => {
       return;
     }
 
+    setStep1Loading(true);
     try {
-      const res = await register({
+      const res = await firebaseRegister({
         email: email.trim(),
         password,
         role
       });
 
-      if (res?.requiresOtp) {
+      if (res?.alreadyVerified) {
+        await completeFirebaseVerification({
+          email: email.trim(),
+          password,
+          role
+        });
+        setStep(3);
+      } else {
         setStep(2);
         setTimeLeft(60);
         setCanResend(false);
-        setOtpError('');
-        setOtpSuccess(res.message || `A 6-digit verification code has been sent to ${email.trim()}`);
-        setTimeout(() => {
-          otpInputRefs.current[0]?.focus();
-        }, 150);
+        setVerificationError('');
+        setVerificationSuccess(`A verification link has been sent to ${email.trim()}. Please check your inbox and click the link.`);
       }
     } catch (err) {
       setStep1Error(err.message || 'Failed to initialize signup. Please try again.');
+    } finally {
+      setStep1Loading(false);
     }
   };
 
   // ========================================================
-  // STEP 2 HANDLERS: 6-DIGIT EMAIL OTP VERIFICATION
+  // STEP 2 HANDLERS: FIREBASE EMAIL VERIFICATION
   // ========================================================
-  const handleOtpChange = (index, value) => {
-    if (!/^\d*$/.test(value)) return;
-    const newDigits = [...otpDigits];
-    newDigits[index] = value.slice(-1);
-    setOtpDigits(newDigits);
-
-    if (value && index < 5) {
-      otpInputRefs.current[index + 1]?.focus();
+  // Auto-check verification status every 3.5 seconds while on Step 2
+  useEffect(() => {
+    let checkInterval;
+    if (step === 2) {
+      checkInterval = setInterval(async () => {
+        try {
+          const isVerified = await checkFirebaseEmailVerified();
+          if (isVerified) {
+            clearInterval(checkInterval);
+            setVerificationSuccess('Email verified! Finalizing registration...');
+            await completeFirebaseVerification({
+              email: email.trim(),
+              password,
+              role
+            });
+            setTimeout(() => {
+              setStep(3);
+            }, 600);
+          }
+        } catch {
+          // Waiting for user to click verification email
+        }
+      }, 3500);
     }
-  };
+    return () => {
+      if (checkInterval) clearInterval(checkInterval);
+    };
+  }, [step, email, password, role, checkFirebaseEmailVerified, completeFirebaseVerification]);
 
-  const handleOtpKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
-      otpInputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleOtpPaste = (e) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData('text').trim().slice(0, 6);
-    if (/^\d{1,6}$/.test(pasted)) {
-      const newDigits = [...otpDigits];
-      pasted.split('').forEach((char, idx) => {
-        newDigits[idx] = char;
-      });
-      setOtpDigits(newDigits);
-      const nextFocus = Math.min(pasted.length, 5);
-      otpInputRefs.current[nextFocus]?.focus();
-    }
-  };
-
-  const fullOtp = otpDigits.join('');
-
-  const handleVerifyOtp = async (e) => {
-    if (e) e.preventDefault();
-    if (fullOtp.length !== 6) {
-      return setOtpError('Please enter the complete 6-digit verification code.');
-    }
-
-    setOtpLoading(true);
-    setOtpError('');
+  const handleManualCheckVerification = async () => {
+    setVerificationLoading(true);
+    setVerificationError('');
     try {
-      const res = await verifyEmailOtp({
-        email: email.trim(),
-        otp: fullOtp
-      });
+      const isVerified = await checkFirebaseEmailVerified();
+      if (!isVerified) {
+        setVerificationError(
+          'Email not verified yet. Please open the link in your email inbox, then click this button again.'
+        );
+        return;
+      }
 
-      setOtpSuccess('Email verified successfully! Setting up your profile...');
-      // Move to Step 3: Profile Details
+      setVerificationSuccess('Email verified successfully! Setting up your profile...');
+      await completeFirebaseVerification({
+        email: email.trim(),
+        password,
+        role
+      });
       setTimeout(() => {
         setStep(3);
       }, 500);
     } catch (err) {
-      setOtpError(err.message || 'Invalid or expired verification code.');
+      setVerificationError(err.message || 'Failed to verify email status.');
     } finally {
-      setOtpLoading(false);
+      setVerificationLoading(false);
     }
   };
 
-  const handleResendOtp = async () => {
+  const handleResendVerification = async () => {
     if (!canResend && timeLeft > 0) return;
-    setOtpLoading(true);
-    setOtpError('');
-    setOtpSuccess('');
+    setVerificationLoading(true);
+    setVerificationError('');
+    setVerificationSuccess('');
     try {
-      const res = await sendEmailVerificationOtp(email.trim());
-      setOtpSuccess(res?.message || `A fresh 6-digit code has been sent to ${email.trim()}.`);
+      await resendFirebaseVerification();
+      setVerificationSuccess(`A fresh verification link has been sent to ${email.trim()}.`);
       setTimeLeft(60);
       setCanResend(false);
-      setOtpDigits(['', '', '', '', '', '']);
-      otpInputRefs.current[0]?.focus();
     } catch (err) {
-      setOtpError(err.message || 'Failed to resend code.');
+      setVerificationError(err.message || 'Failed to resend verification email.');
     } finally {
-      setOtpLoading(false);
+      setVerificationLoading(false);
     }
   };
 
@@ -339,7 +345,7 @@ const Register = () => {
                   <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] bg-current text-[#0E121C] font-bold">
                     {step > 2 ? '✓' : '2'}
                   </span>
-                  <span>Email OTP</span>
+                  <span>Email Verification</span>
                 </div>
 
                 <div className="w-4 h-px bg-white/20" />
@@ -543,16 +549,16 @@ const Register = () => {
                     {/* Submit Button */}
                     <button
                       type="submit"
-                      disabled={loading}
+                      disabled={step1Loading || loading}
                       className="w-full mt-3 py-3.5 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-sm shadow-[0_12px_30px_rgba(37,99,235,0.45)] hover:shadow-[0_16px_40px_rgba(37,99,235,0.65)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                     >
-                      {loading ? (
+                      {step1Loading || loading ? (
                         <>
                           <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                           </svg>
-                          <span>Sending Verification Code...</span>
+                          <span>Sending Verification Email...</span>
                         </>
                       ) : (
                         <>
@@ -578,7 +584,7 @@ const Register = () => {
               )}
 
               {/* ========================================================
-                  STEP 2: 6-DIGIT EMAIL OTP VERIFICATION
+                  STEP 2: FIREBASE EMAIL LINK VERIFICATION
                  ======================================================== */}
               {step === 2 && (
                 <div className="animate-scale-in">
@@ -590,14 +596,14 @@ const Register = () => {
                   </div>
 
                   <div className="text-center mb-6">
-                    <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center mx-auto mb-3 text-cyan-400 shadow-[0_0_25px_rgba(6,182,212,0.15)] text-2xl">
-                      ✉️
+                    <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center mx-auto mb-3 text-cyan-400 shadow-[0_0_25px_rgba(6,182,212,0.15)] text-3xl">
+                      📬
                     </div>
                     <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
-                      Verify Your Email
+                      Check Your Email
                     </h2>
                     <p className="text-slate-400 text-xs sm:text-sm font-normal max-w-sm mx-auto leading-relaxed">
-                      We sent a 6-digit code to{' '}
+                      We sent an official verification link to{' '}
                       <span className="text-cyan-300 font-mono font-bold break-all">
                         {email}
                       </span>
@@ -606,8 +612,8 @@ const Register = () => {
                         type="button"
                         onClick={() => {
                           setStep(1);
-                          setOtpError('');
-                          setOtpSuccess('');
+                          setVerificationError('');
+                          setVerificationSuccess('');
                         }}
                         className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2 font-medium cursor-pointer"
                       >
@@ -616,41 +622,89 @@ const Register = () => {
                     </p>
                   </div>
 
-                  {otpSuccess && (
+                  {verificationSuccess && (
                     <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl text-emerald-300 text-xs flex items-center gap-2 animate-fade-in shadow-sm">
                       <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span>{otpSuccess}</span>
+                      <span>{verificationSuccess}</span>
                     </div>
                   )}
 
-                  {otpError && (
+                  {verificationError && (
                     <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/25 rounded-2xl text-rose-300 text-xs flex items-center gap-2 animate-fade-in shadow-sm">
                       <svg className="w-4 h-4 text-rose-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span>{otpError}</span>
+                      <span>{verificationError}</span>
                     </div>
                   )}
 
-                  {/* 6 Digit Cells */}
-                  <form onSubmit={handleVerifyOtp} className="space-y-6">
-                    <div className="flex justify-center gap-2 sm:gap-3" onPaste={handleOtpPaste}>
-                      {otpDigits.map((digit, idx) => (
-                        <input
-                          key={idx}
-                          ref={(el) => (otpInputRefs.current[idx] = el)}
-                          type="text"
-                          inputMode="numeric"
-                          maxLength={1}
-                          value={digit}
-                          onChange={(e) => handleOtpChange(idx, e.target.value)}
-                          onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                          className="w-11 h-14 sm:w-12 sm:h-16 text-center text-xl sm:text-2xl font-bold bg-[#131826] border border-white/[0.12] rounded-2xl text-white focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30 transition-all shadow-inner"
-                        />
-                      ))}
+                  {/* Verification Status Card & Quick Mail Access */}
+                  <div className="bg-[#131826]/80 border border-white/[0.08] rounded-2xl p-4 mb-6 text-center space-y-3">
+                    <div className="flex items-center justify-center gap-2 text-xs text-cyan-300">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                      </span>
+                      <span className="font-medium">Auto-detecting email verification...</span>
                     </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Click the link in the verification email sent to your inbox. Once clicked, this page will advance automatically, or click the button below.
+                    </p>
+
+                    {/* Quick Mail Web App Shortcuts */}
+                    <div className="pt-1 flex items-center justify-center gap-2">
+                      <a
+                        href="https://mail.google.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-slate-300 hover:text-white text-[11px] font-medium transition-colors border border-white/[0.08]"
+                      >
+                        <span>Open Gmail</span>
+                        <svg className="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                      <a
+                        href="https://outlook.live.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-slate-300 hover:text-white text-[11px] font-medium transition-colors border border-white/[0.08]"
+                      >
+                        <span>Open Outlook</span>
+                        <svg className="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Manual Verification Check Button */}
+                  <div className="space-y-4">
+                    <button
+                      type="button"
+                      disabled={verificationLoading}
+                      onClick={handleManualCheckVerification}
+                      className="w-full py-3.5 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-sm shadow-[0_12px_30px_rgba(37,99,235,0.45)] hover:shadow-[0_16px_40px_rgba(37,99,235,0.65)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {verificationLoading ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          <span>Checking Verification Status...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>I've Clicked The Link — Continue</span>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
+                        </>
+                      )}
+                    </button>
 
                     {/* Expiration Timer & Resend Button */}
                     <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2 px-1">
@@ -662,38 +716,14 @@ const Register = () => {
 
                       <button
                         type="button"
-                        disabled={!canResend || otpLoading}
-                        onClick={handleResendOtp}
+                        disabled={!canResend || verificationLoading}
+                        onClick={handleResendVerification}
                         className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 disabled:opacity-40 disabled:hover:text-cyan-400 transition-colors cursor-pointer"
                       >
-                        Resend verification code
+                        Resend verification link
                       </button>
                     </div>
-
-                    {/* Verify & Proceed Button */}
-                    <button
-                      type="submit"
-                      disabled={otpLoading || fullOtp.length !== 6}
-                      className="w-full py-3.5 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-sm shadow-[0_12px_30px_rgba(37,99,235,0.45)] hover:shadow-[0_16px_40px_rgba(37,99,235,0.65)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      {otpLoading ? (
-                        <>
-                          <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                          </svg>
-                          <span>Validating Code...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Verify & Continue to Profile Setup</span>
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                          </svg>
-                        </>
-                      )}
-                    </button>
-                  </form>
+                  </div>
                 </div>
               )}
 

@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: function() { return !this.googleId && !this.githubId; },
+    required: function() { return !this.googleId && !this.githubId && !this.firebaseUid; },
     minlength: 6,
     select: false
   },
@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema({
     sparse: true
   },
   githubId: {
+    type: String,
+    sparse: true
+  },
+  firebaseUid: {
     type: String,
     sparse: true
   },
@@ -95,7 +99,7 @@ const userSchema = new mongoose.Schema({
   },
   authProvider: {
     type: String,
-    enum: ['local', 'google', 'google-dev-mock', 'github', 'github-dev-mock'],
+    enum: ['local', 'google', 'google-dev-mock', 'github', 'github-dev-mock', 'firebase'],
     default: 'local'
   },
   isEmailVerified: {
