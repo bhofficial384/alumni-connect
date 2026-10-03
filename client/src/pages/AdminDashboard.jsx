@@ -4,6 +4,7 @@ import api from '../api/axios';
 import Navbar from '../components/Navbar';
 import LoadingSpinner from '../components/LoadingSpinner';
 import TiltCard3D from '../components/TiltCard3D';
+import CameraCaptureModal from '../components/CameraCaptureModal';
 import { getInitials, compressAndResizeImage } from '../utils/imageUtils';
 
 /**
@@ -72,6 +73,9 @@ const AdminDashboard = () => {
     profileImage: ''
   });
   const [isCreatingMentor, setIsCreatingMentor] = useState(false);
+
+  // Live Camera Capture Modal State ('student' | 'mentor' | null)
+  const [cameraModalTarget, setCameraModalTarget] = useState(null);
 
   // Contact inquiries state
   const [contacts, setContacts] = useState([]);
@@ -1774,9 +1778,9 @@ const AdminDashboard = () => {
                     <span className="block text-xs font-semibold text-white mb-1">
                       Student Profile Photo
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <label className="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 hover:text-white text-xs font-semibold cursor-pointer transition-colors inline-flex items-center gap-1.5">
-                        <span>📤 Upload Photo</span>
+                        <span>📤 Upload</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -1793,17 +1797,26 @@ const AdminDashboard = () => {
                           }}
                         />
                       </label>
+
+                      <button
+                        type="button"
+                        onClick={() => setCameraModalTarget('student')}
+                        className="px-3 py-1.5 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 hover:text-white text-xs font-semibold transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <span>📸 Camera</span>
+                      </button>
+
                       {newStudentData.profileImage && (
                         <button
                           type="button"
                           onClick={() => setNewStudentData(prev => ({ ...prev, profileImage: '' }))}
-                          className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition-colors"
+                          className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition-colors cursor-pointer"
                         >
                           Remove
                         </button>
                       )}
                     </div>
-                    <span className="text-[10px] text-slate-500 mt-1 block">JPG, PNG or WEBP (automatically optimized)</span>
+                    <span className="text-[10px] text-slate-500 mt-1 block">Upload file or snap live photo using camera</span>
                   </div>
                 </div>
 
@@ -2025,9 +2038,9 @@ const AdminDashboard = () => {
                     <span className="block text-xs font-semibold text-white mb-1">
                       Mentor Profile Photo
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <label className="px-3 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 hover:text-white text-xs font-semibold cursor-pointer transition-colors inline-flex items-center gap-1.5">
-                        <span>📤 Upload Photo</span>
+                        <span>📤 Upload</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -2044,17 +2057,26 @@ const AdminDashboard = () => {
                           }}
                         />
                       </label>
+
+                      <button
+                        type="button"
+                        onClick={() => setCameraModalTarget('mentor')}
+                        className="px-3 py-1.5 rounded-lg bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 hover:text-white text-xs font-semibold transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <span>📸 Camera</span>
+                      </button>
+
                       {newMentorData.profileImage && (
                         <button
                           type="button"
                           onClick={() => setNewMentorData(prev => ({ ...prev, profileImage: '' }))}
-                          className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition-colors"
+                          className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition-colors cursor-pointer"
                         >
                           Remove
                         </button>
                       )}
                     </div>
-                    <span className="text-[10px] text-slate-500 mt-1 block">JPG, PNG or WEBP (automatically optimized)</span>
+                    <span className="text-[10px] text-slate-500 mt-1 block">Upload file or snap live photo using camera</span>
                   </div>
                 </div>
 
@@ -2236,6 +2258,20 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+
+        {/* Live Camera Snapshot Modal */}
+        <CameraCaptureModal
+          isOpen={!!cameraModalTarget}
+          onClose={() => setCameraModalTarget(null)}
+          onCapture={(compressedBase64) => {
+            if (cameraModalTarget === 'student') {
+              setNewStudentData(prev => ({ ...prev, profileImage: compressedBase64 }));
+            } else if (cameraModalTarget === 'mentor') {
+              setNewMentorData(prev => ({ ...prev, profileImage: compressedBase64 }));
+            }
+            setCameraModalTarget(null);
+          }}
+        />
       </main>
     </div>
   );
