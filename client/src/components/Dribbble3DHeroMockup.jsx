@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
-import MentorDetailsModal from './MentorDetailsModal';
 
 /**
  * Dribbble3DHeroMockup — Fey Website-Inspired Vertical 3D Scroll Animation
@@ -14,13 +13,12 @@ import MentorDetailsModal from './MentorDetailsModal';
  *  - Zero Horizontal Drift: Locked rotateY(0), rotateZ(0), translateX(0)
  *  - Dynamic vertical Z-plane elevation and specular light sweep
  */
-const Dribbble3DHeroMockup = ({ mentors: propMentors }) => {
+const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
   const containerRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const navigate = useNavigate();
   const { user } = useAuth();
   const [mentorsList, setMentorsList] = useState(propMentors || []);
-  const [selectedMentor, setSelectedMentor] = useState(null);
 
   useEffect(() => {
     if (propMentors && propMentors.length > 0) {
@@ -45,10 +43,11 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors }) => {
   };
 
   const handleMentorClick = (mentorItem) => {
-    if (mentorItem?.rawMentor) {
-      setSelectedMentor(mentorItem.rawMentor);
+    const raw = mentorItem?.rawMentor || mentorItem;
+    if (onMentorSelect) {
+      onMentorSelect(raw);
     } else {
-      setSelectedMentor(mentorItem);
+      handleContinue();
     }
   };
 
@@ -397,18 +396,6 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors }) => {
           </div>
         </div>
       </div>
-
-      {/* Mentor Profile Details Modal */}
-      <MentorDetailsModal
-        mentor={selectedMentor}
-        isOpen={!!selectedMentor}
-        onClose={() => setSelectedMentor(null)}
-        onConnect={() => {
-          setSelectedMentor(null);
-          handleContinue();
-        }}
-        connectLabel={user ? "Book 1-on-1 Session" : "Login to Book Session"}
-      />
     </div>
   );
 };

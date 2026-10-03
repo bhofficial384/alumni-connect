@@ -10,6 +10,17 @@ import { getInitials } from '../utils/imageUtils';
 const MentorDetailsModal = ({ mentor, isOpen, onClose, onConnect, connectLabel = 'Connect & Book Session' }) => {
   if (!isOpen || !mentor) return null;
 
+  // Escape key handler to close modal
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   const avatar = mentor.profileImage || mentor.img;
   const name = mentor.name || 'Alumni Mentor';
   const roleOrCompany = mentor.company || mentor.role || 'Industry Alumnus';
@@ -21,7 +32,10 @@ const MentorDetailsModal = ({ mentor, isOpen, onClose, onConnect, connectLabel =
   const availability = mentor.availability || [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+    <div 
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+    >
       <div 
         className="relative w-full max-w-lg bg-[#0E131F] border border-white/10 rounded-3xl p-6 sm:p-7 shadow-2xl text-white max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
@@ -30,15 +44,19 @@ const MentorDetailsModal = ({ mentor, isOpen, onClose, onConnect, connectLabel =
         <div className="absolute -top-16 -right-16 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Close Button */}
+        {/* Close Button - Cross Button */}
         <button
           type="button"
-          onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer z-10"
-          aria-label="Close modal"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          className="absolute top-4 right-4 text-slate-400 hover:text-white p-2.5 rounded-full hover:bg-white/10 bg-white/[0.04] border border-white/5 transition-all cursor-pointer z-30 shadow-md active:scale-90"
+          aria-label="Close mentor profile modal"
+          title="Close (Esc)"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 

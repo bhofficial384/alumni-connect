@@ -168,7 +168,10 @@ const Landing = () => {
 
               {/* RIGHT COLUMN: 3D Floating Isometric Multi-Screen Mockup */}
               <div className="lg:col-span-6 relative z-10 flex items-center justify-center">
-                <Dribbble3DHeroMockup mentors={liveMentors} />
+                <Dribbble3DHeroMockup 
+                  mentors={liveMentors} 
+                  onMentorSelect={(m) => setSelectedMentor(m)}
+                />
               </div>
 
             </div>
