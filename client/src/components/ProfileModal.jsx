@@ -12,6 +12,16 @@ const ProfileModal = ({ isOpen, onClose }) => {
     phoneNumber: user?.phoneNumber || '',
     bio: user?.bio || '',
     linkedIn: user?.linkedIn || '',
+    github: user?.github || '',
+    portfolio: user?.portfolio || '',
+    headline: user?.headline || '',
+    designation: user?.designation || '',
+    qualification: user?.qualification || '',
+    college: user?.college || '',
+    experienceYears: user?.experienceYears || '',
+    skills: Array.isArray(user?.skills) ? user.skills.join(', ') : (user?.skills || ''),
+    certifications: user?.certifications || '',
+    graduationYear: user?.graduationYear || '',
     registrationNumber: user?.registrationNumber || '',
     branch: user?.branch || '',
     semester: user?.semester || '',
@@ -34,6 +44,16 @@ const ProfileModal = ({ isOpen, onClose }) => {
         phoneNumber: user.phoneNumber || '',
         bio: user.bio || '',
         linkedIn: user.linkedIn || '',
+        github: user.github || '',
+        portfolio: user.portfolio || '',
+        headline: user.headline || '',
+        designation: user.designation || '',
+        qualification: user.qualification || '',
+        college: user.college || '',
+        experienceYears: user.experienceYears || '',
+        skills: Array.isArray(user.skills) ? user.skills.join(', ') : (user.skills || ''),
+        certifications: user.certifications || '',
+        graduationYear: user.graduationYear || '',
         registrationNumber: user.registrationNumber || '',
         branch: user.branch || '',
         semester: user.semester || '',
@@ -347,50 +367,222 @@ const ProfileModal = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {/* Mentor-specific Career Details */}
+          {/* Mentor-specific Professional & LinkedIn Qualifications */}
           {user?.role === 'mentor' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="p-4 rounded-2xl bg-white/[0.02] border border-blue-500/20 space-y-4">
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-2.5">
+                <div className="flex items-center gap-2 text-xs font-bold text-blue-400 uppercase tracking-wider">
+                  <span className="text-sm">💼</span>
+                  <span>LinkedIn & Professional Qualifications</span>
+                </div>
+                <span className="text-[10px] text-slate-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full font-medium">
+                  Mentor Credentials
+                </span>
+              </div>
+
+              {/* LinkedIn Headline */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  Current Company
+                <label className="block text-xs font-semibold text-slate-200 mb-1">
+                  Professional Headline (Like LinkedIn) *
                 </label>
                 <input
                   type="text"
-                  name="company"
-                  value={formData.company}
+                  name="headline"
+                  value={formData.headline}
                   onChange={handleChange}
-                  placeholder="e.g. Google, Microsoft, Adobe"
-                  className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                  placeholder="e.g. Senior Software Engineer at Google | Ex-Amazon | Mentoring in System Design & DSA"
+                  className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">This appears as your main title under your name on all student cards.</p>
+              </div>
+
+              {/* Designation & Company */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Job Title / Designation *
+                  </label>
+                  <input
+                    type="text"
+                    name="designation"
+                    value={formData.designation}
+                    onChange={handleChange}
+                    placeholder="e.g. Senior Software Engineer"
+                    className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Current Company / Org *
+                  </label>
+                  <input
+                    type="text"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleChange}
+                    placeholder="e.g. Google, Microsoft, Adobe"
+                    className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
+                  />
+                </div>
+              </div>
+
+              {/* Experience Years & Specialization Domain */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Total Experience
+                  </label>
+                  <input
+                    type="text"
+                    name="experienceYears"
+                    value={formData.experienceYears}
+                    onChange={handleChange}
+                    placeholder="e.g. 5+ Years"
+                    className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Specialization / Domain
+                  </label>
+                  <input
+                    type="text"
+                    name="domain"
+                    value={formData.domain}
+                    onChange={handleChange}
+                    placeholder="e.g. Software Engineering, Cloud & AI"
+                    className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
+                  />
+                </div>
+              </div>
+
+              {/* Academic Qualification & College */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Highest Educational Qualification *
+                  </label>
+                  <input
+                    type="text"
+                    name="qualification"
+                    value={formData.qualification}
+                    onChange={handleChange}
+                    placeholder="e.g. B.Tech in Computer Science & Engineering"
+                    className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Graduation Year
+                  </label>
+                  <input
+                    type="number"
+                    name="graduationYear"
+                    value={formData.graduationYear}
+                    onChange={handleChange}
+                    placeholder="e.g. 2022"
+                    className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
+                  />
+                </div>
+              </div>
+
+              {/* College / University */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  College / University (Alma Mater)
+                </label>
+                <input
+                  type="text"
+                  name="college"
+                  value={formData.college}
+                  onChange={handleChange}
+                  placeholder="e.g. BCE Patna / IIT Kharagpur"
+                  className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
                 />
               </div>
 
+              {/* Skills & Mentorship Areas */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  Specialization / Domain
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Key Skills & Mentorship Topics (Comma-separated)
                 </label>
                 <input
                   type="text"
-                  name="domain"
-                  value={formData.domain}
+                  name="skills"
+                  value={formData.skills}
                   onChange={handleChange}
-                  placeholder="e.g. Cloud & Distributed Systems"
-                  className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                  placeholder="e.g. System Design, DSA, Cloud Architecture, Mock Interview, Resume Review"
+                  className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
                 />
+              </div>
+
+              {/* Certifications & Honors */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Certifications & Honors
+                </label>
+                <input
+                  type="text"
+                  name="certifications"
+                  value={formData.certifications}
+                  onChange={handleChange}
+                  placeholder="e.g. AWS Certified Solutions Architect, Google Cloud Professional"
+                  className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
+                />
+              </div>
+
+              {/* LinkedIn & Social Links */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block text-xs font-semibold text-[#38BDF8] mb-1 flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 fill-[#0A66C2]" viewBox="0 0 24 24">
+                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.64 1.64 0 0 0-1.64 1.63 1.64 1.64 0 0 0 1.64 1.63 1.64 1.64 0 0 0 1.63-1.63c0-.9-.73-1.63-1.63-1.63Z" />
+                    </svg>
+                    <span>LinkedIn Profile URL *</span>
+                  </label>
+                  <input
+                    type="url"
+                    name="linkedIn"
+                    value={formData.linkedIn}
+                    onChange={handleChange}
+                    placeholder="https://linkedin.com/in/username"
+                    className="w-full bg-[#131826] border border-blue-500/30 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-400 placeholder-slate-500 font-mono text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    GitHub or Portfolio URL
+                  </label>
+                  <input
+                    type="url"
+                    name="portfolio"
+                    value={formData.portfolio}
+                    onChange={handleChange}
+                    placeholder="https://myportfolio.com or GitHub"
+                    className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500 font-mono text-xs"
+                  />
+                </div>
               </div>
             </div>
           )}
 
-          {/* Bio / About */}
+          {/* Bio / Mentorship About */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Bio / Goals
+              {user?.role === 'mentor' ? 'About & Mentorship Philosophy' : 'Bio / Goals'}
             </label>
             <textarea
               name="bio"
-              rows={2}
+              rows={3}
               value={formData.bio}
               onChange={handleChange}
-              placeholder="Tell others briefly about your background or guidance goals..."
+              placeholder={user?.role === 'mentor' 
+                ? "Describe your professional journey, what students can learn from you, and how you can guide them..."
+                : "Tell others briefly about your background or guidance goals..."}
               className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
             />
           </div>

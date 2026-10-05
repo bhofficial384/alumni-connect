@@ -203,9 +203,15 @@ const StudentDashboard = () => {
                   <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">
                     {user.assignedMentor.name}
                   </h3>
+                  {user.assignedMentor.headline ? (
+                    <p className="text-xs text-cyan-300 font-medium line-clamp-1 mb-1">
+                      {user.assignedMentor.headline}
+                    </p>
+                  ) : null}
                   <p className="text-xs text-slate-300">
-                    {user.assignedMentor.company ? <strong className="text-white">{user.assignedMentor.company}</strong> : null}
-                    {user.assignedMentor.company && user.assignedMentor.domain ? ' • ' : ''}
+                    {user.assignedMentor.designation ? `${user.assignedMentor.designation} ` : ''}
+                    {user.assignedMentor.company ? <strong className="text-white">{user.assignedMentor.designation ? `@ ${user.assignedMentor.company}` : user.assignedMentor.company}</strong> : null}
+                    {(user.assignedMentor.company || user.assignedMentor.designation) && user.assignedMentor.domain ? ' • ' : ''}
                     {user.assignedMentor.domain || 'Alumni Mentor'}
                   </p>
                 </div>
@@ -420,7 +426,9 @@ const StudentDashboard = () => {
                           </div>
                           <div>
                             <h4 className="font-semibold text-sm text-white group-hover:text-blue-400 transition-colors leading-tight">{mentor.name}</h4>
-                            <p className="text-xs text-cyan-400 font-medium">{mentor.company || 'Alumni'}</p>
+                            <p className="text-xs text-cyan-400 font-medium">
+                              {mentor.designation ? `${mentor.designation} @ ` : ''}{mentor.company || 'Alumni'}
+                            </p>
                           </div>
                         </div>
 
@@ -430,7 +438,7 @@ const StudentDashboard = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             title="LinkedIn Profile"
-                            className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/25 text-blue-400 hover:text-blue-300 border border-blue-500/20 text-xs transition-colors shrink-0"
+                            className="p-1.5 rounded-lg bg-[#0A66C2]/15 hover:bg-[#0A66C2]/30 text-blue-400 hover:text-white border border-[#0A66C2]/30 text-xs transition-colors shrink-0"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -440,20 +448,53 @@ const StudentDashboard = () => {
                         )}
                       </div>
 
-                      {/* Domain and Batch/Class Tag */}
+                      {/* Mentor LinkedIn Headline */}
+                      {mentor.headline && (
+                        <p className="text-xs text-slate-300 font-medium line-clamp-2 mb-2 leading-tight">
+                          "{mentor.headline}"
+                        </p>
+                      )}
+
+                      {/* Domain, Experience & Education Tag */}
                       <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
                         <span className="text-[10px] uppercase font-semibold tracking-wider text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full">
                           {mentor.domain}
                         </span>
+                        {mentor.experienceYears && (
+                          <span className="text-[10px] font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                            ⏳ {mentor.experienceYears}+ Yrs Exp
+                          </span>
+                        )}
+                        {mentor.qualification && (
+                          <span className="text-[10px] text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full truncate max-w-[150px]">
+                            🎓 {mentor.qualification}
+                          </span>
+                        )}
                         {mentor.graduationYear && (
                           <span className="text-[10px] text-slate-400 bg-white/[0.04] border border-white/10 px-2 py-0.5 rounded-full">
-                            🎓 Class of {mentor.graduationYear}
+                            Class of {mentor.graduationYear}
                           </span>
                         )}
                       </div>
 
+                      {/* Skills Tags */}
+                      {mentor.skills && (Array.isArray(mentor.skills) ? mentor.skills.length > 0 : Boolean(mentor.skills)) && (
+                        <div className="flex flex-wrap gap-1 mb-2.5">
+                          {(Array.isArray(mentor.skills) ? mentor.skills : mentor.skills.split(',').map(s => s.trim()).filter(Boolean)).slice(0, 3).map((sk, sIdx) => (
+                            <span key={sIdx} className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                              {sk}
+                            </span>
+                          ))}
+                          {(Array.isArray(mentor.skills) ? mentor.skills.length : mentor.skills.split(',').length) > 3 && (
+                            <span className="text-[10px] text-slate-400 self-center">
+                              +{(Array.isArray(mentor.skills) ? mentor.skills.length : mentor.skills.split(',').length) - 3} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+
                       {/* Bio snippet if present */}
-                      {mentor.bio && (
+                      {mentor.bio && !mentor.headline && (
                         <p className="text-[11px] text-slate-400 line-clamp-1 mb-3 leading-snug">
                           {mentor.bio}
                         </p>

@@ -434,7 +434,17 @@ const updateProfile = async (req, res) => {
       semester,
       rollNumber,
       company,
-      domain
+      domain,
+      headline,
+      designation,
+      qualification,
+      college,
+      experienceYears,
+      skills,
+      certifications,
+      github,
+      portfolio,
+      graduationYear
     } = req.body;
 
     const user = await User.findById(userId);
@@ -468,6 +478,15 @@ const updateProfile = async (req, res) => {
     if (linkedIn !== undefined) {
       user.linkedIn = linkedIn.trim();
     }
+    if (github !== undefined) {
+      user.github = github.trim();
+    }
+    if (portfolio !== undefined) {
+      user.portfolio = portfolio.trim();
+    }
+    if (graduationYear !== undefined && graduationYear !== '') {
+      user.graduationYear = Number(graduationYear) || user.graduationYear;
+    }
 
     if (user.role === 'student') {
       if (registrationNumber !== undefined) user.registrationNumber = registrationNumber.trim();
@@ -477,6 +496,19 @@ const updateProfile = async (req, res) => {
     } else if (user.role === 'mentor') {
       if (company !== undefined) user.company = company.trim();
       if (domain !== undefined) user.domain = domain.trim();
+      if (headline !== undefined) user.headline = headline.trim();
+      if (designation !== undefined) user.designation = designation.trim();
+      if (qualification !== undefined) user.qualification = qualification.trim();
+      if (college !== undefined) user.college = college.trim();
+      if (experienceYears !== undefined) user.experienceYears = experienceYears.trim();
+      if (certifications !== undefined) user.certifications = certifications.trim();
+      if (skills !== undefined) {
+        if (Array.isArray(skills)) {
+          user.skills = skills.map(s => String(s).trim()).filter(Boolean);
+        } else if (typeof skills === 'string') {
+          user.skills = skills.split(',').map(s => s.trim()).filter(Boolean);
+        }
+      }
     }
 
     user.isProfileComplete = true;

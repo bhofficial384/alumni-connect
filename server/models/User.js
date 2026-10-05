@@ -88,6 +88,50 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  headline: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  designation: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  qualification: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  college: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  experienceYears: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  skills: [{
+    type: String,
+    trim: true
+  }],
+  certifications: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  github: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  portfolio: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   availability: [{
     day: String,
     startTime: String,

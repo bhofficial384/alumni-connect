@@ -260,22 +260,48 @@ const Landing = () => {
                             </div>
                           </div>
 
-                          <div className="mb-4">
-                            <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/[0.06] text-slate-200 border border-white/10">
-                              {m.company || 'Industry Alumni'}
-                            </span>
-                          </div>
+                          {/* LinkedIn headline or Company badge */}
+                          {m.headline ? (
+                            <p className="text-xs text-cyan-300 font-medium line-clamp-2 mb-3 leading-snug">
+                              {m.headline}
+                            </p>
+                          ) : (
+                            <div className="mb-3 flex flex-wrap gap-1.5">
+                              <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/[0.06] text-slate-200 border border-white/10">
+                                {m.designation ? `${m.designation} @ ` : ''}{m.company || 'Industry Alumni'}
+                              </span>
+                              {m.experienceYears && (
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                                  {m.experienceYears}+ Yrs Exp
+                                </span>
+                              )}
+                            </div>
+                          )}
 
-                          {m.bio ? (
-                            <p className="text-xs text-slate-400 line-clamp-2 mb-6 leading-relaxed">
+                          {/* Skills badges */}
+                          {m.skills && (Array.isArray(m.skills) ? m.skills.length > 0 : Boolean(m.skills)) ? (
+                            <div className="flex flex-wrap gap-1 mb-4">
+                              {(Array.isArray(m.skills) ? m.skills : m.skills.split(',').map(s => s.trim()).filter(Boolean)).slice(0, 3).map((sk, sIdx) => (
+                                <span key={sIdx} className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                                  {sk}
+                                </span>
+                              ))}
+                              {(Array.isArray(m.skills) ? m.skills.length : m.skills.split(',').length) > 3 && (
+                                <span className="text-[10px] text-slate-400 self-center">
+                                  +{(Array.isArray(m.skills) ? m.skills.length : m.skills.split(',').length) - 3} more
+                                </span>
+                              )}
+                            </div>
+                          ) : m.bio ? (
+                            <p className="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed">
                               {m.bio}
                             </p>
                           ) : (
-                            <div className="flex flex-wrap gap-1.5 mb-6">
-                              <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-900 border border-slate-800 text-slate-300">
+                            <div className="flex flex-wrap gap-1.5 mb-4">
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-900 border border-slate-800 text-slate-300">
                                 Career Guidance
                               </span>
-                              <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-900 border border-slate-800 text-slate-300">
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-900 border border-slate-800 text-slate-300">
                                 Mock Interview
                               </span>
                             </div>

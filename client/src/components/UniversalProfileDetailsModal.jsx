@@ -34,6 +34,17 @@ const UniversalProfileDetailsModal = ({
   const role = profileUser.role || (profileUser.company || profileUser.domain ? 'mentor' : 'student');
   const isMentor = role === 'mentor';
   const roleOrCompany = profileUser.company || profileUser.domain || (isMentor ? 'Industry Alumnus' : 'Student Mentee');
+  const designation = profileUser.designation;
+  const headline = profileUser.headline;
+  const qualification = profileUser.qualification;
+  const college = profileUser.college;
+  const experienceYears = profileUser.experienceYears;
+  const skills = Array.isArray(profileUser.skills)
+    ? profileUser.skills
+    : (typeof profileUser.skills === 'string' ? profileUser.skills.split(',').map(s => s.trim()).filter(Boolean) : []);
+  const certifications = profileUser.certifications;
+  const github = profileUser.github;
+  const portfolio = profileUser.portfolio;
   const domain = profileUser.domain || (isMentor ? 'Technology & Engineering' : profileUser.branch || 'Student');
   const graduationYear = profileUser.graduationYear;
   const bio = profileUser.bio;
@@ -110,17 +121,76 @@ const UniversalProfileDetailsModal = ({
               )}
             </div>
 
-            <p className="text-sm font-semibold text-cyan-400 mb-1">{roleOrCompany}</p>
-            {domain && <p className="text-xs text-slate-300">{domain}</p>}
-
-            {graduationYear && (
-              <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-400 bg-white/[0.04] border border-white/10 px-2.5 py-1 rounded-lg">
-                <span>🎓</span>
-                <span>Alumni Class of {graduationYear}</span>
-              </div>
+            {/* LinkedIn Headline */}
+            {isMentor && headline ? (
+              <p className="text-xs sm:text-sm font-medium text-cyan-300 mb-1.5 leading-snug">
+                {headline}
+              </p>
+            ) : (
+              <p className="text-sm font-semibold text-cyan-400 mb-1">{designation ? `${designation} @ ${roleOrCompany}` : roleOrCompany}</p>
             )}
+
+            {domain && <p className="text-xs text-slate-300 mb-1.5">{domain}</p>}
+
+            {/* Credential badges strip */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
+              {isMentor && experienceYears && (
+                <span className="text-[11px] font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
+                  💼 {experienceYears}+ Yrs Exp
+                </span>
+              )}
+              {graduationYear && (
+                <div className="inline-flex items-center gap-1 text-[11px] text-slate-400 bg-white/[0.04] border border-white/10 px-2.5 py-0.5 rounded-md">
+                  <span>🎓</span>
+                  <span>Class of {graduationYear}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Education & Qualifications for Mentor */}
+        {isMentor && (qualification || college) && (
+          <div className="mb-4 bg-gradient-to-r from-blue-950/30 to-purple-950/20 border border-blue-500/20 rounded-2xl p-3.5 flex items-start gap-3">
+            <div className="w-8 h-8 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-base text-blue-400 shrink-0">
+              🎓
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400 block mb-0.5">
+                Education & Qualifications
+              </span>
+              {qualification && <p className="text-xs font-semibold text-white leading-tight">{qualification}</p>}
+              {college && <p className="text-[11px] text-slate-300 mt-0.5">{college}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Skills Section for Mentor */}
+        {isMentor && skills && skills.length > 0 && (
+          <div className="mb-4 bg-white/[0.03] border border-white/5 rounded-2xl p-3.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block mb-2">
+              Technical Skills & Expertise
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {skills.map((skill, idx) => (
+                <span key={idx} className="px-2.5 py-0.5 rounded-lg bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 text-xs font-medium">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Certifications Section */}
+        {isMentor && certifications && (
+          <div className="mb-4 bg-white/[0.03] border border-white/5 rounded-2xl p-3 flex items-start gap-2.5">
+            <span className="text-base">🏆</span>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-0.5">Certifications</span>
+              <p className="text-xs text-slate-200">{certifications}</p>
+            </div>
+          </div>
+        )}
 
         {/* Bio Section */}
         {bio && (
@@ -225,6 +295,40 @@ const UniversalProfileDetailsModal = ({
               >
                 <span>Open</span>
                 <span>↗</span>
+              </a>
+            </div>
+          )}
+
+          {github && (
+            <div className="bg-slate-900/70 border border-white/5 rounded-xl p-3 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block mb-0.5">GitHub</span>
+                <span className="text-xs text-slate-300 truncate max-w-[180px] block font-mono">{github}</span>
+              </div>
+              <a
+                href={github.startsWith('http') ? github : `https://${github}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-white border border-white/10 text-xs font-semibold"
+              >
+                ↗
+              </a>
+            </div>
+          )}
+
+          {portfolio && (
+            <div className="bg-slate-900/70 border border-white/5 rounded-xl p-3 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block mb-0.5">Portfolio</span>
+                <span className="text-xs text-purple-300 truncate max-w-[180px] block font-mono">{portfolio}</span>
+              </div>
+              <a
+                href={portfolio.startsWith('http') ? portfolio : `https://${portfolio}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 text-xs font-semibold"
+              >
+                ↗
               </a>
             </div>
           )}

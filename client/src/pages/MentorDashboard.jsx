@@ -191,33 +191,106 @@ const MentorDashboard = () => {
                   <button
                     type="button"
                     onClick={() => setShowProfileModal(true)}
-                    className="text-[11px] text-slate-400 hover:text-cyan-300 underline font-medium transition-colors cursor-pointer"
+                    className="text-[11px] text-cyan-400 hover:text-cyan-300 underline font-medium transition-colors cursor-pointer flex items-center gap-1"
                   >
-                    Edit Profile Photo
+                    <span>✏️</span> Edit Full Profile
                   </button>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-heading text-white flex items-center gap-2.5">
                   Welcome back, <span className="bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent">{user?.name?.split(' ')[0] || 'Mentor'}</span>! <span>👋</span>
                 </h1>
-                <p className="text-slate-400 text-xs sm:text-sm mt-0.5">Manage incoming requests, approve sessions, and update your weekly availability</p>
+                {user?.headline ? (
+                  <p className="text-cyan-300 text-xs sm:text-sm mt-1 font-medium leading-relaxed max-w-2xl">
+                    "{user.headline}"
+                  </p>
+                ) : (
+                  <p className="text-slate-400 text-xs sm:text-sm mt-0.5">Manage incoming requests, approve sessions, and update your weekly availability</p>
+                )}
               </div>
             </div>
 
-            {/* Mentor Company & Domain Badges */}
-            {(user?.company || user?.domain) && (
-              <div className="p-3 rounded-2xl bg-[#131826] border border-white/[0.09] shadow-inner text-xs flex flex-wrap items-center gap-2.5 text-slate-300 shrink-0">
-                {user.company && (
-                  <span className="px-3 py-1 rounded-lg bg-white/[0.06] border border-white/10 text-white font-semibold flex items-center gap-1.5">
-                    🏢 {user.company}
+            {/* Profile Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowProfileModal(true)}
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-[1.02] active:scale-95"
+              >
+                <span>💼</span>
+                <span>Edit LinkedIn Profile</span>
+              </button>
+            </div>
+          </div>
+
+          {/* LinkedIn Style Qualifications Summary Card */}
+          <div className="mt-4 p-5 rounded-2xl bg-gradient-to-r from-[#0C1120] to-[#12162A] border border-blue-500/20 shadow-xl relative overflow-hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">🎯</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
+                    Your Public Mentor Profile (As Seen by Students)
                   </span>
-                )}
-                {user.domain && (
-                  <span className="px-3 py-1 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-300 font-semibold">
-                    ⚡ {user.domain}
-                  </span>
+                  {user?.isApproved && (
+                    <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                      Publicly Visible
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  {user?.designation && (
+                    <span className="px-2.5 py-1 rounded-lg bg-white/[0.05] border border-white/10 text-white font-medium">
+                      💼 {user.designation} {user.company ? `@ ${user.company}` : ''}
+                    </span>
+                  )}
+                  {user?.experienceYears && (
+                    <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 font-medium">
+                      ⏳ {user.experienceYears}+ Years Exp
+                    </span>
+                  )}
+                  {user?.qualification && (
+                    <span className="px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-medium">
+                      🎓 {user.qualification} {user.college ? `(${user.college})` : ''}
+                    </span>
+                  )}
+                  {user?.linkedIn && (
+                    <a 
+                      href={user.linkedIn.startsWith('http') ? user.linkedIn : `https://${user.linkedIn}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-[#0A66C2]/20 hover:bg-[#0A66C2]/30 border border-[#0A66C2]/40 text-blue-300 font-medium flex items-center gap-1 transition-colors"
+                    >
+                      <span>LinkedIn Profile</span>
+                      <span>↗</span>
+                    </a>
+                  )}
+                </div>
+
+                {/* Skills Preview */}
+                {user?.skills && (Array.isArray(user.skills) ? user.skills.length > 0 : Boolean(user.skills)) && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Skills:</span>
+                    {(Array.isArray(user.skills) ? user.skills : user.skills.split(',').map(s => s.trim()).filter(Boolean)).slice(0, 8).map((sk, idx) => (
+                      <span key={idx} className="px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[11px] font-medium">
+                        {sk}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
-            )}
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowProfileModal(true)}
+                  className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-white text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>✏️</span>
+                  <span>Update Qualifications</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 

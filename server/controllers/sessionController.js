@@ -43,7 +43,7 @@ const createSession = async (req, res) => {
     });
 
     const populatedSession = await Session.findById(session._id)
-      .populate('mentor', 'name email company domain profileImage')
+      .populate('mentor', 'name email company domain profileImage headline designation qualification college experienceYears skills certifications linkedIn github portfolio')
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage');
 
     // Guaranteed email dispatch to mentor's registered email
@@ -76,7 +76,7 @@ const createSession = async (req, res) => {
 const getStudentSessions = async (req, res) => {
   try {
     const sessions = await Session.find({ student: req.user.id })
-      .populate('mentor', 'name email company domain profileImage')
+      .populate('mentor', 'name email company domain profileImage headline designation qualification college experienceYears skills certifications linkedIn github portfolio')
       .sort({ createdAt: -1 });
       
     res.json(sessions);
@@ -119,7 +119,7 @@ const updateSessionStatus = async (req, res) => {
     
     const updatedSession = await Session.findById(session._id)
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage')
-      .populate('mentor', 'name email company domain profileImage');
+      .populate('mentor', 'name email company domain profileImage headline designation qualification college experienceYears skills certifications linkedIn github portfolio');
 
     // Guaranteed email dispatch to student's registered email on approval or rejection
     if (updatedSession?.student?.email && (status === 'approved' || status === 'rejected')) {
