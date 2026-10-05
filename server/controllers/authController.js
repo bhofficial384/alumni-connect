@@ -442,6 +442,7 @@ const updateProfile = async (req, res) => {
       experienceYears,
       skills,
       certifications,
+      certificatesList,
       github,
       portfolio,
       graduationYear
@@ -502,6 +503,15 @@ const updateProfile = async (req, res) => {
       if (college !== undefined) user.college = college.trim();
       if (experienceYears !== undefined) user.experienceYears = experienceYears.trim();
       if (certifications !== undefined) user.certifications = certifications.trim();
+      if (certificatesList !== undefined) {
+        if (Array.isArray(certificatesList)) {
+          user.certificatesList = certificatesList;
+        } else if (typeof certificatesList === 'string') {
+          try {
+            user.certificatesList = JSON.parse(certificatesList);
+          } catch (e) {}
+        }
+      }
       if (skills !== undefined) {
         if (Array.isArray(skills)) {
           user.skills = skills.map(s => String(s).trim()).filter(Boolean);

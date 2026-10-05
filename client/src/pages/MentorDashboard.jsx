@@ -254,6 +254,12 @@ const MentorDashboard = () => {
                       🎓 {user.qualification} {user.college ? `(${user.college})` : ''}
                     </span>
                   )}
+                  {user?.certificatesList && user.certificatesList.length > 0 && (
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-medium flex items-center gap-1">
+                      <span>🏆</span>
+                      <span>{user.certificatesList.length} Uploaded Certificate{user.certificatesList.length > 1 ? 's' : ''}</span>
+                    </span>
+                  )}
                   {user?.linkedIn && (
                     <a 
                       href={user.linkedIn.startsWith('http') ? user.linkedIn : `https://${user.linkedIn}`} 
@@ -286,8 +292,8 @@ const MentorDashboard = () => {
                   onClick={() => setShowProfileModal(true)}
                   className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-white text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  <span>✏️</span>
-                  <span>Update Qualifications</span>
+                  <span>🏆</span>
+                  <span>Upload Certificates & Edit</span>
                 </button>
               </div>
             </div>

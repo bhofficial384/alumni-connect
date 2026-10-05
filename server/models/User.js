@@ -122,6 +122,16 @@ const userSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
+  certificatesList: [{
+    title: { type: String, trim: true, default: '' },
+    issuer: { type: String, trim: true, default: '' },
+    issueYear: { type: String, trim: true, default: '' },
+    credentialUrl: { type: String, trim: true, default: '' },
+    fileUrl: { type: String, default: '' },
+    fileType: { type: String, default: 'image' },
+    fileName: { type: String, default: '' },
+    uploadedAt: { type: Date, default: Date.now }
+  }],
   github: {
     type: String,
     trim: true,

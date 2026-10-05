@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { getInitials } from '../utils/imageUtils';
+import CertificateViewerModal from './CertificateViewerModal';
 
 /**
  * UniversalProfileDetailsModal
@@ -16,6 +17,8 @@ const UniversalProfileDetailsModal = ({
   connectLabel = 'Connect & Book Session',
   extraAction
 }) => {
+  const [viewingCertificate, setViewingCertificate] = useState(null);
+
   if (!isOpen || !profileUser) return null;
 
   // Escape key handler to close modal
@@ -43,6 +46,7 @@ const UniversalProfileDetailsModal = ({
     ? profileUser.skills
     : (typeof profileUser.skills === 'string' ? profileUser.skills.split(',').map(s => s.trim()).filter(Boolean) : []);
   const certifications = profileUser.certifications;
+  const certificatesList = Array.isArray(profileUser.certificatesList) ? profileUser.certificatesList : [];
   const github = profileUser.github;
   const portfolio = profileUser.portfolio;
   const domain = profileUser.domain || (isMentor ? 'Technology & Engineering' : profileUser.branch || 'Student');
@@ -181,14 +185,84 @@ const UniversalProfileDetailsModal = ({
           </div>
         )}
 
-        {/* Certifications Section */}
-        {isMentor && certifications && (
-          <div className="mb-4 bg-white/[0.03] border border-white/5 rounded-2xl p-3 flex items-start gap-2.5">
-            <span className="text-base">🏆</span>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-0.5">Certifications</span>
-              <p className="text-xs text-slate-200">{certifications}</p>
+        {/* Certifications Section with Uploaded Proof */}
+        {isMentor && ((certificatesList && certificatesList.length > 0) || certifications) && (
+          <div className="mb-4 bg-white/[0.03] border border-white/5 rounded-2xl p-3.5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <span>🏆</span> Certifications & Honors
+              </span>
+              {certificatesList.length > 0 && (
+                <span className="text-[10px] text-amber-300 font-mono">
+                  {certificatesList.length} Verified
+                </span>
+              )}
             </div>
+
+            {certificatesList.length > 0 && (
+              <div className="space-y-2 mb-2">
+                {certificatesList.map((cert, idx) => (
+                  <div
+                    key={idx}
+                    className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {cert.fileUrl ? (
+                        cert.fileType === 'pdf' ? (
+                          <div 
+                            onClick={() => setViewingCertificate(cert)}
+                            className="w-8 h-8 rounded-lg bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-xs font-bold text-rose-400 shrink-0 cursor-pointer"
+                          >
+                            PDF
+                          </div>
+                        ) : (
+                          <img
+                            src={cert.fileUrl}
+                            alt={cert.title}
+                            onClick={() => setViewingCertificate(cert)}
+                            className="w-8 h-8 rounded-lg object-cover border border-white/10 shrink-0 cursor-pointer"
+                          />
+                        )
+                      ) : (
+                        <span className="text-base">🏆</span>
+                      )}
+                      <div className="min-w-0">
+                        <strong className="text-white block truncate leading-tight">{cert.title}</strong>
+                        <p className="text-[10px] text-slate-400 truncate">
+                          {cert.issuer} {cert.issueYear ? `• ${cert.issueYear}` : ''}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {cert.fileUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setViewingCertificate(cert)}
+                          className="px-2 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-[10px] font-semibold"
+                        >
+                          View Proof
+                        </button>
+                      )}
+                      {cert.credentialUrl && (
+                        <a
+                          href={cert.credentialUrl.startsWith('http') ? cert.credentialUrl : `https://${cert.credentialUrl}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-slate-300 text-[10px] font-medium"
+                        >
+                          Verify ↗
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {certifications && (
+              <p className="text-xs text-slate-300">{certifications}</p>
+            )}
           </div>
         )}
 
@@ -392,6 +466,13 @@ const UniversalProfileDetailsModal = ({
             </button>
           )}
         </div>
+
+        {/* Certificate Proof Fullscreen Viewer Modal */}
+        <CertificateViewerModal
+          isOpen={Boolean(viewingCertificate)}
+          certificate={viewingCertificate}
+          onClose={() => setViewingCertificate(null)}
+        />
       </div>
     </div>
   );

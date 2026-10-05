@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { compressAndResizeImage, getInitials } from '../utils/imageUtils';
+import { compressAndResizeImage, compressCertificateFile, getInitials } from '../utils/imageUtils';
 import CameraCaptureModal from './CameraCaptureModal';
+import CertificateViewerModal from './CertificateViewerModal';
 
 const ProfileModal = ({ isOpen, onClose }) => {
   const { user, updateProfile } = useAuth();
@@ -21,6 +22,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
     experienceYears: user?.experienceYears || '',
     skills: Array.isArray(user?.skills) ? user.skills.join(', ') : (user?.skills || ''),
     certifications: user?.certifications || '',
+    certificatesList: user?.certificatesList || [],
     graduationYear: user?.graduationYear || '',
     registrationNumber: user?.registrationNumber || '',
     branch: user?.branch || '',
@@ -35,6 +37,21 @@ const ProfileModal = ({ isOpen, onClose }) => {
   const [showCameraModal, setShowCameraModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState({ type: '', text: '' });
+
+  // Certificate upload states
+  const certFileInputRef = useRef(null);
+  const [newCert, setNewCert] = useState({
+    title: '',
+    issuer: '',
+    issueYear: '',
+    credentialUrl: '',
+    fileUrl: '',
+    fileType: 'image',
+    fileName: ''
+  });
+  const [isUploadingCert, setIsUploadingCert] = useState(false);
+  const [certError, setCertError] = useState('');
+  const [viewingCertificate, setViewingCertificate] = useState(null);
 
   // Sync state when modal opens
   React.useEffect(() => {
@@ -53,6 +70,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
         experienceYears: user.experienceYears || '',
         skills: Array.isArray(user.skills) ? user.skills.join(', ') : (user.skills || ''),
         certifications: user.certifications || '',
+        certificatesList: user.certificatesList || [],
         graduationYear: user.graduationYear || '',
         registrationNumber: user.registrationNumber || '',
         branch: user.branch || '',
@@ -64,6 +82,16 @@ const ProfileModal = ({ isOpen, onClose }) => {
       setPreviewImage(user.profileImage || '');
       setIsPhotoChanged(false);
       setStatusMessage({ type: '', text: '' });
+      setCertError('');
+      setNewCert({
+        title: '',
+        issuer: '',
+        issueYear: '',
+        credentialUrl: '',
+        fileUrl: '',
+        fileType: 'image',
+        fileName: ''
+      });
     }
   }, [user, isOpen]);
 
@@ -93,6 +121,70 @@ const ProfileModal = ({ isOpen, onClose }) => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleCertFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCertError('');
+    setIsUploadingCert(true);
+    try {
+      const res = await compressCertificateFile(file);
+      setNewCert((prev) => ({
+        ...prev,
+        fileUrl: res.dataUrl,
+        fileType: res.fileType,
+        fileName: res.fileName,
+        title: prev.title || file.name.replace(/\.[^/.]+$/, "")
+      }));
+    } catch (err) {
+      setCertError(err.message || 'Failed to process certificate file.');
+    } finally {
+      setIsUploadingCert(false);
+    }
+  };
+
+  const handleAddCertificate = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!newCert.title || !newCert.title.trim()) {
+      setCertError('Please enter a certificate or honor title (e.g. AWS Certified Solutions Architect).');
+      return;
+    }
+    const currentList = Array.isArray(formData.certificatesList) ? formData.certificatesList : [];
+    const updatedList = [
+      ...currentList,
+      {
+        ...newCert,
+        title: newCert.title.trim(),
+        issuer: newCert.issuer?.trim() || '',
+        issueYear: newCert.issueYear?.trim() || '',
+        credentialUrl: newCert.credentialUrl?.trim() || ''
+      }
+    ];
+    setFormData((prev) => ({
+      ...prev,
+      certificatesList: updatedList
+    }));
+    setNewCert({
+      title: '',
+      issuer: '',
+      issueYear: '',
+      credentialUrl: '',
+      fileUrl: '',
+      fileType: 'image',
+      fileName: ''
+    });
+    setCertError('');
+    if (certFileInputRef.current) certFileInputRef.current.value = '';
+  };
+
+  const handleRemoveCertificate = (indexToRemove) => {
+    const currentList = Array.isArray(formData.certificatesList) ? formData.certificatesList : [];
+    setFormData((prev) => ({
+      ...prev,
+      certificatesList: currentList.filter((_, idx) => idx !== indexToRemove)
+    }));
   };
 
   const handleSave = async (e) => {
@@ -519,19 +611,201 @@ const ProfileModal = ({ isOpen, onClose }) => {
                 />
               </div>
 
-              {/* Certifications & Honors */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Certifications & Honors
-                </label>
-                <input
-                  type="text"
-                  name="certifications"
-                  value={formData.certifications}
-                  onChange={handleChange}
-                  placeholder="e.g. AWS Certified Solutions Architect, Google Cloud Professional"
-                  className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500"
-                />
+              {/* Certifications & Honors Section with File Upload */}
+              <div className="bg-[#111625] border border-white/10 rounded-2xl p-4 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🏆</span>
+                    <div>
+                      <label className="block text-xs font-bold text-white uppercase tracking-wider">
+                        Certifications & Honors (With Uploaded Proof)
+                      </label>
+                      <span className="text-[11px] text-slate-400">
+                        Upload certificates (PDF or Image) to build trust with students and mentees.
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 font-mono">
+                    {formData.certificatesList?.length || 0} Added
+                  </span>
+                </div>
+
+                {/* List of Already Uploaded Certificates */}
+                {formData.certificatesList && formData.certificatesList.length > 0 && (
+                  <div className="space-y-2 pt-1">
+                    {formData.certificatesList.map((cert, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-center justify-between gap-3 text-xs"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          {cert.fileUrl ? (
+                            cert.fileType === 'pdf' ? (
+                              <div className="w-9 h-9 rounded-lg bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-sm font-bold text-rose-400 shrink-0">
+                                PDF
+                              </div>
+                            ) : (
+                              <img
+                                src={cert.fileUrl}
+                                alt={cert.title}
+                                className="w-9 h-9 rounded-lg object-cover border border-white/10 shrink-0 cursor-pointer"
+                                onClick={() => setViewingCertificate(cert)}
+                              />
+                            )
+                          ) : (
+                            <div className="w-9 h-9 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-sm shrink-0">
+                              📜
+                            </div>
+                          )}
+
+                          <div className="min-w-0">
+                            <strong className="text-white block truncate leading-tight">{cert.title}</strong>
+                            <p className="text-[11px] text-slate-400 truncate">
+                              {cert.issuer || 'Self-verified'} {cert.issueYear ? `• ${cert.issueYear}` : ''}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {cert.fileUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setViewingCertificate(cert)}
+                              className="px-2.5 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 text-[11px] font-semibold transition-colors"
+                            >
+                              View Proof
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveCertificate(idx)}
+                            className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                            title="Remove Certificate"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add New Certificate Form */}
+                <div className="p-3.5 rounded-xl bg-slate-950/60 border border-dashed border-white/15 space-y-3">
+                  <span className="text-[11px] font-bold text-cyan-300 uppercase tracking-wider block">
+                    + Add New Certificate or Award Proof
+                  </span>
+
+                  {certError && (
+                    <div className="text-[11px] text-rose-300 bg-rose-500/10 border border-rose-500/20 p-2 rounded-lg">
+                      {certError}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <input
+                        type="text"
+                        value={newCert.title}
+                        onChange={(e) => setNewCert({ ...newCert, title: e.target.value })}
+                        placeholder="Certificate Title (e.g. AWS Certified Solutions Architect)"
+                        className="w-full bg-[#131826] border border-white/10 rounded-lg px-3 py-1.5 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        value={newCert.issuer}
+                        onChange={(e) => setNewCert({ ...newCert, issuer: e.target.value })}
+                        placeholder="Issuer (e.g. Amazon, Google, IIT)"
+                        className="w-full bg-[#131826] border border-white/10 rounded-lg px-3 py-1.5 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <input
+                        type="text"
+                        value={newCert.issueYear}
+                        onChange={(e) => setNewCert({ ...newCert, issueYear: e.target.value })}
+                        placeholder="Year / Date (e.g. 2024)"
+                        className="w-full bg-[#131826] border border-white/10 rounded-lg px-3 py-1.5 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="url"
+                        value={newCert.credentialUrl}
+                        onChange={(e) => setNewCert({ ...newCert, credentialUrl: e.target.value })}
+                        placeholder="Verification Link (e.g. https://credly.com/...)"
+                        className="w-full bg-[#131826] border border-white/10 rounded-lg px-3 py-1.5 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono text-[11px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Upload File Input */}
+                  <div>
+                    <input
+                      type="file"
+                      ref={certFileInputRef}
+                      onChange={handleCertFileSelect}
+                      accept="image/*,application/pdf"
+                      className="hidden"
+                    />
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => certFileInputRef.current?.click()}
+                        disabled={isUploadingCert}
+                        className="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all"
+                      >
+                        {isUploadingCert ? (
+                          <>
+                            <span className="w-3 h-3 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>📤</span>
+                            <span>Upload Certificate File (PNG, JPG, PDF)</span>
+                          </>
+                        )}
+                      </button>
+
+                      {newCert.fileUrl && (
+                        <div className="flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+                          <span>✓</span>
+                          <span className="truncate max-w-[180px] font-medium">{newCert.fileName || 'Proof Attached'}</span>
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={handleAddCertificate}
+                        className="ml-auto px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20 cursor-pointer"
+                      >
+                        + Add Certificate
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Summary Text Fallback */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+                    Summary Text / Key Accreditations (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    name="certifications"
+                    value={formData.certifications}
+                    onChange={handleChange}
+                    placeholder="e.g. AWS Certified Solutions Architect, Google Cloud Professional"
+                    className="w-full bg-[#131826] border border-white/[0.09] rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:border-blue-500 placeholder-slate-500"
+                  />
+                </div>
               </div>
 
               {/* LinkedIn & Social Links */}
@@ -622,6 +896,13 @@ const ProfileModal = ({ isOpen, onClose }) => {
             setIsPhotoChanged(true);
             setStatusMessage({ type: 'info', text: 'Live camera snapshot captured! Click "Save Profile Changes" to update.' });
           }}
+        />
+
+        {/* Certificate Proof Preview Modal */}
+        <CertificateViewerModal
+          isOpen={Boolean(viewingCertificate)}
+          certificate={viewingCertificate}
+          onClose={() => setViewingCertificate(null)}
         />
       </div>
     </div>
