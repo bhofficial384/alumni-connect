@@ -17,7 +17,11 @@ const connectDB = async () => {
   }
 
   try {
-    const conn = await mongoose.connect(uri, { serverSelectionTimeoutMS: 15000 });
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 45000,
+      connectTimeoutMS: 45000,
+      socketTimeoutMS: 45000
+    });
     console.log(`MongoDB Connected successfully: ${conn.connection.host}`);
     await seedInitialDataIfEmpty();
   } catch (error) {
