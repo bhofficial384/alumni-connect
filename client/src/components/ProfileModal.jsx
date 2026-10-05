@@ -22,7 +22,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
     experienceYears: user?.experienceYears || '',
     skills: Array.isArray(user?.skills) ? user.skills.join(', ') : (user?.skills || ''),
     certifications: user?.certifications || '',
-    certificatesList: user?.certificatesList || [],
+    certificatesList: Array.isArray(user?.certificatesList) ? user.certificatesList : [],
     graduationYear: user?.graduationYear || '',
     registrationNumber: user?.registrationNumber || '',
     branch: user?.branch || '',
@@ -70,7 +70,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
         experienceYears: user.experienceYears || '',
         skills: Array.isArray(user.skills) ? user.skills.join(', ') : (user.skills || ''),
         certifications: user.certifications || '',
-        certificatesList: user.certificatesList || [],
+        certificatesList: Array.isArray(user.certificatesList) ? user.certificatesList : [],
         graduationYear: user.graduationYear || '',
         registrationNumber: user.registrationNumber || '',
         branch: user.branch || '',
@@ -626,18 +626,20 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     </div>
                   </div>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 font-mono">
-                    {formData.certificatesList?.length || 0} Added
+                    {Array.isArray(formData.certificatesList) ? formData.certificatesList.length : 0} Added
                   </span>
                 </div>
 
                 {/* List of Already Uploaded Certificates */}
-                {formData.certificatesList && formData.certificatesList.length > 0 && (
+                {Array.isArray(formData.certificatesList) && formData.certificatesList.length > 0 && (
                   <div className="space-y-2 pt-1">
-                    {formData.certificatesList.map((cert, idx) => (
-                      <div
-                        key={idx}
-                        className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-center justify-between gap-3 text-xs"
-                      >
+                    {formData.certificatesList.map((cert, idx) => {
+                      if (!cert) return null;
+                      return (
+                        <div
+                          key={idx}
+                          className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-center justify-between gap-3 text-xs"
+                        >
                         <div className="flex items-center gap-2.5 min-w-0">
                           {cert.fileUrl ? (
                             cert.fileType === 'pdf' ? (
@@ -685,8 +687,9 @@ const ProfileModal = ({ isOpen, onClose }) => {
                             ✕
                           </button>
                         </div>
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 

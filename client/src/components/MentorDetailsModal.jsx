@@ -11,10 +11,9 @@ import CertificateViewerModal from './CertificateViewerModal';
 const MentorDetailsModal = ({ mentor, isOpen, onClose, onConnect, connectLabel = 'Connect & Book Session' }) => {
   const [viewingCertificate, setViewingCertificate] = useState(null);
 
-  if (!isOpen || !mentor) return null;
-
-  // Escape key handler to close modal
+  // Escape key handler to close modal (Declared unconditionally at top of component)
   React.useEffect(() => {
+    if (!isOpen) return;
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         onClose();
@@ -22,7 +21,9 @@ const MentorDetailsModal = ({ mentor, isOpen, onClose, onConnect, connectLabel =
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !mentor) return null;
 
   const avatar = mentor.profileImage || mentor.img;
   const name = mentor.name || 'Alumni Mentor';
@@ -191,13 +192,16 @@ const MentorDetailsModal = ({ mentor, isOpen, onClose, onConnect, connectLabel =
             {/* Uploaded Certificate Items */}
             {certificatesList.length > 0 && (
               <div className="space-y-2 mb-2.5">
-                {certificatesList.map((cert, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-center justify-between gap-3 text-xs group hover:border-amber-500/30 transition-all"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      {cert.fileUrl ? (
+                {certificatesList.map((certItem, idx) => {
+                  if (!certItem) return null;
+                  const cert = typeof certItem === 'object' ? certItem : { title: String(certItem) };
+                  return (
+                    <div
+                      key={idx}
+                      className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-center justify-between gap-3 text-xs group hover:border-amber-500/30 transition-all"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {cert.fileUrl ? (
                         cert.fileType === 'pdf' ? (
                           <div 
                             onClick={() => setViewingCertificate(cert)}
@@ -255,7 +259,8 @@ const MentorDetailsModal = ({ mentor, isOpen, onClose, onConnect, connectLabel =
                       )}
                     </div>
                   </div>
-                ))}
+                );
+              })}
               </div>
             )}
 

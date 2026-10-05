@@ -19,10 +19,9 @@ const UniversalProfileDetailsModal = ({
 }) => {
   const [viewingCertificate, setViewingCertificate] = useState(null);
 
-  if (!isOpen || !profileUser) return null;
-
-  // Escape key handler to close modal
+  // Escape key handler to close modal (Declared unconditionally at top of component)
   React.useEffect(() => {
+    if (!isOpen) return;
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         onClose();
@@ -30,7 +29,9 @@ const UniversalProfileDetailsModal = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !profileUser) return null;
 
   const avatar = profileUser.profileImage || profileUser.img;
   const name = profileUser.name || (profileUser.role === 'mentor' ? 'Alumni Mentor' : 'Student');
@@ -201,13 +202,16 @@ const UniversalProfileDetailsModal = ({
 
             {certificatesList.length > 0 && (
               <div className="space-y-2 mb-2">
-                {certificatesList.map((cert, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-center justify-between gap-3 text-xs"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      {cert.fileUrl ? (
+                {certificatesList.map((certItem, idx) => {
+                  if (!certItem) return null;
+                  const cert = typeof certItem === 'object' ? certItem : { title: String(certItem) };
+                  return (
+                    <div
+                      key={idx}
+                      className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-center justify-between gap-3 text-xs"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {cert.fileUrl ? (
                         cert.fileType === 'pdf' ? (
                           <div 
                             onClick={() => setViewingCertificate(cert)}
@@ -256,7 +260,8 @@ const UniversalProfileDetailsModal = ({
                       )}
                     </div>
                   </div>
-                ))}
+                );
+              })}
               </div>
             )}
 
