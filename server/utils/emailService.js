@@ -23,8 +23,8 @@ const getTransporter = () => {
       pool: true,
       maxConnections: 5,
       maxMessages: 100,
-      socketTimeout: 20000,
-      connectionTimeout: 10000
+      socketTimeout: 10000,
+      connectionTimeout: 4000
     });
     return cachedTransporter;
   }
@@ -173,7 +173,27 @@ const dispatchEmail = async ({ toEmail, subject, html, text }) => {
   let delivered = false;
   let deliveryError = null;
 
-  // 1. Primary: SMTP Transporter (Gmail) - Delivers to ANY email without domain restrictions
+  // 1. Cloud HTTPS Relay (Google Apps Script Web App - bypasses Render SMTP port blocks completely)
+  const googleScriptUrl = (process.env.GOOGLE_SCRIPT_URL || '').trim();
+  if (googleScriptUrl) {
+    try {
+      const resp = await fetch(googleScriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: toEmail, subject, text, html })
+      });
+      const data = await resp.json();
+      if (data && (data.delivered || data.status === 'success' || data.success)) {
+        delivered = true;
+        console.log(`✅ [HTTPS Webhook] Email sent successfully via Google Apps Script to ${toEmail} | Subject: "${subject}"`);
+        return { delivered: true, provider: 'google_script' };
+      }
+    } catch (scriptErr) {
+      console.warn(`⚠️ [Google Apps Script HTTPS Failed for ${toEmail}]:`, scriptErr.message);
+    }
+  }
+
+  // 2. SMTP Transporter (Gmail) - Delivers to ANY email without domain restrictions (Works on Localhost & Vercel)
   const transporter = getTransporter();
   if (transporter) {
     try {
