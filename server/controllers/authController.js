@@ -174,11 +174,12 @@ const register = async (req, res) => {
         name: user.name,
         otp
       });
+      console.log(`✅ [REGISTRATION OTP] Dispatched to ${user.email}: ${emailResult?.delivered ? 'SUCCESS' : 'FAILED'}`);
     } catch (err) {
       console.error('Email OTP dispatch error:', err.message);
     }
 
-    // 2. Return standard clean response without OTP on screen
+    // 2. Return standard clean response
     res.status(201).json({
       success: true,
       requiresOtp: true,
@@ -634,17 +635,22 @@ const sendEmailVerificationOtp = async (req, res) => {
     user.emailVerificationOtpExpires = expires;
     await user.save();
 
+    try {
+      const emailResult = await emailService.sendEmailVerificationOtp({
+        toEmail: user.email,
+        name: user.name,
+        otp
+      });
+      console.log(`✅ [RESEND EMAIL OTP] Dispatched to ${user.email}: ${emailResult?.delivered ? 'SUCCESS' : 'FAILED'}`);
+    } catch (err) {
+      console.error('Email OTP resend error:', err.message);
+    }
+
     res.status(200).json({
       success: true,
       message: `A 6-digit verification code has been dispatched to ${user.email}.`,
       expiresIn: '10 minutes'
     });
-
-    emailService.sendEmailVerificationOtp({
-      toEmail: user.email,
-      name: user.name,
-      otp
-    }).catch(err => console.error('Background Resend OTP dispatch error:', err.message));
   } catch (error) {
     console.error('Send Email Verification OTP Error:', error);
     res.status(500).json({ message: 'Server error generating verification code', error: error.message });

@@ -19,7 +19,12 @@ const getTransporter = () => {
   if (user && pass) {
     cachedTransporter = nodemailer.createTransport({
       service: 'gmail',
-      auth: { user, pass }
+      auth: { user, pass },
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
+      socketTimeout: 20000,
+      connectionTimeout: 10000
     });
     return cachedTransporter;
   }
