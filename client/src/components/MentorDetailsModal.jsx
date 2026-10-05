@@ -44,6 +44,7 @@ const MentorDetailsModal = ({ mentor, isOpen, onClose, onConnect, connectLabel =
   const bio = mentor.bio;
   const linkedIn = mentor.linkedIn;
   const email = mentor.email;
+  const phoneNumber = mentor.phoneNumber;
   const availability = mentor.availability || [];
 
   return (
@@ -337,6 +338,43 @@ const MentorDetailsModal = ({ mentor, isOpen, onClose, onConnect, connectLabel =
             </a>
           )}
         </div>
+
+        {/* Verified Contact Details (Email & Phone) */}
+        {(email || phoneNumber) && (
+          <div className="mb-5 bg-white/[0.03] border border-white/5 rounded-2xl p-3.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
+              Verified Mentor Contact Information
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {email && (
+                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-center gap-2.5 min-w-0">
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-xs shrink-0">
+                    ✉️
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-slate-400 font-semibold block uppercase">Registered Email</span>
+                    <a href={`mailto:${email}`} className="text-xs text-blue-300 font-mono truncate block hover:underline" title={email}>
+                      {email}
+                    </a>
+                  </div>
+                </div>
+              )}
+              {phoneNumber && (
+                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-center gap-2.5 min-w-0">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-xs shrink-0">
+                    📞
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-slate-400 font-semibold block uppercase">Contact Phone</span>
+                    <a href={`tel:${phoneNumber}`} className="text-xs text-emerald-300 font-mono truncate block hover:underline">
+                      {phoneNumber}
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Availability Schedule */}
         <div className="mb-6 bg-slate-900/50 border border-white/5 rounded-2xl p-4">

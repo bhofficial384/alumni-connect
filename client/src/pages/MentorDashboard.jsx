@@ -7,6 +7,7 @@ import AICopilot from '../components/AICopilot';
 import ProfileModal from '../components/ProfileModal';
 import ApproveScheduleModal from '../components/ApproveScheduleModal';
 import UniversalProfileDetailsModal from '../components/UniversalProfileDetailsModal';
+import MentorDetailsModal from '../components/MentorDetailsModal';
 import { getInitials } from '../utils/imageUtils';
 
 /**
@@ -24,6 +25,7 @@ const MentorDashboard = () => {
   const [actionLoading, setActionLoading] = useState(null); // Track which request is being acted on
   const [savingAvailability, setSavingAvailability] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showPublicPreview, setShowPublicPreview] = useState(false);
   const [selectedSessionToApprove, setSelectedSessionToApprove] = useState(null);
   const [viewingStudent, setViewingStudent] = useState(null);
 
@@ -210,34 +212,48 @@ const MentorDashboard = () => {
             </div>
 
             {/* Profile Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowPublicPreview(true)}
+                className="px-4 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/10 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02] active:scale-95 shadow-md"
+              >
+                <span>👁️</span>
+                <span>Preview Full Public Profile</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setShowProfileModal(true)}
                 className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-[1.02] active:scale-95"
               >
                 <span>💼</span>
-                <span>Edit LinkedIn Profile</span>
+                <span>Edit Full Profile</span>
               </button>
             </div>
           </div>
 
-          {/* LinkedIn Style Qualifications Summary Card */}
+          {/* Full Qualifications & Public Profile Card */}
           <div className="mt-4 p-5 rounded-2xl bg-gradient-to-r from-[#0C1120] to-[#12162A] border border-blue-500/20 shadow-xl relative overflow-hidden">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
+              <div className="space-y-3 flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-sm">🎯</span>
                   <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
-                    Your Public Mentor Profile (As Seen by Students)
+                    Your Complete Mentor Profile (Visible to All Students)
                   </span>
-                  {user?.isApproved && (
+                  {user?.isApproved ? (
                     <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
-                      Publicly Visible
+                      ✓ Public & Live
+                    </span>
+                  ) : (
+                    <span className="text-[10px] bg-amber-500/15 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded-full font-bold">
+                      ⏳ Pending Approval
                     </span>
                   )}
                 </div>
 
+                {/* Professional Tag Badges Strip */}
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   {user?.designation && (
                     <span className="px-2.5 py-1 rounded-lg bg-white/[0.05] border border-white/10 text-white font-medium">
@@ -254,28 +270,29 @@ const MentorDashboard = () => {
                       🎓 {user.qualification} {user.college ? `(${user.college})` : ''}
                     </span>
                   )}
+                  {user?.domain && (
+                    <span className="px-2.5 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 font-medium">
+                      ⚡ {user.domain}
+                    </span>
+                  )}
                   {user?.certificatesList && user.certificatesList.length > 0 && (
                     <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-medium flex items-center gap-1">
                       <span>🏆</span>
                       <span>{user.certificatesList.length} Uploaded Certificate{user.certificatesList.length > 1 ? 's' : ''}</span>
                     </span>
                   )}
-                  {user?.linkedIn && (
-                    <a 
-                      href={user.linkedIn.startsWith('http') ? user.linkedIn : `https://${user.linkedIn}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-[#0A66C2]/20 hover:bg-[#0A66C2]/30 border border-[#0A66C2]/40 text-blue-300 font-medium flex items-center gap-1 transition-colors"
-                    >
-                      <span>LinkedIn Profile</span>
-                      <span>↗</span>
-                    </a>
-                  )}
                 </div>
+
+                {/* Bio Snippet if exists */}
+                {user?.bio && (
+                  <p className="text-xs text-slate-300 leading-relaxed line-clamp-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                    "{user.bio}"
+                  </p>
+                )}
 
                 {/* Skills Preview */}
                 {user?.skills && (Array.isArray(user.skills) ? user.skills.length > 0 : Boolean(user.skills)) && (
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Skills:</span>
                     {(Array.isArray(user.skills) ? user.skills : user.skills.split(',').map(s => s.trim()).filter(Boolean)).slice(0, 8).map((sk, idx) => (
                       <span key={idx} className="px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[11px] font-medium">
@@ -284,16 +301,70 @@ const MentorDashboard = () => {
                     ))}
                   </div>
                 )}
+
+                {/* Links & Contact strip */}
+                <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-400">
+                  {user?.email && (
+                    <span className="flex items-center gap-1">
+                      <span>✉️</span>
+                      <span className="text-slate-300 font-mono">{user.email}</span>
+                    </span>
+                  )}
+                  {user?.phoneNumber && (
+                    <span className="flex items-center gap-1">
+                      <span>📞</span>
+                      <span className="text-emerald-300 font-mono">{user.phoneNumber}</span>
+                    </span>
+                  )}
+                  {user?.linkedIn && (
+                    <a
+                      href={user.linkedIn.startsWith('http') ? user.linkedIn : `https://${user.linkedIn}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-white flex items-center gap-1 font-medium transition-colors"
+                    >
+                      <span>LinkedIn Profile ↗</span>
+                    </a>
+                  )}
+                  {user?.github && (
+                    <a
+                      href={user.github.startsWith('http') ? user.github : `https://${user.github}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-300 hover:text-white flex items-center gap-1 font-medium transition-colors"
+                    >
+                      <span>GitHub ↗</span>
+                    </a>
+                  )}
+                  {user?.portfolio && (
+                    <a
+                      href={user.portfolio.startsWith('http') ? user.portfolio : `https://${user.portfolio}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-purple-300 hover:text-white flex items-center gap-1 font-medium transition-colors"
+                    >
+                      <span>Portfolio ↗</span>
+                    </a>
+                  )}
+                </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-col sm:flex-row md:flex-col gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowPublicPreview(true)}
+                  className="px-4 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <span>👁️</span>
+                  <span>View Full Profile</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setShowProfileModal(true)}
-                  className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-white text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-white text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  <span>🏆</span>
-                  <span>Upload Certificates & Edit</span>
+                  <span>✏️</span>
+                  <span>Edit All Details</span>
                 </button>
               </div>
             </div>
@@ -625,6 +696,15 @@ const MentorDashboard = () => {
         user={viewingStudent}
         isOpen={!!viewingStudent}
         onClose={() => setViewingStudent(null)}
+      />
+
+      {/* Mentor Public Profile Preview Modal */}
+      <MentorDetailsModal
+        mentor={user}
+        isOpen={showPublicPreview}
+        onClose={() => setShowPublicPreview(false)}
+        connectLabel="Close Profile Preview"
+        onConnect={() => setShowPublicPreview(false)}
       />
     </div>
   );
