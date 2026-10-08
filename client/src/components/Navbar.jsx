@@ -43,7 +43,7 @@ const Navbar = () => {
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <span
-                    className={`font-display text-lg sm:text-xl lg:text-2xl font-black tracking-tight transition-colors ${
+                    className={`font-display text-base sm:text-xl lg:text-2xl font-black tracking-tight transition-colors ${
                       isDark ? 'text-white' : 'text-slate-900'
                     }`}
                   >
@@ -236,51 +236,36 @@ const Navbar = () => {
               <ThemeToggle showLabel={true} />
             </div>
 
-            <a
-              href="/#how-it-works"
-              className={`block py-2 text-sm font-semibold transition-colors ${
-                isDark ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-slate-900'
-              }`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              How It Works
-            </a>
-            <a
-              href="/#mentors"
-              className={`block py-2 text-sm font-semibold transition-colors ${
-                isDark ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-slate-900'
-              }`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Mentors
-            </a>
-            <a
-              href="/#about"
-              className={`block py-2 text-sm font-semibold transition-colors ${
-                isDark ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-slate-900'
-              }`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              About Us
-            </a>
-            <a
-              href="/#testimonials"
-              className={`block py-2 text-sm font-semibold transition-colors ${
-                isDark ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-slate-900'
-              }`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Stories
-            </a>
-            <a
-              href="/#contact"
-              className={`block py-2 text-sm font-semibold transition-colors ${
-                isDark ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-slate-900'
-              }`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact
-            </a>
+            {[
+              { label: 'How It Works', id: 'how-it-works' },
+              { label: 'Mentors', id: 'mentors' },
+              { label: 'About Us', id: 'about' },
+              { label: 'Stories', id: 'testimonials' },
+              { label: 'Contact', id: 'contact' },
+            ].map((item) => (
+              <a
+                key={item.label}
+                href={`/#${item.id}`}
+                className={`block py-2.5 px-3 rounded-xl text-sm font-semibold transition-all ${
+                  isDark
+                    ? 'text-slate-200 hover:text-white hover:bg-white/[0.08]'
+                    : 'text-slate-800 hover:text-slate-950 hover:bg-slate-100'
+                }`}
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  if (window.location.pathname === '/' || window.location.pathname === '') {
+                    e.preventDefault();
+                    const el = document.getElementById(item.id);
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth' });
+                      window.history.pushState(null, '', `/#${item.id}`);
+                    }
+                  }
+                }}
+              >
+                {item.label}
+              </a>
+            ))}
 
             <div className="pt-3 border-t border-white/10 space-y-3">
               {!user ? (

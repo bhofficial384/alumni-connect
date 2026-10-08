@@ -44,7 +44,7 @@ const DribbbleBentoCards = () => {
         >
           
           {/* Card 1: AI Career Assistant (Span 7) */}
-          <TiltCard3D className="lg:col-span-7 rounded-[32px] bg-[#0E121C] border border-white/[0.08] p-8 sm:p-12 shadow-2xl relative overflow-hidden group flex flex-col justify-between">
+          <TiltCard3D className="lg:col-span-7 rounded-[32px] bg-[#0E121C] border border-white/[0.08] p-5 sm:p-12 shadow-2xl relative overflow-hidden group flex flex-col justify-between">
             {/* Subtle background ambient glow */}
             <div className="absolute -top-24 -left-24 w-80 h-80 bg-purple-600/15 rounded-full blur-[80px] pointer-events-none group-hover:bg-purple-600/25 transition-all duration-700" />
             
@@ -101,7 +101,7 @@ const DribbbleBentoCards = () => {
           </TiltCard3D>
 
           {/* Card 2: 64m Metric & Glowing Dual-Line Chart (Span 5) */}
-          <TiltCard3D className="lg:col-span-5 rounded-[32px] bg-[#0E121C] border border-white/[0.08] p-8 sm:p-12 shadow-2xl relative overflow-hidden group flex flex-col justify-between">
+          <TiltCard3D className="lg:col-span-5 rounded-[32px] bg-[#0E121C] border border-white/[0.08] p-5 sm:p-12 shadow-2xl relative overflow-hidden group flex flex-col justify-between">
             {/* Background cyan glow */}
             <div className="absolute -top-20 -right-20 w-80 h-80 bg-cyan-500/15 rounded-full blur-[80px] pointer-events-none group-hover:bg-cyan-500/25 transition-all duration-700" />
 
@@ -169,7 +169,7 @@ const DribbbleBentoCards = () => {
 
         {/* ROW 2: Scheduling Card "Book sessions anytime, anywhere" */}
         <div
-          className={`rounded-[32px] bg-[#0E121C] border border-white/[0.08] p-8 sm:p-12 shadow-2xl relative overflow-hidden group transition-all duration-1000 delay-150 ease-out ${
+          className={`rounded-[32px] bg-[#0E121C] border border-white/[0.08] p-5 sm:p-12 shadow-2xl relative overflow-hidden group transition-all duration-1000 delay-150 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
           }`}
         >

@@ -126,8 +126,8 @@ const ScrollProgressBeam = React.memo(() => {
         {/* ========================================================
             HERO CONTAINER (Tran Mau Tri Tam Rounded Luxury Card)
            ======================================================== */}
-        <section className="px-3 sm:px-6 lg:px-8 pt-4 pb-12">
-          <div className="max-w-[1360px] mx-auto rounded-[36px] bg-[#0E121C] border border-white/[0.08] shadow-[0_30px_100px_rgba(0,0,0,0.85)] p-6 sm:p-10 lg:p-14 relative overflow-hidden">
+        <section className="px-2.5 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-8 sm:pb-12">
+          <div className="max-w-[1360px] mx-auto rounded-3xl sm:rounded-[36px] bg-[#0E121C] border border-white/[0.08] shadow-[0_30px_100px_rgba(0,0,0,0.85)] p-4 sm:p-10 lg:p-14 relative overflow-hidden">
             
             {/* 3D Interactive Small Bubble & Particle Canvas Scene */}
             <Hero3DScene />
@@ -141,21 +141,21 @@ const ScrollProgressBeam = React.memo(() => {
             <div className="absolute top-1/2 right-1/4 w-20 h-20 rounded-full bg-pink-500/10 border border-pink-500/20 blur-[1px] animate-float-slow pointer-events-none" />
             <div className="absolute top-16 right-16 w-8 h-8 rounded-full bg-amber-400/15 border border-amber-400/30 blur-[1px] animate-float-reverse pointer-events-none" />
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center min-h-[580px]">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
               
               {/* LEFT COLUMN: Hero Copy & CTA */}
-              <div className="lg:col-span-6 flex flex-col justify-center relative z-10 pt-4 lg:pt-0">
+              <div className="lg:col-span-6 flex flex-col justify-center relative z-10 pt-2 lg:pt-0">
                 
                 {/* Mint/Cyan Tracked Kicker Badge */}
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-3 sm:mb-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34D399] animate-pulse" />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-emerald-400">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.22em] text-emerald-400">
                     INTRODUCING ALUMNI MENTORSHIP
                   </span>
                 </div>
 
                 {/* Responsive Headline */}
-                <h1 className="font-display text-4xl sm:text-6xl lg:text-[74px] font-extrabold text-white tracking-tight leading-[1.08] sm:leading-[1.06] mb-5 sm:mb-6">
+                <h1 className="font-display text-3xl sm:text-5xl lg:text-[74px] font-extrabold text-white tracking-tight leading-[1.1] sm:leading-[1.06] mb-4 sm:mb-6">
                   Mentorship for <br />
                   <span className="text-white">any career</span>
                 </h1>
@@ -238,7 +238,7 @@ const ScrollProgressBeam = React.memo(() => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Step 01 */}
               <TiltCard3D className="h-full">
-                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-cyan-400/50 p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(6,182,212,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
+                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-cyan-400/50 p-5 sm:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(6,182,212,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
                   <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/15 group-hover:bg-cyan-500/25 rounded-full blur-2xl transition-all pointer-events-none" />
                   
                   <div>
@@ -274,7 +274,7 @@ const ScrollProgressBeam = React.memo(() => {
 
               {/* Step 02 */}
               <TiltCard3D className="h-full">
-                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-purple-400/50 p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
+                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-purple-400/50 p-5 sm:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
                   <div className="absolute -top-12 -right-12 w-32 h-32 bg-purple-500/15 group-hover:bg-purple-500/25 rounded-full blur-2xl transition-all pointer-events-none" />
                   
                   <div>
@@ -309,7 +309,7 @@ const ScrollProgressBeam = React.memo(() => {
 
               {/* Step 03 */}
               <TiltCard3D className="h-full">
-                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-emerald-400/50 p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
+                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-emerald-400/50 p-5 sm:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
                   <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/15 group-hover:bg-emerald-500/25 rounded-full blur-2xl transition-all pointer-events-none" />
                   
                   <div>
@@ -544,7 +544,7 @@ const ScrollProgressBeam = React.memo(() => {
             SECTION 3: ABOUT US (Alumni Association Mission & Vision)
            ======================================================== */}
         <section id="about" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-          <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.1] p-8 sm:p-12 lg:p-16 shadow-[0_30px_100px_rgba(0,0,0,0.85)] relative overflow-hidden">
+          <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.1] p-5 sm:p-12 lg:p-16 shadow-[0_30px_100px_rgba(0,0,0,0.85)] relative overflow-hidden">
             {/* Luminous Top Laser Line */}
             <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400/60 via-purple-400/60 to-transparent pointer-events-none" />
 
@@ -567,22 +567,22 @@ const ScrollProgressBeam = React.memo(() => {
 
             {/* 4 Telemetry Metric Stat Pillars */}
             <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-              <div className="p-5 rounded-2xl bg-[#131826]/80 border border-white/5 hover:border-cyan-500/30 transition-all shadow-lg">
+              <div className="p-3.5 sm:p-5 rounded-2xl bg-[#131826]/80 border border-white/5 hover:border-cyan-500/30 transition-all shadow-lg">
                 <div className="text-3xl sm:text-4xl font-black text-cyan-400 tracking-tight mb-1">500+</div>
                 <div className="text-xs text-slate-300 font-semibold">Active Alumni Mentors</div>
                 <div className="text-[10px] text-slate-500 mt-0.5">Verified across 30+ countries</div>
               </div>
-              <div className="p-5 rounded-2xl bg-[#131826]/80 border border-white/5 hover:border-emerald-500/30 transition-all shadow-lg">
+              <div className="p-3.5 sm:p-5 rounded-2xl bg-[#131826]/80 border border-white/5 hover:border-emerald-500/30 transition-all shadow-lg">
                 <div className="text-3xl sm:text-4xl font-black text-emerald-400 tracking-tight mb-1">98%</div>
                 <div className="text-xs text-slate-300 font-semibold">Placement Success Rate</div>
                 <div className="text-[10px] text-slate-500 mt-0.5">Students receiving job offers</div>
               </div>
-              <div className="p-5 rounded-2xl bg-[#131826]/80 border border-white/5 hover:border-purple-500/30 transition-all shadow-lg">
+              <div className="p-3.5 sm:p-5 rounded-2xl bg-[#131826]/80 border border-white/5 hover:border-purple-500/30 transition-all shadow-lg">
                 <div className="text-3xl sm:text-4xl font-black text-purple-400 tracking-tight mb-1">50+</div>
                 <div className="text-xs text-slate-300 font-semibold">Fortune 500 Companies</div>
                 <div className="text-[10px] text-slate-500 mt-0.5">Represented in directory</div>
               </div>
-              <div className="p-5 rounded-2xl bg-[#131826]/80 border border-white/5 hover:border-amber-500/30 transition-all shadow-lg">
+              <div className="p-3.5 sm:p-5 rounded-2xl bg-[#131826]/80 border border-white/5 hover:border-amber-500/30 transition-all shadow-lg">
                 <div className="text-3xl sm:text-4xl font-black text-amber-400 tracking-tight mb-1">100%</div>
                 <div className="text-xs text-slate-300 font-semibold">Free for Students</div>
                 <div className="text-[10px] text-slate-500 mt-0.5">University backed initiative</div>
@@ -591,7 +591,7 @@ const ScrollProgressBeam = React.memo(() => {
 
             {/* 3 Core Pillar Cards */}
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-7 rounded-3xl bg-[#131826] border border-white/[0.08] hover:border-cyan-400/40 hover:shadow-[0_0_30px_rgba(6,182,212,0.18)] transition-all group">
+              <div className="p-5 sm:p-7 rounded-3xl bg-[#131826] border border-white/[0.08] hover:border-cyan-400/40 hover:shadow-[0_0_30px_rgba(6,182,212,0.18)] transition-all group">
                 <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-5 text-2xl shadow-[0_0_15px_rgba(6,182,212,0.3)] group-hover:scale-105 transition-transform">
                   🎯
                 </div>
@@ -601,7 +601,7 @@ const ScrollProgressBeam = React.memo(() => {
                 </p>
               </div>
 
-              <div className="p-7 rounded-3xl bg-[#131826] border border-white/[0.08] hover:border-purple-400/40 hover:shadow-[0_0_30px_rgba(168,85,247,0.18)] transition-all group">
+              <div className="p-5 sm:p-7 rounded-3xl bg-[#131826] border border-white/[0.08] hover:border-purple-400/40 hover:shadow-[0_0_30px_rgba(168,85,247,0.18)] transition-all group">
                 <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-5 text-2xl shadow-[0_0_15px_rgba(168,85,247,0.3)] group-hover:scale-105 transition-transform">
                   🔭
                 </div>
@@ -611,7 +611,7 @@ const ScrollProgressBeam = React.memo(() => {
                 </p>
               </div>
 
-              <div className="p-7 rounded-3xl bg-[#131826] border border-white/[0.08] hover:border-emerald-400/40 hover:shadow-[0_0_30px_rgba(16,185,129,0.18)] transition-all group">
+              <div className="p-5 sm:p-7 rounded-3xl bg-[#131826] border border-white/[0.08] hover:border-emerald-400/40 hover:shadow-[0_0_30px_rgba(16,185,129,0.18)] transition-all group">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-5 text-2xl shadow-[0_0_15px_rgba(16,185,129,0.3)] group-hover:scale-105 transition-transform">
                   🤝
                 </div>
@@ -679,7 +679,7 @@ const ScrollProgressBeam = React.memo(() => {
               }
             ].map((t, idx) => (
               <TiltCard3D key={idx} className="h-full">
-                <div className="relative overflow-hidden rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-pink-500/40 p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(236,72,153,0.22)] transition-all duration-300 flex flex-col justify-between h-full group before:absolute before:inset-0 before:-translate-x-full group-hover:before:translate-x-full before:bg-gradient-to-r before:from-transparent before:via-white/[0.06] before:to-transparent before:transition-transform before:duration-1000 before:pointer-events-none">
+                <div className="relative overflow-hidden rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-pink-500/40 p-5 sm:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(236,72,153,0.22)] transition-all duration-300 flex flex-col justify-between h-full group before:absolute before:inset-0 before:-translate-x-full group-hover:before:translate-x-full before:bg-gradient-to-r before:from-transparent before:via-white/[0.06] before:to-transparent before:transition-transform before:duration-1000 before:pointer-events-none">
                   {/* Subtle corner light halo */}
                   <div className="absolute -top-12 -right-12 w-28 h-28 bg-pink-500/15 group-hover:bg-pink-500/25 rounded-full blur-2xl transition-all pointer-events-none" />
 
@@ -736,7 +736,7 @@ const ScrollProgressBeam = React.memo(() => {
           {/* Ambient Lighting Nebula */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-blue-600/12 rounded-full blur-[160px] pointer-events-none" />
 
-          <div className="relative z-10 rounded-[36px] bg-[#0E121C] border border-white/[0.1] p-8 sm:p-14 shadow-[0_30px_100px_rgba(0,0,0,0.85)] overflow-hidden">
+          <div className="relative z-10 rounded-[36px] bg-[#0E121C] border border-white/[0.1] p-5 sm:p-14 shadow-[0_30px_100px_rgba(0,0,0,0.85)] overflow-hidden">
             {/* Luminous Top Accent Line */}
             <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400/60 via-blue-500/60 to-transparent pointer-events-none" />
 
@@ -818,7 +818,7 @@ const ScrollProgressBeam = React.memo(() => {
 
               {/* Right Column: High-Tech Cyber Console Form */}
               <div className="lg:col-span-7">
-                <div className="p-6 sm:p-8 rounded-3xl bg-[#131826]/90 border border-white/10 shadow-2xl relative">
+                <div className="p-4 sm:p-8 rounded-3xl bg-[#131826]/90 border border-white/10 shadow-2xl relative">
                   <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
                     <span>Send a Dispatch</span>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/15 border border-cyan-500/30 text-cyan-300">

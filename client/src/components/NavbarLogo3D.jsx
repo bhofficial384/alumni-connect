@@ -185,8 +185,8 @@ const NavbarLogo3D = ({ isHovered = false }) => {
 
       // 4. Center Singularity Core (Glowing pulsating core)
       const pulse = 1 + Math.sin(Date.now() * 0.005) * 0.25;
-      const coreRadius = 3.5 * pulse;
-      const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius * 2.5);
+      const coreRadius = Math.max(0.5, 3.5 * pulse);
+      const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(0.5, coreRadius * 2.5));
       coreGlow.addColorStop(0, `rgba(${glowRgb}, ${isDark ? 0.9 : 0.8})`);
       coreGlow.addColorStop(0.5, `rgba(${primaryRgb}, 0.3)`);
       coreGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');

@@ -127,7 +127,7 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
           Pure Vertical X-axis rotation & vertical zoom (Zero horizontal skew)
          ======================================================== */}
       <div
-        className="relative w-full max-w-[620px] h-[460px] sm:h-[520px] scale-[0.74] xs:scale-[0.85] sm:scale-100 origin-center transition-transform duration-100 ease-out"
+        className="relative w-full max-w-[320px] sm:max-w-[620px] h-[470px] sm:h-[520px] scale-[0.92] xs:scale-[0.96] sm:scale-100 origin-center transition-transform duration-100 ease-out"
         style={{
           transformStyle: 'preserve-3d',
           transformOrigin: 'center 40%',
@@ -145,10 +145,10 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
 
         {/* ========================================================
             SCREEN 1: BACK LEFT PHONE (Geodesic Sphere & Intro)
-            Vertical elevation in Z & Y as device unfolds
+            Vertical elevation in Z & Y as device unfolds (Visible on tablet/desktop)
            ======================================================== */}
         <div
-          className="absolute left-0 top-2 w-[240px] sm:w-[260px] h-[450px] rounded-[38px] bg-[#111420] border-[5px] border-[#222738] shadow-[0_25px_60px_rgba(0,0,0,0.85)] p-4 flex flex-col justify-between overflow-hidden transition-transform duration-150"
+          className="hidden sm:flex absolute left-0 top-2 w-[240px] sm:w-[260px] h-[450px] rounded-[38px] bg-[#111420] border-[5px] border-[#222738] shadow-[0_25px_60px_rgba(0,0,0,0.85)] p-4 flex-col justify-between overflow-hidden transition-transform duration-150"
           style={{
             transform: `translateZ(${-30 + scrollProgress * 35}px) translateY(${-scrollProgress * 15}px)`,
           }}
@@ -211,7 +211,7 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
             Rises vertically forward into sharp foreground focus
            ======================================================== */}
         <div
-          className="absolute left-24 sm:left-28 top-8 w-[270px] sm:w-[290px] h-[490px] rounded-[42px] bg-[#0E111C] border-[6px] border-[#252B3E] shadow-[0_35px_90px_rgba(0,0,0,0.95)] p-4 flex flex-col justify-between overflow-hidden transition-transform duration-150 z-20"
+          className="absolute left-1/2 -translate-x-1/2 sm:left-28 sm:translate-x-0 top-3 sm:top-8 w-[270px] sm:w-[290px] h-[465px] sm:h-[490px] rounded-[38px] sm:rounded-[42px] bg-[#0E111C] border-[5px] sm:border-[6px] border-[#252B3E] shadow-[0_25px_70px_rgba(0,0,0,0.95)] sm:shadow-[0_35px_90px_rgba(0,0,0,0.95)] p-3.5 sm:p-4 flex flex-col justify-between overflow-hidden transition-transform duration-150 z-20"
           style={{
             transform: `translateZ(${45 + scrollProgress * 85}px) translateY(${-scrollProgress * 30}px) scale(${1 + scrollProgress * 0.04})`,
           }}

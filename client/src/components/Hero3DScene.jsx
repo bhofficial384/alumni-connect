@@ -21,8 +21,8 @@ const Hero3DScene = () => {
     const handleResize = () => {
       if (!canvas || !canvas.parentElement) return;
       const rect = canvas.parentElement.getBoundingClientRect();
-      width = rect.width;
-      height = rect.height;
+      width = Math.max(300, rect.width || (typeof window !== 'undefined' ? window.innerWidth : 360));
+      height = Math.max(350, rect.height || 500);
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       ctx.scale(dpr, dpr);
@@ -180,14 +180,14 @@ const Hero3DScene = () => {
         const renderX = b.x + parallaxX;
         const renderY = b.y + parallaxY;
 
-        // Soft outer glow halo
+        const bubbleGlowRadius = Math.max(0.5, currentRadius * 3.5);
         const glow = ctx.createRadialGradient(
           renderX,
           renderY,
           0,
           renderX,
           renderY,
-          currentRadius * 3.5
+          bubbleGlowRadius
         );
         glow.addColorStop(0, `rgba(${b.color.r}, ${b.color.g}, ${b.color.b}, ${currentOpacity})`);
         glow.addColorStop(0.4, `rgba(${b.color.r}, ${b.color.g}, ${b.color.b}, ${currentOpacity * 0.45})`);
@@ -263,14 +263,15 @@ const Hero3DScene = () => {
       for (let p of projected) {
         if (p.scale <= 0) continue;
 
-        const nodeGlow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+        const nodeRadius = Math.max(0.5, p.size * 3);
+        const nodeGlow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, nodeRadius);
         nodeGlow.addColorStop(0, `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, 0.8)`);
         nodeGlow.addColorStop(0.5, `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, 0.25)`);
         nodeGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
         ctx.fillStyle = nodeGlow;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, nodeRadius, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.fillStyle = '#FFFFFF';
