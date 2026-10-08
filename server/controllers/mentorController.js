@@ -28,7 +28,7 @@ const getMentors = async (req, res) => {
       ];
     }
 
-    const mentors = await User.find(query).select('-password');
+    const mentors = await User.find(query).select('-password').lean();
     res.json(mentors);
   } catch (error) {
     res.status(500).json({ message: 'Server error fetching mentors', error: error.message });
@@ -37,7 +37,7 @@ const getMentors = async (req, res) => {
 
 const getMentor = async (req, res) => {
   try {
-    const mentor = await User.findOne({ _id: req.params.id, role: 'mentor' }).select('-password');
+    const mentor = await User.findOne({ _id: req.params.id, role: 'mentor' }).select('-password').lean();
     
     if (!mentor) {
       return res.status(404).json({ message: 'Mentor not found' });

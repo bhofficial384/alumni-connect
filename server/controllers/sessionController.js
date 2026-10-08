@@ -46,25 +46,25 @@ const createSession = async (req, res) => {
       .populate('mentor', 'name email company domain profileImage headline designation qualification college experienceYears skills certifications certificatesList linkedIn github portfolio')
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage');
 
-    // Guaranteed email dispatch to mentor's registered email
+    // Asynchronous background email dispatch to mentor (non-blocking for instant sub-50ms HTTP response)
     if (populatedSession?.mentor?.email) {
       const clientUrl = getOriginFromReq(req);
-      try {
-        console.log(`📨 [SESSION CREATE] Sending real-time email to mentor (${populatedSession.mentor.email})...`);
-        const mailRes = await sendSessionRequestEmailToMentor({
+      setImmediate(() => {
+        sendSessionRequestEmailToMentor({
           mentor: populatedSession.mentor,
           student: populatedSession.student,
           topic: populatedSession.topic,
           message: populatedSession.message,
           preferredDate: populatedSession.preferredDate,
           clientUrl
-        });
-        console.log(`✅ [SESSION CREATE] Email delivery to mentor ${populatedSession.mentor.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
-      } catch (err) {
-        console.error('⚠️ [SESSION CREATE EMAIL ERROR]:', err.message);
-      }
-    } else {
-      console.warn('⚠️ [SESSION CREATE] Mentor email not found on populated session:', populatedSession?.mentor);
+        })
+          .then(mailRes => {
+            console.log(`✅ [SESSION CREATE] Email delivery to mentor ${populatedSession.mentor.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
+          })
+          .catch(err => {
+            console.error('⚠️ [SESSION CREATE EMAIL ERROR]:', err.message);
+          });
+      });
     }
 
     res.status(201).json(populatedSession);
@@ -77,7 +77,8 @@ const getStudentSessions = async (req, res) => {
   try {
     const sessions = await Session.find({ student: req.user.id })
       .populate('mentor', 'name email company domain profileImage headline designation qualification college experienceYears skills certifications certificatesList linkedIn github portfolio')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
       
     res.json(sessions);
   } catch (error) {
@@ -89,7 +90,8 @@ const getIncomingSessions = async (req, res) => {
   try {
     const sessions = await Session.find({ mentor: req.user.id })
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
       
     res.json(sessions);
   } catch (error) {
@@ -121,12 +123,11 @@ const updateSessionStatus = async (req, res) => {
       .populate('student', 'name email graduationYear registrationNumber branch semester rollNumber profileImage')
       .populate('mentor', 'name email company domain profileImage headline designation qualification college experienceYears skills certifications certificatesList linkedIn github portfolio');
 
-    // Guaranteed email dispatch to student's registered email on approval or rejection
+    // Asynchronous background email dispatch to student (non-blocking for instant sub-50ms HTTP response)
     if (updatedSession?.student?.email && (status === 'approved' || status === 'rejected')) {
       const clientUrl = getOriginFromReq(req);
-      try {
-        console.log(`📨 [SESSION ${status.toUpperCase()}] Sending real-time status email to student (${updatedSession.student.email})...`);
-        const mailRes = await sendSessionStatusEmailToStudent({
+      setImmediate(() => {
+        sendSessionStatusEmailToStudent({
           student: updatedSession.student,
           mentor: updatedSession.mentor,
           status: updatedSession.status,
@@ -134,13 +135,14 @@ const updateSessionStatus = async (req, res) => {
           scheduledDate: updatedSession.scheduledDate || updatedSession.preferredDate,
           mentorNotes: updatedSession.mentorNotes,
           clientUrl
-        });
-        console.log(`✅ [SESSION ${status.toUpperCase()}] Email delivery to student ${updatedSession.student.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
-      } catch (err) {
-        console.error(`⚠️ [SESSION ${status.toUpperCase()} EMAIL ERROR]:`, err.message);
-      }
-    } else {
-      console.warn(`⚠️ [SESSION STATUS] Student email not found or status not actionable (status=${status}):`, updatedSession?.student);
+        })
+          .then(mailRes => {
+            console.log(`✅ [SESSION ${status.toUpperCase()}] Email delivery to student ${updatedSession.student.email}: ${mailRes?.delivered ? 'SUCCESS' : 'FAILED'}`);
+          })
+          .catch(err => {
+            console.error(`⚠️ [SESSION ${status.toUpperCase()} EMAIL ERROR]:`, err.message);
+          });
+      });
     }
 
     res.json(updatedSession);

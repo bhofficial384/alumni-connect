@@ -38,4 +38,9 @@ const sessionSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// High-speed indexes for session lookup
+sessionSchema.index({ student: 1, createdAt: -1 });
+sessionSchema.index({ mentor: 1, createdAt: -1 });
+sessionSchema.index({ status: 1 });
+
 module.exports = mongoose.model('Session', sessionSchema);

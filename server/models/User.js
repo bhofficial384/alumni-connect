@@ -216,4 +216,11 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// High-performance compound indexes for fast query resolution
+userSchema.index({ role: 1, isApproved: 1 });
+userSchema.index({ email: 1 });
+userSchema.index({ phoneNumber: 1 });
+userSchema.index({ role: 1, domain: 1 });
+userSchema.index({ role: 1, company: 1 });
+
 module.exports = mongoose.model('User', userSchema);

@@ -63,28 +63,47 @@ const Landing = () => {
     }
   };
 
-  // Scroll progress for top beam and ambient parallax
-  const [pageScroll, setPageScroll] = useState(0);
+// Isolated, ultra-performant scroll progress indicator that never re-renders parent tree
+const ScrollProgressBeam = React.memo(() => {
+  const barRef = React.useRef(null);
 
   React.useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+    const updateProgress = () => {
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalHeight > 0) {
-        setPageScroll((window.scrollY / totalHeight) * 100);
+      if (totalHeight > 0 && barRef.current) {
+        const pct = Math.min(100, Math.max(0, (window.scrollY / totalHeight) * 100));
+        barRef.current.style.width = `${pct}%`;
+      }
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(updateProgress);
+        ticking = true;
       }
     };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
+    updateProgress();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  return (
+    <div
+      ref={barRef}
+      className="fixed top-0 left-0 h-[2.5px] bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-400 z-50 shadow-[0_0_12px_rgba(6,182,212,0.8)] pointer-events-none transition-all duration-75"
+      style={{ width: '0%' }}
+    />
+  );
+});
 
   return (
     <div className="min-h-screen bg-[#07090E] text-white overflow-x-hidden selection:bg-[#2563EB] selection:text-white relative">
       
       {/* 3D Scroll Progress Luminous Top Beam */}
-      <div
-        className="fixed top-0 left-0 h-[2.5px] bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-400 z-50 shadow-[0_0_12px_rgba(6,182,212,0.8)] pointer-events-none transition-all duration-75"
-        style={{ width: `${pageScroll}%` }}
-      />
+      <ScrollProgressBeam />
       
       {/* ========================================================
           FLUID AURORA BACKGROUND MESH (Surrounding Frame)

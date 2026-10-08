@@ -20,7 +20,7 @@ const MentorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [requests, setRequests] = useState([]);
-  const [availability, setAvailability] = useState([]);
+  const [availability, setAvailability] = useState(() => user?.availability || []);
   const [newSlot, setNewSlot] = useState({ day: 'Monday', startTime: '', endTime: '' });
   const [actionLoading, setActionLoading] = useState(null); // Track which request is being acted on
   const [savingAvailability, setSavingAvailability] = useState(false);
@@ -28,6 +28,13 @@ const MentorDashboard = () => {
   const [showPublicPreview, setShowPublicPreview] = useState(false);
   const [selectedSessionToApprove, setSelectedSessionToApprove] = useState(null);
   const [viewingStudent, setViewingStudent] = useState(null);
+
+  // Sync availability when user changes in AuthContext
+  useEffect(() => {
+    if (user?.availability) {
+      setAvailability(user.availability);
+    }
+  }, [user?.availability]);
 
   // Fetch incoming session requests from the API
   const fetchData = async () => {
@@ -44,19 +51,8 @@ const MentorDashboard = () => {
     }
   };
 
-  // Fetch current availability from user profile
-  const fetchAvailability = async () => {
-    try {
-      const res = await api.get('/auth/me');
-      setAvailability(res.data.user?.availability || []);
-    } catch (err) {
-      console.error('Failed to fetch availability:', err);
-    }
-  };
-
   useEffect(() => {
     fetchData();
-    fetchAvailability();
   }, []);
 
   // Confirm approved session with date, time, and meeting notes

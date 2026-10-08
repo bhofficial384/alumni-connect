@@ -55,10 +55,8 @@ const Hero3DScene = () => {
       { r: 251, g: 191, b: 36, hex: '#FBBF24' },  // Amber Glow
     ];
 
-    // ==========================================
-    // 1. SMALL FLOATING BUBBLES (Ambient Particles)
-    // ==========================================
-    const numBubbles = 65;
+    const isMobile = window.innerWidth < 768;
+    const numBubbles = isMobile ? 18 : 50;
     const bubbles = [];
     for (let i = 0; i < numBubbles; i++) {
       const color = bubbleColors[i % bubbleColors.length];
@@ -80,7 +78,7 @@ const Hero3DScene = () => {
     // ==========================================
     // 2. 3D CONSTELLATION NODES (Geodesic Sphere)
     // ==========================================
-    const numNodes = 36;
+    const numNodes = isMobile ? 14 : 32;
     const sphereRadius = Math.min(width, height) * 0.35;
     const nodes = [];
     const phi = Math.PI * (3 - Math.sqrt(5)); // Golden spiral
@@ -301,4 +299,4 @@ const Hero3DScene = () => {
   );
 };
 
-export default Hero3DScene;
+export default React.memo(Hero3DScene);

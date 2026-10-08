@@ -8,6 +8,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 const dotenv = require('dotenv');
 const { connectDB } = require('./config/db');
 
@@ -16,6 +17,9 @@ dotenv.config();
 
 // Initialize express app
 const app = express();
+
+// Enable HTTP response compression (Gzip/Deflate)
+app.use(compression());
 
 // Connect to MongoDB
 connectDB();
