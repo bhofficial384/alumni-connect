@@ -89,19 +89,35 @@ const AdminDashboard = () => {
   const [contactToDelete, setContactToDelete] = useState(null);
   const [isDeletingContact, setIsDeletingContact] = useState(false);
 
+  // Administrators state
+  const [admins, setAdmins] = useState([]);
+  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+  const [newAdminData, setNewAdminData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+    profileImage: ''
+  });
+  const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
+  const [adminToDelete, setAdminToDelete] = useState(null);
+  const [isDeletingAdmin, setIsDeletingAdmin] = useState(false);
+
   const fetchAdminData = async () => {
     setLoading(true);
     setError('');
     try {
-      const [statsRes, studentsRes, mentorsRes, contactsRes] = await Promise.all([
+      const [statsRes, studentsRes, mentorsRes, adminsRes, contactsRes] = await Promise.all([
         api.get('/admin/stats'),
         api.get('/admin/students'),
         api.get('/admin/mentors'),
+        api.get('/admin/admins'),
         api.get('/admin/contacts')
       ]);
       setStats(statsRes.data);
       setStudents(studentsRes.data || []);
       setMentors(mentorsRes.data || []);
+      setAdmins(adminsRes.data || []);
       setContacts(contactsRes.data || []);
     } catch (err) {
       console.error('Failed to fetch admin data:', err);
@@ -405,6 +421,106 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleCreateAdmin = async (e) => {
+    e.preventDefault();
+    setIsCreatingAdmin(true);
+    setActionFeedback({ text: '', type: '' });
+    try {
+      const res = await api.post('/admin/admins', newAdminData);
+      const created = res.data.admin;
+      setAdmins(prev => [created, ...prev]);
+      setStats(prev => {
+        if (!prev?.users) return prev;
+        return {
+          ...prev,
+          users: {
+            ...prev.users,
+            totalAdmins: (prev.users.totalAdmins || 0) + 1,
+            total: (prev.users.total || 0) + 1
+          }
+        };
+      });
+      setShowAddAdminModal(false);
+      setNewAdminData({
+        name: '',
+        email: '',
+        password: '',
+        phoneNumber: '',
+        profileImage: ''
+      });
+      setActionFeedback({
+        text: res.data.message || `Administrator "${created.name}" created successfully!`,
+        type: 'success'
+      });
+      setTimeout(() => setActionFeedback({ text: '', type: '' }), 4500);
+    } catch (err) {
+      console.error('Failed to create admin:', err);
+      setActionFeedback({
+        text: err.response?.data?.message || 'Failed to create administrator.',
+        type: 'error'
+      });
+    } finally {
+      setIsCreatingAdmin(false);
+    }
+  };
+
+  const handleDeleteAdmin = async () => {
+    if (!adminToDelete) return;
+    if (user?._id === adminToDelete._id || user?.email === adminToDelete.email) {
+      setActionFeedback({
+        text: 'You cannot delete your own admin account.',
+        type: 'error'
+      });
+      setAdminToDelete(null);
+      return;
+    }
+    if (admins.length <= 1) {
+      setActionFeedback({
+        text: 'Cannot delete the only remaining administrator in the system.',
+        type: 'error'
+      });
+      setAdminToDelete(null);
+      return;
+    }
+
+    setIsDeletingAdmin(true);
+    try {
+      const res = await api.delete(`/admin/admins/${adminToDelete._id}`);
+      setAdmins(prev => prev.filter(a => a._id !== adminToDelete._id));
+      setStats(prev => {
+        if (!prev?.users) return prev;
+        return {
+          ...prev,
+          users: {
+            ...prev.users,
+            totalAdmins: Math.max(1, (prev.users.totalAdmins || 1) - 1),
+            total: Math.max(1, (prev.users.total || 1) - 1)
+          }
+        };
+      });
+      setActionFeedback({
+        text: res.data?.message || `Admin "${adminToDelete.name}" deleted successfully.`,
+        type: 'success'
+      });
+      setAdminToDelete(null);
+      setTimeout(() => setActionFeedback({ text: '', type: '' }), 4500);
+    } catch (err) {
+      console.error('Failed to delete admin:', err);
+      setActionFeedback({
+        text: err.response?.data?.message || 'Failed to delete administrator.',
+        type: 'error'
+      });
+    } finally {
+      setIsDeletingAdmin(false);
+    }
+  };
+
+  const filteredAdmins = admins.filter(a =>
+    a.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    a.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    a.phoneNumber?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const filteredContacts = contacts.filter(c =>
     c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -521,7 +637,7 @@ const AdminDashboard = () => {
         ) : (
           <>
             {/* Telemetry Metric Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 mb-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5 mb-10">
               {/* Total Students */}
               <TiltCard3D className="glass-card-dark rounded-2xl p-6 relative overflow-hidden group">
                 <div className="absolute -top-12 -right-12 w-28 h-28 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all" />
@@ -599,6 +715,26 @@ const AdminDashboard = () => {
                 </div>
               </TiltCard3D>
 
+              {/* Administrators */}
+              <TiltCard3D 
+                onClick={() => setActiveTab('admins')}
+                className="glass-card-dark rounded-2xl p-6 relative overflow-hidden group cursor-pointer hover:border-violet-500/50 transition-all"
+              >
+                <div className="absolute -top-12 -right-12 w-28 h-28 bg-violet-500/10 rounded-full blur-2xl group-hover:bg-violet-500/25 transition-all" />
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-semibold text-violet-300 uppercase tracking-wider">Admins</span>
+                  <div className="w-10 h-10 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-violet-300 text-lg">
+                    🛡️
+                  </div>
+                </div>
+                <div className="text-3xl font-extrabold text-violet-300 tracking-tight">
+                  {stats?.users?.totalAdmins !== undefined ? stats?.users?.totalAdmins : admins.length}
+                </div>
+                <div className="text-xs text-violet-400/80 mt-2 font-medium flex items-center gap-1">
+                  <span>Manage admins ({admins.length}) →</span>
+                </div>
+              </TiltCard3D>
+
               {/* Contact Form Inquiries */}
               <TiltCard3D 
                 onClick={() => setActiveTab('contacts')}
@@ -615,7 +751,7 @@ const AdminDashboard = () => {
                   {stats?.contacts?.total !== undefined ? stats?.contacts?.total : contacts.length}
                 </div>
                 <div className="text-xs text-pink-400/80 mt-2 font-medium flex items-center gap-1">
-                  <span>Home page inquiries →</span>
+                  <span>Home inquiries →</span>
                 </div>
               </TiltCard3D>
             </div>
@@ -657,6 +793,16 @@ const AdminDashboard = () => {
                   }`}
                 >
                   Students ({students.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('admins')}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
+                    activeTab === 'admins'
+                      ? 'bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white shadow-lg'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <span>🛡️ Admins ({admins.length})</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('contacts')}
@@ -786,6 +932,23 @@ const AdminDashboard = () => {
                         </div>
                         <span className="text-xs font-semibold text-purple-400 uppercase tracking-wide">Operational</span>
                       </div>
+
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <div className="flex items-center gap-3">
+                          <span className="w-2.5 h-2.5 rounded-full bg-violet-400"></span>
+                          <span className="text-sm font-medium text-slate-200">System Administrators</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-violet-300">{admins.length} Active</span>
+                          <button
+                            type="button"
+                            onClick={() => setShowAddAdminModal(true)}
+                            className="px-2 py-0.5 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 border border-violet-500/30 text-[11px] font-bold cursor-pointer transition-colors"
+                          >
+                            + Add Admin
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -794,6 +957,149 @@ const AdminDashboard = () => {
                     <span className="text-cyan-400 font-mono">v2.4.0-cyber</span>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* TAB: Administrators Directory */}
+            {activeTab === 'admins' && (
+              <div className="space-y-6">
+                {/* Header Action Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-slate-900/70 border border-slate-800">
+                  <div>
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      <span>System Administrators</span>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-500/15 text-violet-300 border border-violet-500/30">
+                        {filteredAdmins.length} of {admins.length}
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Personnel with superuser administrative privileges and full dashboard access
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowAddAdminModal(true)}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-violet-600/30 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+                  >
+                    <span>➕</span>
+                    <span>Direct Add Admin</span>
+                  </button>
+                </div>
+
+                {/* Admins Grid */}
+                {filteredAdmins.length === 0 ? (
+                  <div className="glass-card-dark rounded-2xl p-12 text-center border border-white/10">
+                    <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 text-violet-400 flex items-center justify-center mx-auto text-2xl mb-4">
+                      🛡️
+                    </div>
+                    <h4 className="text-lg font-bold text-white mb-1">
+                      {searchQuery ? 'No matching administrators' : 'No administrators found'}
+                    </h4>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                      {searchQuery ? `No admin matches "${searchQuery}".` : 'Add an administrator using the Direct Add Admin button above.'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredAdmins.map((admin) => {
+                      const isCurrentUser = (user?._id && admin._id === user._id) || (user?.email && admin.email?.toLowerCase() === user.email?.toLowerCase());
+                      const isSoleAdmin = admins.length <= 1;
+
+                      return (
+                        <div
+                          key={admin._id}
+                          className={`glass-card-dark rounded-2xl p-5 border flex flex-col justify-between transition-all relative overflow-hidden group shadow-lg ${
+                            isCurrentUser
+                              ? 'border-violet-500/50 bg-gradient-to-b from-violet-950/20 to-slate-900/60'
+                              : 'border-white/10 hover:border-violet-500/30'
+                          }`}
+                        >
+                          <div>
+                            {/* Card Header: Avatar & Info */}
+                            <div className="flex items-start justify-between gap-3 mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-tr from-violet-600 via-indigo-600 to-purple-600 flex items-center justify-center text-lg font-bold text-white shadow-md shrink-0">
+                                  {admin.profileImage ? (
+                                    <img src={admin.profileImage} alt={admin.name} className="w-full h-full object-cover" />
+                                  ) : (
+                                    getInitials(admin.name)
+                                  )}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="font-bold text-white text-base leading-tight">{admin.name}</h4>
+                                    {isCurrentUser && (
+                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-violet-500/25 border border-violet-500/50 text-violet-300">
+                                        You
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-violet-400 font-medium flex items-center gap-1 mt-0.5">
+                                    <span>🛡️</span>
+                                    <span>System Administrator</span>
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Delete button (or protected badge) */}
+                              {isCurrentUser ? (
+                                <span
+                                  title="Active logged-in session"
+                                  className="px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-semibold flex items-center gap-1"
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                  Active
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={isSoleAdmin}
+                                  onClick={() => setAdminToDelete(admin)}
+                                  className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/20 hover:border-rose-500/50 text-rose-400 hover:text-rose-200 text-xs transition-all shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                                  title={isSoleAdmin ? 'Cannot delete the sole administrator' : `Remove admin access for ${admin.name}`}
+                                >
+                                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Details List */}
+                            <div className="text-xs text-slate-400 space-y-2 mb-4 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                              <div className="flex items-center gap-2 truncate">
+                                <svg className="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <a href={`mailto:${admin.email}`} className="truncate text-slate-300 hover:text-white hover:underline">
+                                  {admin.email}
+                                </a>
+                              </div>
+
+                              {admin.phoneNumber ? (
+                                <div className="flex items-center gap-2 text-slate-300">
+                                  <span className="text-slate-500">📞</span>
+                                  <span>{admin.phoneNumber}</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2 text-slate-500 italic">
+                                  <span>📞</span>
+                                  <span>No phone number</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-500">
+                            <span>Permissions: <strong className="text-violet-300">Full Access</strong></span>
+                            <span>{admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : 'Active'}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
@@ -2417,6 +2723,266 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {/* Modal: Direct Add Admin */}
+        {showAddAdminModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn" onClick={() => setShowAddAdminModal(false)}>
+            <div 
+              className="relative w-full max-w-lg bg-[#0C101B] border border-violet-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-violet-500/20 border border-violet-500/40 flex items-center justify-center text-violet-300 text-lg">
+                    🛡️
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white leading-tight">
+                      Direct Add Administrator
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Grant full administrative privileges to manage users and platform operations.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAddAdminModal(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateAdmin} className="space-y-4">
+                {/* Photo Upload & Preview */}
+                <div className="flex items-center gap-4 p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                  <div className="w-16 h-16 rounded-2xl p-[2px] bg-gradient-to-tr from-violet-500 via-purple-500 to-indigo-500 shrink-0 shadow-md overflow-hidden relative group">
+                    {newAdminData.profileImage ? (
+                      <img
+                        src={newAdminData.profileImage}
+                        alt="Preview"
+                        className="w-full h-full object-cover rounded-[14px]"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[#111624] rounded-[14px] flex items-center justify-center text-violet-300 font-bold text-lg">
+                        {newAdminData.name ? getInitials(newAdminData.name) : '📷'}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <span className="block text-xs font-semibold text-white mb-1">
+                      Admin Profile Photo
+                    </span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <label className="px-3 py-1.5 rounded-lg bg-violet-500/15 hover:bg-violet-500/25 border border-violet-500/30 text-violet-300 hover:text-white text-xs font-semibold cursor-pointer transition-colors inline-flex items-center gap-1.5">
+                        <span>📤 Upload</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const base64 = await compressAndResizeImage(file, 400, 400, 0.85);
+                              setNewAdminData(prev => ({ ...prev, profileImage: base64 }));
+                            } catch (err) {
+                              alert(err.message || 'Error processing image');
+                            }
+                          }}
+                        />
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => setCameraModalTarget('admin')}
+                        className="px-3 py-1.5 rounded-lg bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 hover:text-white text-xs font-semibold transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <span>📸 Camera</span>
+                      </button>
+
+                      {newAdminData.profileImage && (
+                        <button
+                          type="button"
+                          onClick={() => setNewAdminData(prev => ({ ...prev, profileImage: '' }))}
+                          className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition-colors cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-500 mt-1 block">Upload file or take photo with webcam</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Alex Johnson"
+                      value={newAdminData.name}
+                      onChange={(e) => setNewAdminData({ ...newAdminData, name: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. alex@college.edu"
+                      value={newAdminData.email}
+                      onChange={(e) => setNewAdminData({ ...newAdminData, email: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Password (Minimum 6 characters)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Defaults to admin123"
+                      value={newAdminData.password}
+                      onChange={(e) => setNewAdminData({ ...newAdminData, password: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500"
+                    />
+                    <span className="text-[10px] text-slate-500 mt-0.5 block">Leave blank for default: admin123</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">
+                      Phone Number (Optional)
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g. +91 9876543210"
+                      value={newAdminData.phoneNumber}
+                      onChange={(e) => setNewAdminData({ ...newAdminData, phoneNumber: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 flex items-start gap-2">
+                  <span className="text-sm">ℹ️</span>
+                  <span>
+                    New administrators receive full access to approve mentors, manage student rosters, schedule sessions, and system telemetry immediately.
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddAdminModal(false)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isCreatingAdmin}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-violet-600/30 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isCreatingAdmin ? (
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Adding Administrator...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>🛡️</span>
+                        <span>Add Administrator</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Delete Admin Confirmation */}
+        {adminToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+            <div className="bg-[#0e121e] border border-rose-500/30 w-full max-w-md rounded-2xl p-6 shadow-2xl shadow-rose-950/40 relative">
+              <div className="flex items-start gap-3.5 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0 text-lg">
+                  ⚠️
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white leading-snug">
+                    Revoke Administrator Access
+                  </h3>
+                  <p className="text-xs text-rose-300/80 mt-0.5">
+                    This user will lose all administrative dashboard and telemetry access.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 mb-5 text-xs space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Admin Name:</span>
+                  <span className="text-white font-semibold">{adminToDelete.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Email:</span>
+                  <span className="text-slate-300 font-mono text-[11px]">{adminToDelete.email}</span>
+                </div>
+                {adminToDelete.phoneNumber && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Phone:</span>
+                    <span className="text-slate-300">{adminToDelete.phoneNumber}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setAdminToDelete(null)}
+                  disabled={isDeletingAdmin}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteAdmin}
+                  disabled={isDeletingAdmin}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isDeletingAdmin ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Revoking Access...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>🗑️</span>
+                      <span>Confirm Revocation</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Live Camera Snapshot Modal */}
         <CameraCaptureModal
           isOpen={!!cameraModalTarget}
@@ -2426,6 +2992,8 @@ const AdminDashboard = () => {
               setNewStudentData(prev => ({ ...prev, profileImage: compressedBase64 }));
             } else if (cameraModalTarget === 'mentor') {
               setNewMentorData(prev => ({ ...prev, profileImage: compressedBase64 }));
+            } else if (cameraModalTarget === 'admin') {
+              setNewAdminData(prev => ({ ...prev, profileImage: compressedBase64 }));
             }
             setCameraModalTarget(null);
           }}

@@ -180,6 +180,7 @@ const getStats = async (req, res) => {
   try {
     const totalStudents = await User.countDocuments({ role: 'student' });
     const totalMentors = await User.countDocuments({ role: 'mentor' });
+    const totalAdmins = await User.countDocuments({ role: 'admin' });
     const approvedMentors = await User.countDocuments({ role: 'mentor', isApproved: true });
     const pendingMentors = await User.countDocuments({ role: 'mentor', $or: [{ isApproved: false }, { approvalStatus: 'pending' }] });
     const totalSessions = await Session.countDocuments();
@@ -194,9 +195,10 @@ const getStats = async (req, res) => {
       users: {
         totalStudents,
         totalMentors,
+        totalAdmins,
         approvedMentors,
         pendingMentors,
-        total: totalStudents + totalMentors + 1 // +1 for admin
+        total: totalStudents + totalMentors + totalAdmins
       },
       sessions: {
         total: totalSessions,
@@ -393,6 +395,114 @@ const createMentor = async (req, res) => {
   }
 };
 
+/**
+ * Get All Admins
+ * GET /api/admin/admins
+ */
+const getAdmins = async (req, res) => {
+  try {
+    const admins = await User.find({ role: 'admin' })
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json(admins);
+  } catch (error) {
+    console.error('Get Admins Error:', error);
+    res.status(500).json({ message: 'Server error fetching admins', error: error.message });
+  }
+};
+
+/**
+ * Direct Add Admin
+ * POST /api/admin/admins
+ */
+const createAdmin = async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const { name, email, password, phoneNumber, profileImage } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: 'Admin name is required' });
+    }
+    if (!email || !email.trim()) {
+      return res.status(400).json({ message: 'Admin email is required' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const existing = await User.findOne({ email: normalizedEmail });
+    if (existing) {
+      return res.status(400).json({ message: `A user with email ${normalizedEmail} already exists (${existing.role})` });
+    }
+
+    const rawPassword = (password && password.trim().length >= 6) ? password.trim() : 'admin123';
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(rawPassword, salt);
+
+    const admin = await User.create({
+      name: name.trim(),
+      email: normalizedEmail,
+      password: hashedPassword,
+      role: 'admin',
+      phoneNumber: phoneNumber ? phoneNumber.trim() : '',
+      profileImage: profileImage ? profileImage.trim() : '',
+      isApproved: true,
+      approvalStatus: 'approved',
+      approvedAt: new Date(),
+      isEmailVerified: true,
+      isProfileComplete: true
+    });
+
+    const populatedAdmin = await User.findById(admin._id).select('-password');
+
+    res.status(201).json({
+      success: true,
+      message: `Administrator "${populatedAdmin.name}" created successfully.`,
+      admin: populatedAdmin
+    });
+  } catch (error) {
+    console.error('Direct Create Admin Error:', error);
+    res.status(500).json({ message: 'Server error creating administrator', error: error.message });
+  }
+};
+
+/**
+ * Delete Admin
+ * DELETE /api/admin/admins/:id
+ */
+const deleteAdmin = async (req, res) => {
+  try {
+    const adminId = req.params.id;
+
+    // Prevent self-deletion
+    if (req.user && req.user._id && req.user._id.toString() === adminId.toString()) {
+      return res.status(400).json({ message: 'You cannot delete your own admin account.' });
+    }
+
+    // Prevent deleting the last remaining admin
+    const adminCount = await User.countDocuments({ role: 'admin' });
+    if (adminCount <= 1) {
+      return res.status(400).json({ message: 'Cannot delete the only remaining admin in the system.' });
+    }
+
+    const admin = await User.findOne({ _id: adminId, role: 'admin' });
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found or already deleted.' });
+    }
+
+    const adminName = admin.name;
+    await User.findByIdAndDelete(adminId);
+
+    res.json({
+      success: true,
+      message: `Admin "${adminName}" deleted successfully.`,
+      adminId
+    });
+  } catch (error) {
+    console.error('Delete Admin Error:', error);
+    res.status(500).json({ message: 'Server error deleting admin', error: error.message });
+  }
+};
+
 module.exports = {
   getStudents,
   createStudent,
@@ -402,6 +512,9 @@ module.exports = {
   createMentor,
   updateMentorApproval,
   deleteMentor,
+  getAdmins,
+  createAdmin,
+  deleteAdmin,
   getStats,
   getContacts,
   deleteContact

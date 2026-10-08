@@ -9,6 +9,9 @@ const {
   createMentor,
   updateMentorApproval,
   deleteMentor,
+  getAdmins,
+  createAdmin,
+  deleteAdmin,
   getStats,
   getContacts,
   deleteContact
@@ -26,6 +29,11 @@ router.post('/mentors', protect, authorize('admin'), createMentor);
 router.patch('/mentors/:id/approval', protect, authorize('admin'), updateMentorApproval);
 router.put('/mentors/:id/approval', protect, authorize('admin'), updateMentorApproval);
 router.delete('/mentors/:id', protect, authorize('admin'), deleteMentor);
+
+router.get('/admins', protect, authorize('admin'), getAdmins);
+router.post('/admins', protect, authorize('admin'), createAdmin);
+router.delete('/admins/:id', protect, authorize('admin'), deleteAdmin);
+
 router.get('/stats', protect, authorize('admin'), getStats);
 router.get('/contacts', protect, authorize('admin'), getContacts);
 router.delete('/contacts/:id', protect, authorize('admin'), deleteContact);
