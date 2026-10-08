@@ -202,9 +202,159 @@ const ScrollProgressBeam = React.memo(() => {
             BENTO CARDS (AI Assistant, 64m Metrics, Instant Booking)
            ======================================================== */}
         <DribbbleBentoCards />
+        {/* Luminous Neon Divider Conduit */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-4">
+          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-cyan-500/30 via-purple-500/30 to-transparent relative">
+            <div className="absolute inset-y-0 left-1/3 right-1/3 bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent blur-sm" />
+          </div>
+        </div>
 
         {/* ========================================================
-            FEATURED MENTORS DIRECTORY
+            SECTION 1: HOW IT WORKS (Search by Company → Book 1-on-1 Slot → Get Mentored)
+           ======================================================== */}
+        <section id="how-it-works" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          {/* Central Ambient Nebula */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-purple-600/12 rounded-full blur-[160px] pointer-events-none" />
+
+          <div className="text-center max-w-2xl mx-auto mb-16 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-[0_0_15px_rgba(168,85,247,0.25)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse shadow-[0_0_8px_#A855F7]" />
+              <span>3-Step Career Pipeline</span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+              Search by Company → Book 1-on-1 Slot → Get Mentored
+            </h2>
+            <p className="text-slate-400 text-sm sm:text-base mt-3 leading-relaxed">
+              A high-impact workflow engineered to bridge university students directly with verified alumni across the globe.
+            </p>
+          </div>
+
+          <div className="relative z-10">
+            {/* Luminous Neon Connecting Bar across desktop cards */}
+            <div className="hidden md:block absolute top-[110px] left-[15%] right-[15%] h-[2px] bg-gradient-to-r from-cyan-500/40 via-purple-500/50 to-emerald-500/40 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400 blur-[2px] opacity-70 animate-pulse" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Step 01 */}
+              <TiltCard3D className="h-full">
+                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-cyan-400/50 p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(6,182,212,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
+                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/15 group-hover:bg-cyan-500/25 rounded-full blur-2xl transition-all pointer-events-none" />
+                  
+                  <div>
+                    {/* Glowing 3D Orb Badge */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/40 flex items-center justify-center text-cyan-300 font-black text-lg shadow-[0_0_20px_rgba(6,182,212,0.35)] group-hover:scale-105 transition-transform">
+                        01
+                      </div>
+                      <span className="text-[10px] font-bold tracking-widest uppercase text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/25">
+                        DISCOVERY
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors">
+                      Search by Company
+                    </h3>
+                    <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                      Filter verified alumni by target company (Google, Stripe, Goldman Sachs, Microsoft), graduation batch, and engineering technical domain.
+                    </p>
+
+                    {/* Interactive mock tag pills */}
+                    <div className="p-3.5 rounded-2xl bg-[#131826]/90 border border-white/5 space-y-2">
+                      <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Top Recruited Firms</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-500/15 text-blue-300 border border-blue-500/30">Google</span>
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">Stripe</span>
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Goldman Sachs</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TiltCard3D>
+
+              {/* Step 02 */}
+              <TiltCard3D className="h-full">
+                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-purple-400/50 p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
+                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-purple-500/15 group-hover:bg-purple-500/25 rounded-full blur-2xl transition-all pointer-events-none" />
+                  
+                  <div>
+                    {/* Glowing 3D Orb Badge */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/40 flex items-center justify-center text-purple-300 font-black text-lg shadow-[0_0_20px_rgba(168,85,247,0.35)] group-hover:scale-105 transition-transform">
+                        02
+                      </div>
+                      <span className="text-[10px] font-bold tracking-widest uppercase text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/25">
+                        BOOKING
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors">
+                      Book 1-on-1 Slot
+                    </h3>
+                    <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                      Pick an available time slot directly from the mentor’s live calendar with instant session dispatch and automated email reminders.
+                    </p>
+
+                    {/* Interactive mock calendar badge */}
+                    <div className="p-3.5 rounded-2xl bg-[#131826]/90 border border-white/5 space-y-2">
+                      <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Live Time Slot</div>
+                      <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs font-semibold text-purple-300">
+                        <span>🗓️ Tomorrow, 6:00 PM</span>
+                        <span className="text-[10px] text-emerald-400 font-bold">✓ Confirmed</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TiltCard3D>
+
+              {/* Step 03 */}
+              <TiltCard3D className="h-full">
+                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-emerald-400/50 p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
+                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/15 group-hover:bg-emerald-500/25 rounded-full blur-2xl transition-all pointer-events-none" />
+                  
+                  <div>
+                    {/* Glowing 3D Orb Badge */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-300 font-black text-lg shadow-[0_0_20px_rgba(16,185,129,0.35)] group-hover:scale-105 transition-transform">
+                        03
+                      </div>
+                      <span className="text-[10px] font-bold tracking-widest uppercase text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/25">
+                        ELEVATION
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-emerald-300 transition-colors">
+                      Get Mentored
+                    </h3>
+                    <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                      Attend your dedicated 1-on-1 video session for real mock interviews, career guidance, salary negotiation, and line-by-line resume critique.
+                    </p>
+
+                    {/* Interactive mock checklist */}
+                    <div className="p-3.5 rounded-2xl bg-[#131826]/90 border border-white/5 space-y-1.5 text-xs text-slate-300">
+                      <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                        <span>✓</span> <span>System Design & Coding Mock</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                        <span>✓</span> <span>Actionable Resume Edits</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TiltCard3D>
+            </div>
+          </div>
+        </section>
+
+        {/* Luminous Neon Divider Conduit */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-4">
+          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-purple-500/30 via-blue-500/30 to-transparent relative">
+            <div className="absolute inset-y-0 left-1/3 right-1/3 bg-gradient-to-r from-transparent via-blue-400/40 to-transparent blur-sm" />
+          </div>
+        </div>
+
+        {/* ========================================================
+            SECTION 2: FEATURED MENTORS DIRECTORY
            ======================================================== */}
         <section id="mentors" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Ambient Lighting Halos */}
@@ -383,145 +533,15 @@ const ScrollProgressBeam = React.memo(() => {
           )}
         </section>
 
-        {/* ========================================================
-            HOW IT WORKS (Search by Company → Book 1-on-1 Slot → Get Mentored)
-           ======================================================== */}
-        <section id="how-it-works" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Central Ambient Nebula */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-purple-600/12 rounded-full blur-[160px] pointer-events-none" />
-
-          <div className="text-center max-w-2xl mx-auto mb-16 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-bold uppercase tracking-wider mb-3 shadow-[0_0_15px_rgba(168,85,247,0.25)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse shadow-[0_0_8px_#A855F7]" />
-              <span>3-Step Career Pipeline</span>
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-              Search by Company → Book 1-on-1 Slot → Get Mentored
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base mt-3 leading-relaxed">
-              A high-impact workflow engineered to bridge university students directly with verified alumni across the globe.
-            </p>
+        {/* Luminous Neon Divider Conduit */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-4">
+          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-blue-500/30 via-cyan-500/30 to-transparent relative">
+            <div className="absolute inset-y-0 left-1/3 right-1/3 bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent blur-sm" />
           </div>
-
-          <div className="relative z-10">
-            {/* Luminous Neon Connecting Bar across desktop cards */}
-            <div className="hidden md:block absolute top-[110px] left-[15%] right-[15%] h-[2px] bg-gradient-to-r from-cyan-500/40 via-purple-500/50 to-emerald-500/40 pointer-events-none">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400 blur-[2px] opacity-70 animate-pulse" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Step 01 */}
-              <TiltCard3D className="h-full">
-                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-cyan-400/50 p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(6,182,212,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
-                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/15 group-hover:bg-cyan-500/25 rounded-full blur-2xl transition-all pointer-events-none" />
-                  
-                  <div>
-                    {/* Glowing 3D Orb Badge */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/40 flex items-center justify-center text-cyan-300 font-black text-lg shadow-[0_0_20px_rgba(6,182,212,0.35)] group-hover:scale-105 transition-transform">
-                        01
-                      </div>
-                      <span className="text-[10px] font-bold tracking-widest uppercase text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/25">
-                        DISCOVERY
-                      </span>
-                    </div>
-
-                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors">
-                      Search by Company
-                    </h3>
-                    <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                      Filter verified alumni by target company (Google, Stripe, Goldman Sachs, Microsoft), graduation batch, and engineering technical domain.
-                    </p>
-
-                    {/* Interactive mock tag pills */}
-                    <div className="p-3.5 rounded-2xl bg-[#131826]/90 border border-white/5 space-y-2">
-                      <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Top Recruited Firms</div>
-                      <div className="flex flex-wrap gap-1.5">
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-500/15 text-blue-300 border border-blue-500/30">Google</span>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">Stripe</span>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Goldman Sachs</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TiltCard3D>
-
-              {/* Step 02 */}
-              <TiltCard3D className="h-full">
-                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-purple-400/50 p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
-                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-purple-500/15 group-hover:bg-purple-500/25 rounded-full blur-2xl transition-all pointer-events-none" />
-                  
-                  <div>
-                    {/* Glowing 3D Orb Badge */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/40 flex items-center justify-center text-purple-300 font-black text-lg shadow-[0_0_20px_rgba(168,85,247,0.35)] group-hover:scale-105 transition-transform">
-                        02
-                      </div>
-                      <span className="text-[10px] font-bold tracking-widest uppercase text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/25">
-                        BOOKING
-                      </span>
-                    </div>
-
-                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors">
-                      Book 1-on-1 Slot
-                    </h3>
-                    <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                      Pick an available time slot directly from the mentor’s live calendar with instant session dispatch and automated email reminders.
-                    </p>
-
-                    {/* Interactive mock calendar badge */}
-                    <div className="p-3.5 rounded-2xl bg-[#131826]/90 border border-white/5 space-y-2">
-                      <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Live Time Slot</div>
-                      <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs font-semibold text-purple-300">
-                        <span>🗓️ Tomorrow, 6:00 PM</span>
-                        <span className="text-[10px] text-emerald-400 font-bold">✓ Confirmed</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TiltCard3D>
-
-              {/* Step 03 */}
-              <TiltCard3D className="h-full">
-                <div className="rounded-[32px] bg-[#0E121C] border border-white/[0.08] hover:border-emerald-400/50 p-8 shadow-[0_15px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.22)] relative overflow-hidden group transition-all duration-300 flex flex-col justify-between h-full">
-                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/15 group-hover:bg-emerald-500/25 rounded-full blur-2xl transition-all pointer-events-none" />
-                  
-                  <div>
-                    {/* Glowing 3D Orb Badge */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-300 font-black text-lg shadow-[0_0_20px_rgba(16,185,129,0.35)] group-hover:scale-105 transition-transform">
-                        03
-                      </div>
-                      <span className="text-[10px] font-bold tracking-widest uppercase text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/25">
-                        ELEVATION
-                      </span>
-                    </div>
-
-                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-emerald-300 transition-colors">
-                      Get Mentored
-                    </h3>
-                    <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                      Attend your dedicated 1-on-1 video session for real mock interviews, career guidance, salary negotiation, and line-by-line resume critique.
-                    </p>
-
-                    {/* Interactive mock checklist */}
-                    <div className="p-3.5 rounded-2xl bg-[#131826]/90 border border-white/5 space-y-1.5 text-xs text-slate-300">
-                      <div className="flex items-center gap-2 text-emerald-400 font-semibold">
-                        <span>✓</span> <span>System Design & Coding Mock</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-emerald-400 font-semibold">
-                        <span>✓</span> <span>Actionable Resume Edits</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TiltCard3D>
-            </div>
-          </div>
-        </section>
+        </div>
 
         {/* ========================================================
-            ABOUT US (Alumni Association Mission & Vision)
+            SECTION 3: ABOUT US (Alumni Association Mission & Vision)
            ======================================================== */}
         <section id="about" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.1] p-8 sm:p-12 lg:p-16 shadow-[0_30px_100px_rgba(0,0,0,0.85)] relative overflow-hidden">
@@ -604,8 +624,15 @@ const ScrollProgressBeam = React.memo(() => {
           </div>
         </section>
 
+        {/* Luminous Neon Divider Conduit */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-4">
+          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-cyan-500/30 via-pink-500/30 to-transparent relative">
+            <div className="absolute inset-y-0 left-1/3 right-1/3 bg-gradient-to-r from-transparent via-pink-400/40 to-transparent blur-sm" />
+          </div>
+        </div>
+
         {/* ========================================================
-            SUCCESS STORIES / TESTIMONIALS (Mentee Placement Success)
+            SECTION 4: SUCCESS STORIES / TESTIMONIALS (Mentee Placement Success)
            ======================================================== */}
         <section id="testimonials" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Ambient Lighting Nebula */}
@@ -695,8 +722,15 @@ const ScrollProgressBeam = React.memo(() => {
           </div>
         </section>
 
+        {/* Luminous Neon Divider Conduit */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-4">
+          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-pink-500/30 via-blue-500/30 to-transparent relative">
+            <div className="absolute inset-y-0 left-1/3 right-1/3 bg-gradient-to-r from-transparent via-blue-400/40 to-transparent blur-sm" />
+          </div>
+        </div>
+
         {/* ========================================================
-            CONTACT SECTION
+            SECTION 5: CONTACT SECTION
            ======================================================== */}
         <section id="contact" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Ambient Lighting Nebula */}

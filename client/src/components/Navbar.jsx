@@ -34,73 +34,83 @@ const Navbar = () => {
         <div className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-cyan-400 via-indigo-400 to-transparent blur-[1px] animate-laser-beam opacity-90" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 items-center">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 sm:h-20 items-center gap-2 lg:gap-4 flex-nowrap">
           {/* Logo with 3D Canvas Graphic */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-3 group select-none">
+          <div className="flex items-center shrink-0">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 group select-none">
               <NavbarLogo3D />
               <div className="flex flex-col">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <span
-                    className={`font-display text-xl sm:text-2xl font-black tracking-tight transition-colors ${
+                    className={`font-display text-lg sm:text-xl lg:text-2xl font-black tracking-tight transition-colors ${
                       isDark ? 'text-white' : 'text-slate-900'
                     }`}
                   >
                     ALUMNI<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 font-extrabold">CONNECT</span>
                   </span>
-                  <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.2)]">
+                  <span className="hidden xl:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.2)]">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     Network
                   </span>
                 </div>
-                <span className="text-[10px] font-mono tracking-wider uppercase text-slate-400 -mt-0.5 hidden xs:block">
+                <span className="text-[9px] sm:text-[10px] font-mono tracking-wider uppercase text-slate-400 -mt-0.5 hidden lg:block">
                   Mentorship & Career Platform
                 </span>
               </div>
             </Link>
           </div>
 
-          {/* Desktop Nav Links */}
+          {/* Desktop Nav Links: 5 Distinct Sections Adjusted in One Line */}
           <div
-            className={`hidden lg:flex items-center space-x-1 p-1 rounded-full border transition-all duration-300 ${
+            className={`hidden md:flex items-center space-x-0.5 lg:space-x-1 p-1 rounded-full border transition-all duration-300 shrink-0 ${
               isDark
                 ? 'bg-white/[0.03] border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]'
                 : 'bg-slate-900/[0.03] border-slate-200/80 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]'
             }`}
           >
             {[
-              { label: 'How It Works', href: '/#how-it-works' },
-              { label: 'Mentors', href: '/#mentors' },
-              { label: 'About Us', href: '/#about' },
-              { label: 'Stories', href: '/#testimonials' },
-              { label: 'Contact', href: '/#contact' },
+              { label: 'How It Works', id: 'how-it-works', href: '/#how-it-works' },
+              { label: 'Mentors', id: 'mentors', href: '/#mentors' },
+              { label: 'About Us', id: 'about', href: '/#about' },
+              { label: 'Stories', id: 'testimonials', href: '/#testimonials' },
+              { label: 'Contact', id: 'contact', href: '/#contact' },
             ].map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className={`relative px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 group ${
+                onClick={(e) => {
+                  if (window.location.pathname === '/' || window.location.pathname === '') {
+                    e.preventDefault();
+                    const el = document.getElementById(link.id);
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth' });
+                      window.history.pushState(null, '', `/#${link.id}`);
+                    }
+                  }
+                }}
+                className={`relative px-2.5 lg:px-3.5 py-1.5 rounded-full text-[11px] lg:text-xs font-semibold tracking-wide whitespace-nowrap transition-all duration-300 group ${
                   isDark
                     ? 'text-slate-300 hover:text-white hover:bg-white/[0.08]'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white hover:shadow-sm'
                 }`}
               >
                 <span className="relative z-10">{link.label}</span>
-                <span className="absolute bottom-1 left-3.5 right-3.5 h-[2px] bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 rounded-full opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 transition-all duration-300 origin-center" />
+                <span className="absolute bottom-1 left-2.5 right-2.5 h-[2px] bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 rounded-full opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 transition-all duration-300 origin-center" />
               </a>
             ))}
           </div>
 
-          {/* Right Header Actions: 3D Theme Switcher + Auth / Profile */}
-          <div className="hidden sm:flex items-center gap-3">
+          {/* Right Header Actions: 3D Theme Switcher + Auth / Profile Adjusted in One Line */}
+          <div className="hidden md:flex items-center gap-2 lg:gap-3 shrink-0">
             {/* 3D Celestial Dark / Light Mode Switcher */}
             <ThemeToggle />
 
             {!user ? (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <Link
                   to="/login"
-                  className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300 border hover:scale-105 active:scale-95 ${
+                  className={`px-3.5 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-300 border hover:scale-105 active:scale-95 ${
                     isDark
                       ? 'border-white/10 text-slate-200 bg-white/[0.05] hover:bg-white/[0.12] hover:text-white hover:border-white/20'
                       : 'border-slate-300/80 text-slate-700 bg-slate-100 hover:bg-slate-200/80 hover:text-slate-900 shadow-sm'
@@ -110,7 +120,7 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="relative group overflow-hidden px-5 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 shadow-[0_4px_16px_rgba(37,99,235,0.4)] hover:shadow-[0_4px_24px_rgba(168,85,247,0.55)] transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1.5"
+                  className="relative group overflow-hidden px-4 lg:px-5 py-1.5 lg:py-2 rounded-full text-xs font-bold text-white whitespace-nowrap bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 shadow-[0_4px_16px_rgba(37,99,235,0.4)] hover:shadow-[0_4px_24px_rgba(168,85,247,0.55)] transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1.5"
                 >
                   <span className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" />
                   <span className="relative z-10">Start free trial</span>
@@ -187,7 +197,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Right Bar: Theme Toggle + Menu Hamburger */}
-          <div className="flex sm:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-2">
             <ThemeToggle />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -211,7 +221,7 @@ const Navbar = () => {
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
         <div
-          className={`sm:hidden border-b transition-colors shadow-2xl animate-fade-in ${
+          className={`md:hidden border-b transition-colors shadow-2xl animate-fade-in ${
             isDark
               ? 'bg-[#0A0D15]/98 border-white/10 text-white'
               : 'bg-white/98 border-slate-200 text-slate-900'
