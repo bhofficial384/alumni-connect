@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-main: #07090E;
+  --text-main: #F1F5F9;
+  --navbar-bg: rgba(7, 9, 14, 0.85);
+  --navbar-border: rgba(255, 255, 255, 0.1);
+}
+
+html.light, [data-theme='light'] {
+  --bg-main: #F8FAFC;
+  --text-main: #0F172A;
+  --navbar-bg: rgba(255, 255, 255, 0.88);
+  --navbar-border: rgba(15, 23, 42, 0.08);
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
@@ -10,16 +24,28 @@ html {
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #07090E;
-  color: #F1F5F9;
+  background-color: var(--bg-main);
+  color: var(--text-main);
   overflow-x: hidden;
   width: 100%;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.light body {
+  background-color: #F8FAFC;
+  color: #0F172A;
+}
+
+html.dark body {
+  background-color: #07090E;
+  color: #F1F5F9;
 }
 
 /* Cyber neon scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #07090E; }
+html.light ::-webkit-scrollbar-track { background: #F1F5F9; }
 ::-webkit-scrollbar-thumb { 
   background: linear-gradient(180deg, #6366F1, #A855F7, #EC4899); 
   border-radius: 4px; 
@@ -128,5 +154,87 @@ body {
 
   .translate-z-40 {
     transform: translateZ(40px);
+  }
+
+  /* Light Mode glass and component overrides */
+  html.light .glass-card-dark {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    color: #0F172A;
+  }
+
+  html.light .glass-pill {
+    background: rgba(15, 23, 42, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(15, 23, 42, 0.09);
+    color: #0F172A;
+  }
+
+  html.light .card {
+    background: #FFFFFF;
+    border-color: rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+    color: #0F172A;
+  }
+
+  html.light .card-static {
+    background: #FFFFFF;
+    border-color: rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+    color: #0F172A;
+  }
+
+  html.light .input-field {
+    background: #FFFFFF;
+    color: #0F172A;
+    border-color: #CBD5E1;
+  }
+
+  /* Global Light Mode overrides */
+  html.light .bg-\[\#07090E\],
+  html.light .bg-\[\#0B0F19\],
+  html.light .bg-\[\#06080E\] {
+    background-color: #F8FAFC !important;
+  }
+
+  html.light .bg-\[\#0D131F\],
+  html.light .bg-\[\#0A0D15\],
+  html.light .bg-\[\#0C101B\],
+  html.light .bg-\[\#0e121e\] {
+    background-color: #FFFFFF !important;
+  }
+
+  html.light .bg-slate-900,
+  html.light .bg-slate-900\/90,
+  html.light .bg-slate-900\/80,
+  html.light .bg-slate-900\/70,
+  html.light .bg-slate-900\/60,
+  html.light .bg-slate-900\/40 {
+    background-color: #F1F5F9 !important;
+    color: #0F172A !important;
+  }
+
+  html.light .border-white\/10,
+  html.light .border-white\/5,
+  html.light .border-white\/15,
+  html.light .border-white\/20 {
+    border-color: rgba(15, 23, 42, 0.09) !important;
+  }
+
+  html.light .border-slate-800,
+  html.light .border-slate-700 {
+    border-color: #E2E8F0 !important;
+  }
+
+  html.light .text-slate-400 {
+    color: #64748B !important;
+  }
+
+  html.light .text-slate-300 {
+    color: #334155 !important;
   }
 }
