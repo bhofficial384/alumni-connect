@@ -30,6 +30,7 @@ export default {
         'spin-slow': 'spin 20s linear infinite',
         'shimmer': 'shimmer 2.5s linear infinite',
         'glow-pulse': 'glowPulse 3s ease-in-out infinite',
+        'laser-beam': 'laserBeam 4s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -49,7 +50,12 @@ export default {
         glowPulse: {
           '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
           '50%': { opacity: '0.8', transform: 'scale(1.05)' },
-        }
+        },
+        laserBeam: {
+          '0%': { transform: 'translateX(-120%)', opacity: '0.3' },
+          '50%': { opacity: '1' },
+          '100%': { transform: 'translateX(220%)', opacity: '0.3' },
+        },
       },
     },
   },
