@@ -100,7 +100,7 @@ const ScrollProgressBeam = React.memo(() => {
 });
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-white overflow-x-hidden selection:bg-[#2563EB] selection:text-white relative">
+    <div className="min-h-screen bg-[#07090E] text-white overflow-x-hidden selection:bg-[#2563EB] selection:text-white relative w-full max-w-full">
       
       {/* 3D Scroll Progress Luminous Top Beam */}
       <ScrollProgressBeam />
@@ -119,7 +119,7 @@ const ScrollProgressBeam = React.memo(() => {
         <div className="absolute bottom-10 right-10 w-[600px] h-[600px] bg-[#3B82F6]/15 rounded-full blur-[160px]" />
       </div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 w-full max-w-full overflow-x-hidden">
         {/* Top Floating Navbar */}
         <Navbar />
 
@@ -212,7 +212,7 @@ const ScrollProgressBeam = React.memo(() => {
         {/* ========================================================
             SECTION 1: HOW IT WORKS (Search by Company → Book 1-on-1 Slot → Get Mentored)
            ======================================================== */}
-        <section id="how-it-works" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <section id="how-it-works" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative overflow-hidden">
           {/* Central Ambient Nebula */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-purple-600/12 rounded-full blur-[160px] pointer-events-none" />
 
@@ -356,7 +356,7 @@ const ScrollProgressBeam = React.memo(() => {
         {/* ========================================================
             SECTION 2: FEATURED MENTORS DIRECTORY
            ======================================================== */}
-        <section id="mentors" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <section id="mentors" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative overflow-hidden">
           {/* Ambient Lighting Halos */}
           <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[550px] h-[350px] bg-blue-600/12 rounded-full blur-[140px] pointer-events-none" />
           <div className="absolute top-1/3 right-1/4 w-[450px] h-[350px] bg-purple-600/12 rounded-full blur-[150px] pointer-events-none" />
@@ -543,7 +543,7 @@ const ScrollProgressBeam = React.memo(() => {
         {/* ========================================================
             SECTION 3: ABOUT US (Alumni Association Mission & Vision)
            ======================================================== */}
-        <section id="about" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <section id="about" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative overflow-hidden">
           <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.1] p-8 sm:p-12 lg:p-16 shadow-[0_30px_100px_rgba(0,0,0,0.85)] relative overflow-hidden">
             {/* Luminous Top Laser Line */}
             <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400/60 via-purple-400/60 to-transparent pointer-events-none" />
@@ -634,7 +634,7 @@ const ScrollProgressBeam = React.memo(() => {
         {/* ========================================================
             SECTION 4: SUCCESS STORIES / TESTIMONIALS (Mentee Placement Success)
            ======================================================== */}
-        <section id="testimonials" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <section id="testimonials" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative overflow-hidden">
           {/* Ambient Lighting Nebula */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-pink-500/10 rounded-full blur-[160px] pointer-events-none" />
 
@@ -732,7 +732,7 @@ const ScrollProgressBeam = React.memo(() => {
         {/* ========================================================
             SECTION 5: CONTACT SECTION
            ======================================================== */}
-        <section id="contact" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <section id="contact" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative overflow-hidden">
           {/* Ambient Lighting Nebula */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-blue-600/12 rounded-full blur-[160px] pointer-events-none" />
 

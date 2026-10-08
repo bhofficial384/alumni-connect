@@ -30,7 +30,7 @@ const DribbbleBentoCards = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="features" className="py-12 sm:py-16">
+    <section ref={sectionRef} id="features" className="py-12 sm:py-16 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* ROW 1: Large AI Card + 64m Metric Card */}

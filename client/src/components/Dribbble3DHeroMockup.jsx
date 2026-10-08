@@ -97,7 +97,7 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[450px] sm:h-[580px] lg:h-[620px] flex items-center justify-center select-none overflow-hidden sm:overflow-visible"
+      className="relative w-full h-[450px] sm:h-[580px] lg:h-[620px] flex items-center justify-center select-none overflow-hidden"
       style={{ perspective: '1400px' }}
     >
       {/* Dynamic Ambient Glow Halo — Expands vertically as device unfolds */}

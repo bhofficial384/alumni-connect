@@ -48,7 +48,7 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#07090E] text-white selection:bg-[#2563EB] selection:text-white relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-[#07090E] text-white selection:bg-[#2563EB] selection:text-white relative overflow-hidden w-full max-w-full">
       {/* ========================================================
           FLUID AURORA BACKGROUND MESH
          ======================================================== */}
@@ -59,7 +59,7 @@ const Login = () => {
         <div className="absolute bottom-1/3 -left-20 w-[450px] h-[450px] bg-[#FF7A00]/10 rounded-full blur-[150px]" />
       </div>
 
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col min-h-screen w-full max-w-full overflow-x-hidden">
         <Navbar />
 
         <main className="flex-grow flex items-center justify-center px-4 py-12 sm:py-16">
