@@ -4,12 +4,17 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
   font-family: 'Inter', sans-serif;
   background-color: #07090E;
   color: #F1F5F9;
+  overflow-x: hidden;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Cyber neon scrollbar */
@@ -47,7 +52,7 @@ body {
     @apply text-slate-400 text-lg max-w-2xl;
   }
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border border-slate-700/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all duration-300 bg-slate-900/90 text-white placeholder-slate-500;
+    @apply w-full px-4 py-3 rounded-xl border border-slate-700/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all duration-300 bg-slate-900/90 text-white placeholder-slate-500 text-base sm:text-sm;
   }
   .badge-pending {
     @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20;

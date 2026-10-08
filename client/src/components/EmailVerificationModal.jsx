@@ -125,8 +125,8 @@ const EmailVerificationModal = ({ isOpen, onClose, emailToVerify = '' }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-[#0E121C] rounded-[32px] shadow-[0_30px_100px_rgba(0,0,0,0.95)] max-w-md w-full p-7 sm:p-8 relative overflow-hidden border border-white/[0.12] text-white animate-scale-in">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+      <div className="bg-[#0E121C] rounded-[32px] shadow-[0_30px_100px_rgba(0,0,0,0.95)] max-w-md w-full p-5 sm:p-8 relative overflow-hidden border border-white/[0.12] text-white animate-scale-in max-h-[92vh] overflow-y-auto">
         
         {/* Ambient Top Glows */}
         <div className="absolute -top-20 -right-20 w-48 h-48 bg-emerald-500/15 rounded-full blur-[70px] pointer-events-none" />
@@ -171,14 +171,13 @@ const EmailVerificationModal = ({ isOpen, onClose, emailToVerify = '' }) => {
           </div>
         )}
 
-
         {/* Form */}
         <form onSubmit={handleVerify} className="space-y-5">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3 text-center">
               Enter 6-Digit Code
             </label>
-            <div className="flex justify-between gap-2" onPaste={handlePaste}>
+            <div className="flex justify-center sm:justify-between gap-1.5 sm:gap-2" onPaste={handlePaste}>
               {otpDigits.map((digit, index) => (
                 <input
                   key={index}
@@ -189,7 +188,7 @@ const EmailVerificationModal = ({ isOpen, onClose, emailToVerify = '' }) => {
                   value={digit}
                   onChange={(e) => handleOtpChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e.target)}
-                  className="w-11 sm:w-12 h-14 bg-[#131826] border border-white/[0.12] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 rounded-xl text-center text-xl font-bold font-mono text-white transition-all outline-none"
+                  className="w-10 sm:w-12 h-12 sm:h-14 bg-[#131826] border border-white/[0.12] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 rounded-xl text-center text-lg sm:text-xl font-bold font-mono text-white transition-all outline-none"
                 />
               ))}
             </div>

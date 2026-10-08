@@ -154,22 +154,22 @@ const ScrollProgressBeam = React.memo(() => {
                   </span>
                 </div>
 
-                {/* Massive Bold Headline */}
-                <h1 className="font-display text-5xl sm:text-6xl lg:text-[74px] font-extrabold text-white tracking-tight leading-[1.06] mb-6">
+                {/* Responsive Headline */}
+                <h1 className="font-display text-4xl sm:text-6xl lg:text-[74px] font-extrabold text-white tracking-tight leading-[1.08] sm:leading-[1.06] mb-5 sm:mb-6">
                   Mentorship for <br />
                   <span className="text-white">any career</span>
                 </h1>
 
                 {/* Subtitle */}
-                <p className="text-slate-400 text-base sm:text-lg lg:text-xl font-normal max-w-lg mb-8 leading-relaxed">
+                <p className="text-slate-400 text-sm sm:text-lg lg:text-xl font-normal max-w-lg mb-6 sm:mb-8 leading-relaxed">
                   A fully integrated suite of 1-on-1 mentorship, career acceleration, and verified alumni access.
                 </p>
 
-                {/* CTA Button: Electric Royal Blue Pill */}
-                <div className="flex items-center gap-4 mb-14">
+                {/* CTA Buttons: Responsive stack on mobile, row on tablet/desktop */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-10 sm:mb-14">
                   <Link
                     to={user?.role ? `/dashboard/${user.role}` : "/register"}
-                    className="px-8 py-3.5 rounded-full text-white text-sm sm:text-base font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] shadow-[0_12px_30px_rgba(37,99,235,0.45)] hover:shadow-[0_16px_40px_rgba(37,99,235,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 inline-flex items-center gap-2"
+                    className="px-7 py-3.5 rounded-full text-white text-sm sm:text-base font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] shadow-[0_12px_30px_rgba(37,99,235,0.45)] hover:shadow-[0_16px_40px_rgba(37,99,235,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 inline-flex items-center justify-center gap-2 text-center"
                   >
                     <span>{user?.role ? 'Go to Dashboard' : 'Start free trial'}</span>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -179,7 +179,7 @@ const ScrollProgressBeam = React.memo(() => {
 
                   <a
                     href="#mentors"
-                    className="px-6 py-3.5 rounded-full text-slate-300 hover:text-white text-sm font-semibold hover:bg-white/[0.06] transition-all"
+                    className="px-6 py-3.5 rounded-full text-slate-300 hover:text-white text-sm font-semibold hover:bg-white/[0.06] transition-all text-center"
                   >
                     Explore Mentors →
                   </a>

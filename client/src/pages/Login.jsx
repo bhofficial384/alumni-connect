@@ -64,7 +64,7 @@ const Login = () => {
 
         <main className="flex-grow flex items-center justify-center px-4 py-12 sm:py-16">
           <TiltCard3D className="max-w-[460px] w-full" maxTilt={6} scale={1.01}>
-            <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.09] shadow-[0_30px_100px_rgba(0,0,0,0.85)] p-7 sm:p-10 relative overflow-hidden backdrop-blur-xl">
+            <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.09] shadow-[0_30px_100px_rgba(0,0,0,0.85)] p-5 sm:p-10 relative overflow-hidden backdrop-blur-xl">
               
               {/* Ambient inner soft highlight */}
               <div className="absolute -top-32 left-1/4 w-[350px] h-[200px] bg-blue-600/10 rounded-full blur-[90px] pointer-events-none" />

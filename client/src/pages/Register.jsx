@@ -315,14 +315,14 @@ const Register = () => {
 
         <main className="flex-grow flex items-center justify-center px-4 py-12 sm:py-16">
           <TiltCard3D className="max-w-[520px] w-full" maxTilt={4} scale={1.01}>
-            <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.09] shadow-[0_30px_100px_rgba(0,0,0,0.85)] p-7 sm:p-10 relative overflow-hidden backdrop-blur-xl">
+            <div className="rounded-[36px] bg-[#0E121C] border border-white/[0.09] shadow-[0_30px_100px_rgba(0,0,0,0.85)] p-5 sm:p-10 relative overflow-hidden backdrop-blur-xl">
               
               {/* Ambient inner soft highlight */}
               <div className="absolute -top-32 right-1/4 w-[350px] h-[200px] bg-cyan-600/10 rounded-full blur-[90px] pointer-events-none" />
 
-              {/* Progress Steps Header */}
-              <div className="flex items-center justify-center gap-2.5 mb-6">
-                <div className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border transition-all ${
+              {/* Progress Steps Header (Responsive for Mobile & Desktop) */}
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 mb-6">
+                <div className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3 py-1 rounded-full border transition-all ${
                   step === 1 
                     ? 'bg-blue-500/15 border-blue-500/30 text-blue-400' 
                     : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
@@ -330,12 +330,13 @@ const Register = () => {
                   <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] bg-current text-[#0E121C] font-bold">
                     {step > 1 ? '✓' : '1'}
                   </span>
-                  <span>Credentials</span>
+                  <span className="hidden sm:inline">Credentials</span>
+                  <span className="sm:hidden">Step 1</span>
                 </div>
 
-                <div className="w-4 h-px bg-white/20" />
+                <div className="w-2 sm:w-4 h-px bg-white/20" />
 
-                <div className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border transition-all ${
+                <div className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3 py-1 rounded-full border transition-all ${
                   step === 2 
                     ? 'bg-cyan-500/15 border-cyan-500/30 text-cyan-400' 
                     : step > 2
@@ -345,12 +346,13 @@ const Register = () => {
                   <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] bg-current text-[#0E121C] font-bold">
                     {step > 2 ? '✓' : '2'}
                   </span>
-                  <span>Email Verification</span>
+                  <span className="hidden sm:inline">Verification</span>
+                  <span className="sm:hidden">Step 2</span>
                 </div>
 
-                <div className="w-4 h-px bg-white/20" />
+                <div className="w-2 sm:w-4 h-px bg-white/20" />
 
-                <div className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border transition-all ${
+                <div className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3 py-1 rounded-full border transition-all ${
                   step === 3 
                     ? 'bg-purple-500/15 border-purple-500/30 text-purple-400' 
                     : 'bg-white/[0.04] border-white/10 text-slate-500'
@@ -358,7 +360,8 @@ const Register = () => {
                   <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] bg-current text-[#0E121C] font-bold">
                     3
                   </span>
-                  <span>Profile Setup</span>
+                  <span className="hidden sm:inline">Profile</span>
+                  <span className="sm:hidden">Step 3</span>
                 </div>
               </div>
 

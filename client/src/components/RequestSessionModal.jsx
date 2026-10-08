@@ -79,8 +79,8 @@ const RequestSessionModal = ({ mentor, isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="glass-card-dark rounded-2xl shadow-2xl border border-white/15 max-w-lg w-full p-6 sm:p-8 animate-slide-up relative">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+      <div className="glass-card-dark rounded-3xl shadow-2xl border border-white/15 max-w-lg w-full p-5 sm:p-8 animate-slide-up relative max-h-[92vh] overflow-y-auto">
         {/* Close Button */}
         <button
           onClick={onClose}

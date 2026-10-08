@@ -97,12 +97,12 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[580px] lg:h-[620px] flex items-center justify-center select-none"
+      className="relative w-full h-[450px] sm:h-[580px] lg:h-[620px] flex items-center justify-center select-none overflow-hidden sm:overflow-visible"
       style={{ perspective: '1400px' }}
     >
       {/* Dynamic Ambient Glow Halo — Expands vertically as device unfolds */}
       <div
-        className="absolute w-[460px] h-[460px] bg-gradient-to-tr from-blue-600/25 via-purple-600/20 to-pink-500/20 rounded-full blur-[90px] pointer-events-none transition-transform duration-300"
+        className="absolute w-[320px] sm:w-[460px] h-[320px] sm:h-[460px] bg-gradient-to-tr from-blue-600/25 via-purple-600/20 to-pink-500/20 rounded-full blur-[70px] sm:blur-[90px] pointer-events-none transition-transform duration-300"
         style={{
           transform: `scale(${0.9 + scrollProgress * 0.25}) translateY(${translateY * 0.5}px)`,
         }}
@@ -127,7 +127,7 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
           Pure Vertical X-axis rotation & vertical zoom (Zero horizontal skew)
          ======================================================== */}
       <div
-        className="relative w-full max-w-[620px] h-[520px] transition-transform duration-100 ease-out"
+        className="relative w-full max-w-[620px] h-[460px] sm:h-[520px] scale-[0.74] xs:scale-[0.85] sm:scale-100 origin-center transition-transform duration-100 ease-out"
         style={{
           transformStyle: 'preserve-3d',
           transformOrigin: 'center 40%',

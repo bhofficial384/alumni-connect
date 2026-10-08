@@ -131,32 +131,88 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-navy-dark border-b border-navy-light shadow-lg">
-          <div className="px-4 pt-2 pb-6 space-y-4">
-            {!user ? (
-              <>
-                <a href="#how-it-works" className="block text-gray-300 hover:text-gold" onClick={() => setMobileMenuOpen(false)}>How It Works</a>
-                <a href="#mentors" className="block text-gray-300 hover:text-gold" onClick={() => setMobileMenuOpen(false)}>Mentors</a>
-                <Link to="/login" className="block text-gray-300 hover:text-gold" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
-                <Link to="/register" className="block w-full text-center bg-gold text-navy font-semibold py-2 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Get Started</Link>
-              </>
-            ) : (
-              <>
-                <Link to={`/dashboard/${user.role}`} className="block text-gray-300 hover:text-gold" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
-                <button
-                  onClick={() => { setShowProfileModal(true); setMobileMenuOpen(false); }}
-                  className="block w-full text-left text-cyan-300 hover:text-cyan-200"
-                >
-                  My Profile & Photo
-                </button>
-                <div className="pt-4 border-t border-gray-700">
-                  <div className="text-sm text-gray-400 mb-2">Signed in as {user.name}</div>
-                  <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="w-full text-left text-red-400 hover:text-red-300">Logout</button>
+        <div className="md:hidden bg-[#0A0D15]/98 backdrop-blur-2xl border-b border-white/10 shadow-2xl animate-fade-in">
+          <div className="px-5 pt-3 pb-6 space-y-3">
+            <a href="/#how-it-works" className="block py-2 text-slate-300 hover:text-white font-medium text-sm transition-colors" onClick={() => setMobileMenuOpen(false)}>How It Works</a>
+            <a href="/#mentors" className="block py-2 text-slate-300 hover:text-white font-medium text-sm transition-colors" onClick={() => setMobileMenuOpen(false)}>Mentors</a>
+            <a href="/#about" className="block py-2 text-slate-300 hover:text-white font-medium text-sm transition-colors" onClick={() => setMobileMenuOpen(false)}>About Us</a>
+            <a href="/#testimonials" className="block py-2 text-slate-300 hover:text-white font-medium text-sm transition-colors" onClick={() => setMobileMenuOpen(false)}>Stories</a>
+            <a href="/#contact" className="block py-2 text-slate-300 hover:text-white font-medium text-sm transition-colors" onClick={() => setMobileMenuOpen(false)}>Contact</a>
+
+            <div className="pt-3 border-t border-white/10 space-y-3">
+              {!user ? (
+                <div className="flex flex-col gap-2.5 pt-1">
+                  <Link
+                    to="/login"
+                    className="block w-full py-2.5 text-center rounded-xl text-sm font-semibold text-slate-200 bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 transition-all"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="block w-full py-2.5 text-center rounded-xl text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] shadow-[0_4px_16px_rgba(37,99,235,0.4)] transition-all"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Start free trial
+                  </Link>
                 </div>
-              </>
-            )}
+              ) : (
+                <div className="space-y-3 pt-1">
+                  {/* User Profile summary on mobile */}
+                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/[0.04] border border-white/10">
+                    <div className="w-10 h-10 rounded-full overflow-hidden p-[1.5px] bg-gradient-to-tr from-cyan-400 via-blue-500 to-purple-500 shrink-0">
+                      {user.profileImage ? (
+                        <img src={user.profileImage} alt={user.name} className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        <span className="w-full h-full rounded-full bg-[#0E121C] text-xs font-bold text-white flex items-center justify-center">
+                          {getInitials(user.name)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-white truncate">{user.name}</div>
+                      <div className="text-[11px] text-slate-400 capitalize">{user.role} Account</div>
+                    </div>
+                    {user.isEmailVerified ? (
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">
+                        ✓ Verified
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => { setShowVerifyModal(true); setMobileMenuOpen(false); }}
+                        className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-bold"
+                      >
+                        ⚠️ Verify
+                      </button>
+                    )}
+                  </div>
+
+                  <Link
+                    to={`/dashboard/${user.role}`}
+                    className="block w-full py-2.5 text-center rounded-xl text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] transition-all"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Go to Dashboard
+                  </Link>
+                  <button
+                    onClick={() => { setShowProfileModal(true); setMobileMenuOpen(false); }}
+                    className="block w-full py-2.5 text-center rounded-xl text-sm font-medium text-slate-200 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 transition-all cursor-pointer"
+                  >
+                    My Profile & Photo
+                  </button>
+                  <button
+                    onClick={() => { logout(); setMobileMenuOpen(false); }}
+                    className="block w-full py-2 text-center text-xs font-medium text-rose-400 hover:text-rose-300 cursor-pointer"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
