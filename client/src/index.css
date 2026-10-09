@@ -263,3 +263,14 @@ html.light ::-webkit-scrollbar-track {
     color: #334155 !important;
   }
 }
+
+/* Ensure Google Identity Services button wrapper and iframes never display white backgrounds */
+iframe[src*="accounts.google.com/gsi"],
+div[id^="g_id_onload"],
+.g_id_signin,
+div[data-client_id] {
+  background-color: transparent !important;
+  background: transparent !important;
+  color-scheme: dark !important;
+}
+
