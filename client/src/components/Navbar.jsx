@@ -34,27 +34,27 @@ const Navbar = () => {
         <div className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-cyan-400 via-indigo-400 to-transparent blur-[1px] animate-laser-beam opacity-90" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 sm:h-20 items-center gap-2 lg:gap-4 flex-nowrap">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8">
+        <div className="flex justify-between h-16 sm:h-20 items-center gap-1.5 sm:gap-2.5 lg:gap-4 flex-nowrap w-full">
           {/* Logo with 3D Canvas Graphic */}
           <div className="flex items-center shrink-0">
-            <Link to="/" className="flex items-center gap-2 sm:gap-3 group select-none">
+            <Link to="/" className="flex items-center gap-1.5 sm:gap-2.5 group select-none">
               <NavbarLogo3D />
               <div className="flex flex-col">
-                <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="flex items-center gap-1 sm:gap-1.5">
                   <span
-                    className={`font-display text-base sm:text-xl lg:text-2xl font-black tracking-tight transition-colors ${
+                    className={`font-display text-sm sm:text-base lg:text-xl font-black tracking-tight transition-colors ${
                       isDark ? 'text-white' : 'text-slate-900'
                     }`}
                   >
                     ALUMNI<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 font-extrabold">CONNECT</span>
                   </span>
-                  <span className="hidden xl:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.2)]">
+                  <span className="hidden 2xl:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.2)]">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     Network
                   </span>
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-mono tracking-wider uppercase text-slate-400 -mt-0.5 hidden lg:block">
+                <span className="text-[9px] sm:text-[10px] font-mono tracking-wider uppercase text-slate-400 -mt-0.5 hidden 2xl:block">
                   Mentorship & Career Platform
                 </span>
               </div>
@@ -63,7 +63,7 @@ const Navbar = () => {
 
           {/* Desktop Nav Links: 5 Distinct Sections Adjusted in One Line */}
           <div
-            className={`hidden md:flex items-center space-x-0.5 lg:space-x-1 p-1 rounded-full border transition-all duration-300 shrink-0 ${
+            className={`hidden md:flex items-center space-x-0.5 lg:space-x-1 p-0.5 lg:p-1 rounded-full border transition-all duration-300 shrink-0 ${
               isDark
                 ? 'bg-white/[0.03] border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]'
                 : 'bg-slate-900/[0.03] border-slate-200/80 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]'
@@ -89,28 +89,28 @@ const Navbar = () => {
                     }
                   }
                 }}
-                className={`relative px-2.5 lg:px-3.5 py-1.5 rounded-full text-[11px] lg:text-xs font-semibold tracking-wide whitespace-nowrap transition-all duration-300 group ${
+                className={`relative px-2 xl:px-3.5 py-1 lg:py-1.5 rounded-full text-[11px] lg:text-xs font-semibold tracking-wide whitespace-nowrap transition-all duration-300 group ${
                   isDark
                     ? 'text-slate-300 hover:text-white hover:bg-white/[0.08]'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white hover:shadow-sm'
                 }`}
               >
                 <span className="relative z-10">{link.label}</span>
-                <span className="absolute bottom-1 left-2.5 right-2.5 h-[2px] bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 rounded-full opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 transition-all duration-300 origin-center" />
+                <span className="absolute bottom-1 left-2 right-2 h-[2px] bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 rounded-full opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 transition-all duration-300 origin-center" />
               </a>
             ))}
           </div>
 
-          {/* Right Header Actions: 3D Theme Switcher + Auth / Profile Adjusted in One Line */}
-          <div className="hidden md:flex items-center gap-2 lg:gap-3 shrink-0">
+          {/* Right Header Actions: Theme Switcher + Auth / Profile + Logout in One Compact Line */}
+          <div className="hidden md:flex items-center gap-1.5 lg:gap-2.5 shrink-0">
             {/* 3D Celestial Dark / Light Mode Switcher */}
             <ThemeToggle />
 
             {!user ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <Link
                   to="/login"
-                  className={`px-3.5 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-300 border hover:scale-105 active:scale-95 ${
+                  className={`px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-300 border hover:scale-105 active:scale-95 ${
                     isDark
                       ? 'border-white/10 text-slate-200 bg-white/[0.05] hover:bg-white/[0.12] hover:text-white hover:border-white/20'
                       : 'border-slate-300/80 text-slate-700 bg-slate-100 hover:bg-slate-200/80 hover:text-slate-900 shadow-sm'
@@ -120,7 +120,7 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="relative group overflow-hidden px-4 lg:px-5 py-1.5 lg:py-2 rounded-full text-xs font-bold text-white whitespace-nowrap bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 shadow-[0_4px_16px_rgba(37,99,235,0.4)] hover:shadow-[0_4px_24px_rgba(168,85,247,0.55)] transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1.5"
+                  className="relative group overflow-hidden px-3.5 lg:px-5 py-1.5 lg:py-2 rounded-full text-xs font-bold text-white whitespace-nowrap bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 shadow-[0_4px_16px_rgba(37,99,235,0.4)] hover:shadow-[0_4px_24px_rgba(168,85,247,0.55)] transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1.5"
                 >
                   <span className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" />
                   <span className="relative z-10">Start free trial</span>
@@ -128,10 +128,10 @@ const Navbar = () => {
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <Link
                   to={`/dashboard/${user.role}`}
-                  className="px-3.5 py-1.5 rounded-full text-xs font-bold text-cyan-300 bg-cyan-500/15 border border-cyan-500/30 hover:bg-cyan-500/25 transition-all shadow-sm flex items-center gap-1.5"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold text-cyan-300 bg-cyan-500/15 border border-cyan-500/30 hover:bg-cyan-500/25 transition-all shadow-sm flex items-center gap-1.5 shrink-0"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
                   <span>Dashboard</span>
@@ -141,7 +141,7 @@ const Navbar = () => {
                 <button
                   type="button"
                   onClick={() => setShowProfileModal(true)}
-                  className={`flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full border transition-all cursor-pointer group ${
+                  className={`flex items-center gap-1.5 p-1 sm:pl-1.5 sm:pr-2.5 rounded-full border transition-all cursor-pointer group shrink-0 ${
                     isDark
                       ? 'bg-white/[0.05] hover:bg-white/[0.12] border-white/10 hover:border-blue-500/40'
                       : 'bg-slate-100 hover:bg-slate-200/80 border-slate-300/80 hover:border-blue-500/50'
@@ -161,16 +161,16 @@ const Navbar = () => {
                       </span>
                     )}
                   </div>
-                  <span className={`text-xs font-medium ${isDark ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                  <span className={`text-xs font-medium hidden 2xl:inline ${isDark ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'}`}>
                     Profile
                   </span>
                 </button>
 
-                {/* Email Verification Status */}
+                {/* Email Verification Status (Large Desktop only to prevent horizontal blowout) */}
                 {user.isEmailVerified ? (
                   <span
                     title="Email Verified"
-                    className="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold flex items-center gap-1"
+                    className="hidden 2xl:flex px-2 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold items-center gap-1 shrink-0"
                   >
                     <span>✓</span>
                     <span>Verified</span>
@@ -179,26 +179,45 @@ const Navbar = () => {
                   <button
                     type="button"
                     onClick={() => setShowVerifyModal(true)}
-                    className="px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500/25 text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                    className="hidden 2xl:flex px-2 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500/25 text-[10px] font-semibold items-center gap-1 transition-all cursor-pointer shrink-0"
                   >
                     <span>⚠️</span>
                     <span>Verify</span>
                   </button>
                 )}
 
+                {/* Always-visible, perfectly fitting Logout Button */}
                 <button
+                  type="button"
                   onClick={logout}
-                  className="text-xs text-slate-400 hover:text-rose-400 transition-colors cursor-pointer ml-1"
+                  className="px-2.5 py-1 sm:py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-rose-100 text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0 shadow-sm shadow-rose-500/10 active:scale-95"
+                  title="Sign out of account"
                 >
-                  Logout
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span>Logout</span>
                 </button>
               </div>
             )}
           </div>
 
-          {/* Mobile Right Bar: Theme Toggle + Menu Hamburger */}
-          <div className="flex md:hidden items-center gap-2">
+          {/* Mobile Right Bar: Theme Toggle + Quick Logout (if logged in) + Menu Hamburger */}
+          <div className="flex md:hidden items-center gap-1.5 xs:gap-2">
             <ThemeToggle />
+            {user && (
+              <button
+                type="button"
+                onClick={logout}
+                className="px-2 py-1 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-rose-100 text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0 active:scale-95"
+                title="Logout"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span className="hidden xs:inline">Logout</span>
+              </button>
+            )}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-xl transition-colors ${
@@ -340,9 +359,12 @@ const Navbar = () => {
                   </button>
                   <button
                     onClick={() => { logout(); setMobileMenuOpen(false); }}
-                    className="block w-full py-2 text-center text-xs font-medium text-rose-400 hover:text-rose-300 cursor-pointer"
+                    className="w-full py-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-rose-100 text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm shadow-rose-500/10 active:scale-95"
                   >
-                    Sign out
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Log Out</span>
                   </button>
                 </div>
               )}
