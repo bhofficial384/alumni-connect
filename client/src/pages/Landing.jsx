@@ -126,8 +126,8 @@ const ScrollProgressBeam = React.memo(() => {
         {/* ========================================================
             HERO CONTAINER (Tran Mau Tri Tam Rounded Luxury Card)
            ======================================================== */}
-        <section className="px-2.5 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-8 sm:pb-12">
-          <div className="max-w-[1360px] mx-auto rounded-3xl sm:rounded-[36px] bg-[#0E121C] border border-white/[0.08] shadow-[0_30px_100px_rgba(0,0,0,0.85)] p-4 sm:p-10 lg:p-14 relative overflow-hidden">
+        <section className="px-3 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-8 sm:pb-12">
+          <div className="max-w-[1360px] mx-auto rounded-2xl sm:rounded-[36px] bg-[#0E121C] border border-white/[0.08] shadow-[0_30px_100px_rgba(0,0,0,0.85)] p-4 xs:p-6 sm:p-10 lg:p-14 relative overflow-hidden">
             
             {/* 3D Interactive Small Bubble & Particle Canvas Scene */}
             <Hero3DScene />
@@ -135,41 +135,40 @@ const ScrollProgressBeam = React.memo(() => {
             {/* Ambient inner soft highlight */}
             <div className="absolute -top-40 left-1/4 w-[500px] h-[300px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
 
-            {/* Floating ambient translucent glowing bubbles */}
-            <div className="absolute top-20 left-1/3 w-16 h-16 rounded-full bg-cyan-400/10 border border-cyan-400/25 blur-[1px] animate-float-slow pointer-events-none" />
-            <div className="absolute bottom-24 left-14 w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/25 blur-[1px] animate-float-reverse pointer-events-none" />
-            <div className="absolute top-1/2 right-1/4 w-20 h-20 rounded-full bg-pink-500/10 border border-pink-500/20 blur-[1px] animate-float-slow pointer-events-none" />
-            <div className="absolute top-16 right-16 w-8 h-8 rounded-full bg-amber-400/15 border border-amber-400/30 blur-[1px] animate-float-reverse pointer-events-none" />
+            {/* Floating ambient translucent glowing bubbles (subtle on mobile) */}
+            <div className="hidden sm:block absolute top-20 left-1/3 w-16 h-16 rounded-full bg-cyan-400/10 border border-cyan-400/25 blur-[1px] animate-float-slow pointer-events-none" />
+            <div className="hidden sm:block absolute bottom-24 left-14 w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/25 blur-[1px] animate-float-reverse pointer-events-none" />
+            <div className="hidden sm:block absolute top-1/2 right-1/4 w-20 h-20 rounded-full bg-pink-500/10 border border-pink-500/20 blur-[1px] animate-float-slow pointer-events-none" />
+            <div className="hidden sm:block absolute top-16 right-16 w-8 h-8 rounded-full bg-amber-400/15 border border-amber-400/30 blur-[1px] animate-float-reverse pointer-events-none" />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
               
               {/* LEFT COLUMN: Hero Copy & CTA */}
-              <div className="lg:col-span-6 flex flex-col justify-center relative z-10 pt-2 lg:pt-0">
+              <div className="lg:col-span-6 flex flex-col justify-center relative z-10 pt-1 lg:pt-0">
                 
-                {/* Mint/Cyan Tracked Kicker Badge */}
-                <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34D399] animate-pulse" />
-                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.22em] text-emerald-400">
+                {/* Mint/Cyan Tracked Kicker Badge — Compact pill with zero blowout on mobile */}
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 mb-3 sm:mb-4 self-start max-w-full shadow-[0_0_15px_rgba(16,185,129,0.18)]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34D399] animate-pulse shrink-0" />
+                  <span className="text-[9.5px] xs:text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider sm:tracking-[0.22em] text-emerald-400 truncate">
                     INTRODUCING ALUMNI MENTORSHIP
                   </span>
                 </div>
 
                 {/* Responsive Headline */}
-                <h1 className="font-display text-3xl sm:text-5xl lg:text-[74px] font-extrabold text-white tracking-tight leading-[1.1] sm:leading-[1.06] mb-4 sm:mb-6">
-                  Mentorship for <br />
-                  <span className="text-white">any career</span>
+                <h1 className="font-display text-[30px] xs:text-4xl sm:text-5xl lg:text-[74px] font-extrabold text-white tracking-tight leading-[1.12] sm:leading-[1.06] mb-3.5 sm:mb-6">
+                  Mentorship for <span className="block xs:inline text-white">any career</span>
                 </h1>
 
                 {/* Subtitle */}
-                <p className="text-slate-400 text-sm sm:text-lg lg:text-xl font-normal max-w-lg mb-6 sm:mb-8 leading-relaxed">
+                <p className="text-slate-300 sm:text-slate-400 text-sm sm:text-lg lg:text-xl font-normal max-w-lg mb-6 sm:mb-8 leading-relaxed">
                   A fully integrated suite of 1-on-1 mentorship, career acceleration, and verified alumni access.
                 </p>
 
                 {/* CTA Buttons: Responsive stack on mobile, row on tablet/desktop */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-10 sm:mb-14">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-8 sm:mb-14">
                   <Link
                     to={user?.role ? `/dashboard/${user.role}` : "/register"}
-                    className="px-7 py-3.5 rounded-full text-white text-sm sm:text-base font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] shadow-[0_12px_30px_rgba(37,99,235,0.45)] hover:shadow-[0_16px_40px_rgba(37,99,235,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 inline-flex items-center justify-center gap-2 text-center"
+                    className="w-full sm:w-auto px-6 sm:px-7 py-3 sm:py-3.5 rounded-full text-white text-sm sm:text-base font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] shadow-[0_12px_30px_rgba(37,99,235,0.45)] hover:shadow-[0_16px_40px_rgba(37,99,235,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 inline-flex items-center justify-center gap-2 text-center"
                   >
                     <span>{user?.role ? 'Go to Dashboard' : 'Start free trial'}</span>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -179,7 +178,7 @@ const ScrollProgressBeam = React.memo(() => {
 
                   <a
                     href="#mentors"
-                    className="px-6 py-3.5 rounded-full text-slate-300 hover:text-white text-sm font-semibold hover:bg-white/[0.06] transition-all text-center"
+                    className="w-full sm:w-auto px-6 py-3 sm:py-3.5 rounded-full text-slate-200 hover:text-white text-sm font-semibold bg-white/[0.04] sm:bg-transparent border border-white/10 sm:border-transparent hover:bg-white/[0.08] transition-all text-center inline-flex items-center justify-center"
                   >
                     Explore Mentors →
                   </a>

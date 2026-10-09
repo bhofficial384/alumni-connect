@@ -97,12 +97,12 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[450px] sm:h-[580px] lg:h-[620px] flex items-center justify-center select-none overflow-hidden"
+      className="relative w-full h-[470px] xs:h-[490px] sm:h-[580px] lg:h-[620px] flex items-center justify-center select-none overflow-hidden"
       style={{ perspective: '1400px' }}
     >
       {/* Dynamic Ambient Glow Halo — Expands vertically as device unfolds */}
       <div
-        className="absolute w-[320px] sm:w-[460px] h-[320px] sm:h-[460px] bg-gradient-to-tr from-blue-600/25 via-purple-600/20 to-pink-500/20 rounded-full blur-[70px] sm:blur-[90px] pointer-events-none transition-transform duration-300"
+        className="absolute w-[280px] sm:w-[460px] h-[280px] sm:h-[460px] bg-gradient-to-tr from-blue-600/25 via-purple-600/20 to-pink-500/20 rounded-full blur-[60px] sm:blur-[90px] pointer-events-none transition-transform duration-300"
         style={{
           transform: `scale(${0.9 + scrollProgress * 0.25}) translateY(${translateY * 0.5}px)`,
         }}
@@ -127,7 +127,7 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
           Pure Vertical X-axis rotation & vertical zoom (Zero horizontal skew)
          ======================================================== */}
       <div
-        className="relative w-full max-w-[320px] sm:max-w-[620px] h-[470px] sm:h-[520px] scale-[0.92] xs:scale-[0.96] sm:scale-100 origin-center transition-transform duration-100 ease-out"
+        className="relative w-full max-w-[280px] xs:max-w-[310px] sm:max-w-[620px] h-[450px] xs:h-[470px] sm:h-[520px] scale-[0.94] xs:scale-[0.98] sm:scale-100 origin-center transition-transform duration-100 ease-out"
         style={{
           transformStyle: 'preserve-3d',
           transformOrigin: 'center 40%',
@@ -211,7 +211,7 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
             Rises vertically forward into sharp foreground focus
            ======================================================== */}
         <div
-          className="absolute left-1/2 -translate-x-1/2 sm:left-28 sm:translate-x-0 top-3 sm:top-8 w-[270px] sm:w-[290px] h-[465px] sm:h-[490px] rounded-[38px] sm:rounded-[42px] bg-[#0E111C] border-[5px] sm:border-[6px] border-[#252B3E] shadow-[0_25px_70px_rgba(0,0,0,0.95)] sm:shadow-[0_35px_90px_rgba(0,0,0,0.95)] p-3.5 sm:p-4 flex flex-col justify-between overflow-hidden transition-transform duration-150 z-20"
+          className="absolute left-1/2 -translate-x-1/2 sm:left-28 sm:translate-x-0 top-1 sm:top-8 w-[255px] xs:w-[275px] sm:w-[290px] h-[435px] xs:h-[455px] sm:h-[490px] rounded-[34px] sm:rounded-[42px] bg-[#0E111C] border-[4px] sm:border-[6px] border-[#252B3E] shadow-[0_20px_60px_rgba(0,0,0,0.95)] sm:shadow-[0_35px_90px_rgba(0,0,0,0.95)] p-3 sm:p-4 flex flex-col justify-between overflow-hidden transition-transform duration-150 z-20"
           style={{
             transform: `translateZ(${45 + scrollProgress * 85}px) translateY(${-scrollProgress * 30}px) scale(${1 + scrollProgress * 0.04})`,
           }}
@@ -223,42 +223,42 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
           />
 
           {/* Top Notch & Dynamic Island */}
-          <div className="flex items-center justify-between px-2 pt-1 mb-3 text-slate-400 relative z-10">
-            <svg className="w-4 h-4 cursor-pointer hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex items-center justify-between px-2 pt-0.5 sm:pt-1 mb-2 sm:mb-3 text-slate-400 relative z-10">
+            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 cursor-pointer hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
             </svg>
-            <div className="w-16 h-3.5 bg-black/60 rounded-full flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+            <div className="w-14 sm:w-16 h-3 sm:h-3.5 bg-black/60 rounded-full flex items-center justify-center">
+              <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
+              <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-slate-700" />
             </div>
-            <svg className="w-4 h-4 cursor-pointer hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 cursor-pointer hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
           </div>
 
           {/* User Welcome Banner */}
-          <div className="px-1 mb-2 relative z-10">
-            <span className="text-[11px] text-slate-400 font-medium">Welcome back 👋</span>
-            <h3 className="text-white text-lg font-bold">Campus Mentee</h3>
+          <div className="px-1 mb-1.5 sm:mb-2 relative z-10">
+            <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">Welcome back 👋</span>
+            <h3 className="text-white text-base sm:text-lg font-bold">Campus Mentee</h3>
           </div>
 
           {/* Metric / Mentorship Balance Card */}
-          <div className="rounded-2xl bg-gradient-to-br from-[#161B2E] to-[#111422] border border-white/10 p-3.5 mb-3 shadow-inner relative overflow-hidden z-10">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] text-slate-400 font-medium">1-on-1 Sessions Goal</span>
+          <div className="rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#161B2E] to-[#111422] border border-white/10 p-2.5 sm:p-3.5 mb-2 sm:mb-3 shadow-inner relative overflow-hidden z-10">
+            <div className="flex items-center justify-between mb-1 sm:mb-2">
+              <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium">1-on-1 Sessions Goal</span>
               {/* Overlapping Master-style Iridescent circles */}
               <div className="flex -space-x-1.5">
-                <div className="w-4 h-4 rounded-full bg-emerald-500/80" />
-                <div className="w-4 h-4 rounded-full bg-cyan-400/80" />
+                <div className="w-3.5 sm:w-4 h-3.5 sm:h-4 rounded-full bg-emerald-500/80" />
+                <div className="w-3.5 sm:w-4 h-3.5 sm:h-4 rounded-full bg-cyan-400/80" />
               </div>
             </div>
 
-            <div className="text-2xl font-black text-white tracking-tight mb-2">
+            <div className="text-xl sm:text-2xl font-black text-white tracking-tight mb-1 sm:mb-2">
               100% Verified
             </div>
 
             {/* Soundwave Equalizer modulated vertically by scroll progress */}
-            <div className="w-full h-8 flex items-end justify-between gap-1 pt-1 opacity-90">
+            <div className="w-full h-6 sm:h-8 flex items-end justify-between gap-1 pt-0.5 opacity-90">
               {[40, 65, 30, 85, 95, 55, 75, 90, 45, 80, 100, 60, 40, 70, 85, 50].map((h, i) => {
                 const dynamicHeight = Math.min(100, Math.max(15, h + Math.sin(scrollProgress * 8 + i * 0.6) * 35));
                 return (
@@ -273,18 +273,18 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
           </div>
 
           {/* Recent Mentors / "Book again" Avatars with Real Database Mentors */}
-          <div className="px-1 mb-3 relative z-10">
-            <div className="flex items-center justify-between text-[11px] mb-2 font-medium">
+          <div className="px-1 mb-2 sm:mb-3 relative z-10">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] mb-1.5 sm:mb-2 font-medium">
               <span className="text-slate-300">Book again</span>
               <span
                 onClick={handleContinue}
-                className="text-blue-400 hover:text-blue-300 cursor-pointer text-[10px] transition-colors"
+                className="text-blue-400 hover:text-blue-300 cursor-pointer text-[9px] sm:text-[10px] transition-colors"
               >
                 View all
               </span>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 text-center">
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center">
               {displayMentors.map((mentor, i) => (
                 <div
                   key={mentor.id || i}
@@ -292,7 +292,7 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
                   className="flex flex-col items-center group cursor-pointer"
                   title={`View details of ${mentor.name}`}
                 >
-                  <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 to-purple-500 mb-1 group-hover:scale-110 transition-transform overflow-hidden shadow-md">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full p-[1px] sm:p-[1.5px] bg-gradient-to-tr from-blue-500 to-purple-500 mb-1 group-hover:scale-110 transition-transform overflow-hidden shadow-md">
                     {mentor.img ? (
                       <img
                         src={mentor.img}
@@ -300,13 +300,13 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full rounded-full bg-[#131826] flex items-center justify-center text-[11px] font-bold text-white uppercase">
+                      <div className="w-full h-full rounded-full bg-[#131826] flex items-center justify-center text-[10px] font-bold text-white uppercase">
                         {mentor.name.slice(0, 2)}
                       </div>
                     )}
                   </div>
-                  <span className="text-[10px] text-slate-200 font-medium truncate w-full group-hover:text-blue-400 transition-colors">{mentor.name}</span>
-                  <span className="text-[8px] text-slate-500 truncate w-full">{mentor.role}</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-200 font-medium truncate w-full group-hover:text-blue-400 transition-colors">{mentor.name}</span>
+                  <span className="text-[7.5px] sm:text-[8px] text-slate-500 truncate w-full">{mentor.role}</span>
                 </div>
               ))}
             </div>
@@ -316,7 +316,7 @@ const Dribbble3DHeroMockup = ({ mentors: propMentors, onMentorSelect }) => {
           <button
             type="button"
             onClick={handleContinue}
-            className="w-full py-2.5 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-lg shadow-blue-600/40 hover:shadow-blue-600/60 transition-all relative z-10 cursor-pointer active:scale-95"
+            className="w-full py-2 sm:py-2.5 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-lg shadow-blue-600/40 hover:shadow-blue-600/60 transition-all relative z-10 cursor-pointer active:scale-95"
           >
             Continue
           </button>
