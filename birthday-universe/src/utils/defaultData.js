@@ -126,7 +126,7 @@ you would understand how incredibly special you are to me.`,
     {
       id: "tl-7",
       title: "Today — your birthday",
-      date: "November 18",
+      date: "November 20",
       caption: "Celebrating the most extraordinary girl in my universe. Today is all about you, my love, my Anju.",
       image: "photos/photo-13.jpg",
       memoryTag: "Her Special Day"
