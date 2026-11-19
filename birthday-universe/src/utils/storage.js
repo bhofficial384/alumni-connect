@@ -29,25 +29,29 @@ export function getStoredConfig() {
     if (!raw) return DEFAULT_CONFIG;
     const parsed = JSON.parse(raw);
 
-    // If cached config has old paths, fewer than 13 polaroids, or unsplash, upgrade to latest DEFAULT_CONFIG photos
-    const needsPhotoUpgrade =
-      !parsed.polaroids ||
-      parsed.polaroids.length < DEFAULT_CONFIG.polaroids.length ||
-      parsed.timeline?.some((t) => !t.image || t.image.includes('unsplash') || t.image.startsWith('/photos/')) ||
-      parsed.polaroids?.some((p) => !p.image || p.image.includes('unsplash') || p.image.startsWith('/photos/'));
+    // Smart merge: Preserve any saved/uploaded photo while filling in defaults
+    const mergedTimeline = DEFAULT_CONFIG.timeline.map((defItem, idx) => {
+      const savedItem = parsed.timeline?.[idx] || parsed.timeline?.find((t) => t.id === defItem.id);
+      if (savedItem && savedItem.image && !savedItem.image.includes('unsplash')) {
+        return { ...defItem, ...savedItem };
+      }
+      return defItem;
+    });
 
-    if (needsPhotoUpgrade) {
-      const upgraded = {
-        ...DEFAULT_CONFIG,
-        ...parsed,
-        timeline: DEFAULT_CONFIG.timeline,
-        polaroids: DEFAULT_CONFIG.polaroids,
-      };
-      saveStoredConfig(upgraded);
-      return upgraded;
-    }
+    const mergedPolaroids = DEFAULT_CONFIG.polaroids.map((defPol, idx) => {
+      const savedPol = parsed.polaroids?.[idx] || parsed.polaroids?.find((p) => p.id === defPol.id);
+      if (savedPol && savedPol.image && !savedPol.image.includes('unsplash')) {
+        return { ...defPol, ...savedPol };
+      }
+      return defPol;
+    });
 
-    return { ...DEFAULT_CONFIG, ...parsed };
+    return {
+      ...DEFAULT_CONFIG,
+      ...parsed,
+      timeline: mergedTimeline,
+      polaroids: mergedPolaroids,
+    };
   } catch (e) {
     console.error('Failed reading stored config:', e);
     return DEFAULT_CONFIG;

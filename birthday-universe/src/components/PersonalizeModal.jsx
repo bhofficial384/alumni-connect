@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Save, RotateCcw, User, Image, Heart, Sparkles, Check, Calendar, Mail } from 'lucide-react';
 import { resetStoredData } from '../utils/storage';
 import { sounds } from '../utils/soundEffects';
-import { resolveAssetUrl } from '../utils/defaultData';
+import { resolveAssetUrl, compressImageFile } from '../utils/defaultData';
 
 export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig, onResetProgress }) {
   const [recipient, setRecipient] = useState(config.recipientName || 'Anju');
@@ -14,6 +14,17 @@ export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig
   const [activeTab, setActiveTab] = useState('general');
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [resetProgressSuccess, setResetProgressSuccess] = useState(false);
+
+  // Sync state whenever modal opens or config updates
+  useEffect(() => {
+    if (isOpen) {
+      setRecipient(config.recipientName || 'Anju');
+      setAuthor(config.authorName || 'Saurabh');
+      setStartDate(config.relationshipStartDate || '2024-01-01');
+      setTimeline(config.timeline || []);
+      setPolaroids(config.polaroids || []);
+    }
+  }, [isOpen, config]);
 
   if (!isOpen) return null;
 
@@ -49,15 +60,13 @@ export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig
     setTimeline(updated);
   };
 
-  const handleTimelineUpload = (index, file) => {
+  const handleTimelineUpload = async (index, file) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        handleTimelineImageChange(index, e.target.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    sounds.playSoftChime();
+    const compressed = await compressImageFile(file);
+    if (compressed) {
+      handleTimelineImageChange(index, compressed);
+    }
   };
 
   const handlePolaroidImageChange = (index, url) => {
@@ -66,15 +75,13 @@ export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig
     setPolaroids(updated);
   };
 
-  const handlePolaroidUpload = (index, file) => {
+  const handlePolaroidUpload = async (index, file) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        handlePolaroidImageChange(index, e.target.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    sounds.playSoftChime();
+    const compressed = await compressImageFile(file);
+    if (compressed) {
+      handlePolaroidImageChange(index, compressed);
+    }
   };
 
   return (

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Calendar, Sparkles, Image as ImageIcon, CheckCircle2, ChevronRight, X } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
-import { resolveAssetUrl } from '../utils/defaultData';
+import { resolveAssetUrl, compressImageFile } from '../utils/defaultData';
 
 export default function RomanticTimeline({ timeline, progress, onUpdateProgress, onUpdateTimelineImage }) {
   const [selectedMoment, setSelectedMoment] = useState(null);
@@ -18,20 +18,17 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
     }
   };
 
-  const handleFileUpload = (e, momentId) => {
+  const handleFileUpload = async (e, momentId) => {
     const file = e.target.files?.[0];
     if (file && onUpdateTimelineImage) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64 = event.target?.result;
-        if (base64) {
-          onUpdateTimelineImage(momentId, base64);
-          if (selectedMoment && selectedMoment.id === momentId) {
-            setSelectedMoment({ ...selectedMoment, image: base64 });
-          }
+      sounds.playSoftChime();
+      const compressed = await compressImageFile(file);
+      if (compressed) {
+        onUpdateTimelineImage(momentId, compressed);
+        if (selectedMoment && selectedMoment.id === momentId) {
+          setSelectedMoment({ ...selectedMoment, image: compressed });
         }
-      };
-      reader.readAsDataURL(file);
+      }
     }
   };
 

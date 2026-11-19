@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Sparkles, Image as ImageIcon, Calendar, X, ZoomIn } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
-import { resolveAssetUrl } from '../utils/defaultData';
+import { resolveAssetUrl, compressImageFile } from '../utils/defaultData';
 
 export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
   const [activePolaroid, setActivePolaroid] = useState(null);
@@ -12,20 +12,17 @@ export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
     setActivePolaroid(pol);
   };
 
-  const handleFileChange = (e, polId) => {
+  const handleFileChange = async (e, polId) => {
     const file = e.target.files?.[0];
     if (file && onUpdatePolaroidImage) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64 = event.target?.result;
-        if (base64) {
-          onUpdatePolaroidImage(polId, base64);
-          if (activePolaroid && activePolaroid.id === polId) {
-            setActivePolaroid({ ...activePolaroid, image: base64 });
-          }
+      sounds.playSoftChime();
+      const compressed = await compressImageFile(file);
+      if (compressed) {
+        onUpdatePolaroidImage(polId, compressed);
+        if (activePolaroid && activePolaroid.id === polId) {
+          setActivePolaroid({ ...activePolaroid, image: compressed });
         }
-      };
-      reader.readAsDataURL(file);
+      }
     }
   };
 
