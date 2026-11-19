@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Calendar, Sparkles, Image as ImageIcon, CheckCircle2, ChevronRight, X, Check } from 'lucide-react';
+import { Heart, Calendar, Sparkles, Image as ImageIcon, CheckCircle2, ChevronRight, X, Check, Camera } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
 import { resolveAssetUrl, compressImageFile, readFileAsDataUrl } from '../utils/defaultData';
 
@@ -8,6 +8,7 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
   const [selectedMoment, setSelectedMoment] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [targetMomentId, setTargetMomentId] = useState(null);
   const fileInputRef = useRef(null);
   const viewedIds = progress.viewedTimeline || [];
 
@@ -21,9 +22,18 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
     }
   };
 
-  const handleFileUpload = async (e, momentId) => {
+  const triggerUpload = (momentId) => {
+    setTargetMomentId(momentId);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    const momentId = targetMomentId;
+    if (!file || !momentId) return;
 
     setIsUploading(true);
     sounds.playSoftChime();
@@ -35,7 +45,7 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
         if (onUpdateTimelineImage) {
           onUpdateTimelineImage(momentId, finalUrl);
         }
-        setSelectedMoment((prev) => (prev ? { ...prev, image: finalUrl } : prev));
+        setSelectedMoment((prev) => (prev && prev.id === momentId ? { ...prev, image: finalUrl } : prev));
         sounds.playCelebrationChord();
         setUploadSuccess(true);
         setTimeout(() => setUploadSuccess(false), 2500);
@@ -44,6 +54,7 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
       console.error('Failed to process timeline photo:', err);
     } finally {
       setIsUploading(false);
+      setTargetMomentId(null);
       if (e.target) e.target.value = '';
     }
   };
@@ -52,6 +63,15 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
     <section id="story" className="relative min-h-screen py-24 px-4 sm:px-6 max-w-6xl mx-auto flex flex-col items-center">
       {/* Background radial aura */}
       <div className="absolute top-1/4 left-10 w-96 h-96 rounded-full bg-rose-950/20 blur-[120px] pointer-events-none" />
+
+      {/* Hidden Master File Input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileSelected}
+      />
 
       {/* Section Header */}
       <div className="text-center max-w-2xl mb-16 relative z-10">
@@ -83,7 +103,7 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
           className="text-sm sm:text-base text-rose-200/80 font-serif-luxury italic"
         >
           A scrapbook of memories that I keep close to my heart.
-          <br className="hidden sm:inline" /> Tap any memory to open its story.
+          <br className="hidden sm:inline" /> Tap any memory to open or upload your special photo.
         </motion.p>
       </div>
 
@@ -96,6 +116,7 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
           {timeline.map((moment, index) => {
             const isEven = index % 2 === 0;
             const isViewed = viewedIds.includes(moment.id);
+            const hasImage = Boolean(moment.image && moment.image.trim().length > 0);
 
             return (
               <motion.div
@@ -127,35 +148,76 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
                   }`}
                 >
                   <div
-                    onClick={() => handleCardClick(moment)}
+                    onClick={() => {
+                      if (hasImage) {
+                        handleCardClick(moment);
+                      } else {
+                        triggerUpload(moment.id);
+                      }
+                    }}
                     className="group relative p-5 sm:p-6 rounded-3xl glass-panel-love border border-rose-400/25 hover:border-rose-400/50 shadow-[0_10px_30px_rgba(0,0,0,0.6)] hover:shadow-[0_0_30px_rgba(244,63,94,0.25)] transition-all cursor-pointer overflow-hidden"
                   >
-                    {/* Polaroid-style photo preview */}
-                    <div className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 border border-rose-400/20 group-hover:scale-[1.02] transition-transform duration-500">
-                      <img
-                        src={resolveAssetUrl(moment.image)}
-                        alt={moment.title}
-                        className="w-full h-full object-cover"
-                        loading="eager"
-                        decoding="async"
-                        onError={(e) => {
-                          if (!e.currentTarget.dataset.retried) {
-                            e.currentTarget.dataset.retried = '1';
-                            const clean = moment.image.replace(/^\.?\/+/, '');
-                            if (e.currentTarget.src.includes('/alumni-connect/')) {
-                              e.currentTarget.src = '/' + clean;
-                            } else {
-                              e.currentTarget.src = './' + clean;
-                            }
-                          }
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    {/* Photo preview or Upload Placeholder */}
+                    <div className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 border border-rose-400/20 group-hover:scale-[1.02] transition-transform duration-500 flex items-center justify-center bg-black/40">
+                      {hasImage ? (
+                        <>
+                          <img
+                            src={resolveAssetUrl(moment.image)}
+                            alt={moment.title}
+                            className="w-full h-full object-cover"
+                            loading="eager"
+                            decoding="async"
+                            onError={(e) => {
+                              if (!e.currentTarget.dataset.retried) {
+                                e.currentTarget.dataset.retried = '1';
+                                const clean = moment.image.replace(/^\.?\/+/, '');
+                                if (e.currentTarget.src.includes('/alumni-connect/')) {
+                                  e.currentTarget.src = '/' + clean;
+                                } else {
+                                  e.currentTarget.src = './' + clean;
+                                }
+                              }
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
-                      {/* Chapter badge */}
-                      <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-cinzel uppercase bg-black/60 text-rose-300 border border-rose-400/30 backdrop-blur-md">
-                        {moment.memoryTag}
-                      </span>
+                          {/* Chapter badge */}
+                          <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-cinzel uppercase bg-black/60 text-rose-300 border border-rose-400/30 backdrop-blur-md">
+                            {moment.memoryTag}
+                          </span>
+
+                          {/* Quick Change button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              triggerUpload(moment.id);
+                            }}
+                            className="absolute bottom-2 right-2 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-cinzel text-white bg-black/75 hover:bg-rose-900 border border-rose-400/30 backdrop-blur-md transition-all active:scale-95"
+                          >
+                            <Camera className="w-3 h-3 text-rose-300" />
+                            <span>Change</span>
+                          </button>
+                        </>
+                      ) : (
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            triggerUpload(moment.id);
+                          }}
+                          className="w-full h-full flex flex-col items-center justify-center p-4 text-center border-2 border-dashed border-rose-400/40 hover:border-rose-400/80 rounded-2xl bg-rose-950/20 hover:bg-rose-950/40 transition-all cursor-pointer group/up"
+                        >
+                          <div className="w-11 h-11 rounded-full bg-rose-900/60 border border-rose-400/40 flex items-center justify-center text-rose-300 mb-2 group-hover/up:scale-110 transition-transform">
+                            <Camera className="w-5 h-5" />
+                          </div>
+                          <span className="text-xs font-cinzel text-rose-200 font-semibold tracking-wider">
+                            Upload Photo 📷
+                          </span>
+                          <span className="text-[10px] text-rose-300/70 mt-0.5">
+                            Tap to pick from device
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Date */}
@@ -218,62 +280,74 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
                 {selectedMoment.title}
               </h3>
 
-              <div className="flex items-center gap-2 text-xs font-cinzel text-rose-300/80 mb-5">
-                <Calendar className="w-3.5 h-3.5 text-rose-400" />
-                <span>{selectedMoment.date}</span>
-              </div>
+              {selectedMoment.date && (
+                <div className="flex items-center gap-2 text-xs font-cinzel text-rose-300/80 mb-5">
+                  <Calendar className="w-3.5 h-3.5 text-rose-400" />
+                  <span>{selectedMoment.date}</span>
+                </div>
+              )}
 
-              <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden mb-6 border border-rose-400/30 shadow-inner group">
-                <img
-                  src={resolveAssetUrl(selectedMoment.image)}
-                  alt={selectedMoment.title}
-                  className="w-full h-full object-cover"
-                  loading="eager"
-                  decoding="async"
-                  onError={(e) => {
-                    if (!e.currentTarget.dataset.retried) {
-                      e.currentTarget.dataset.retried = '1';
-                      const clean = selectedMoment.image.replace(/^\.?\/+/, '');
-                      if (e.currentTarget.src.includes('/alumni-connect/')) {
-                        e.currentTarget.src = '/' + clean;
-                      } else {
-                        e.currentTarget.src = './' + clean;
-                      }
-                    }
-                  }}
-                />
+              <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden mb-6 border border-rose-400/30 shadow-inner group flex items-center justify-center bg-black/50">
+                {selectedMoment.image && selectedMoment.image.trim().length > 0 ? (
+                  <>
+                    <img
+                      src={resolveAssetUrl(selectedMoment.image)}
+                      alt={selectedMoment.title}
+                      className="w-full h-full object-cover"
+                      loading="eager"
+                      decoding="async"
+                      onError={(e) => {
+                        if (!e.currentTarget.dataset.retried) {
+                          e.currentTarget.dataset.retried = '1';
+                          const clean = selectedMoment.image.replace(/^\.?\/+/, '');
+                          if (e.currentTarget.src.includes('/alumni-connect/')) {
+                            e.currentTarget.src = '/' + clean;
+                          } else {
+                            e.currentTarget.src = './' + clean;
+                          }
+                        }
+                      }}
+                    />
 
-                {/* Hidden File Input */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => handleFileUpload(e, selectedMoment.id)}
-                />
-
-                {/* Change Photo Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                  className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-cinzel text-rose-100 bg-rose-950/90 hover:bg-rose-900 border border-rose-400/50 hover:border-rose-300 cursor-pointer shadow-lg backdrop-blur-md transition-all active:scale-95"
-                >
-                  {uploadSuccess ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  ) : (
-                    <ImageIcon className="w-3.5 h-3.5 text-rose-300 shrink-0" />
-                  )}
-                  <span className="font-semibold select-none">
-                    {isUploading
-                      ? 'Saving Photo...'
-                      : uploadSuccess
-                      ? 'Photo Updated! ✨'
-                      : 'Change Photo'}
-                  </span>
-                </button>
+                    {/* Change Photo Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerUpload(selectedMoment.id);
+                      }}
+                      className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-cinzel text-rose-100 bg-rose-950/90 hover:bg-rose-900 border border-rose-400/50 hover:border-rose-300 cursor-pointer shadow-lg backdrop-blur-md transition-all active:scale-95"
+                    >
+                      {uploadSuccess ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      ) : (
+                        <Camera className="w-3.5 h-3.5 text-rose-300 shrink-0" />
+                      )}
+                      <span className="font-semibold select-none">
+                        {isUploading
+                          ? 'Saving Photo...'
+                          : uploadSuccess
+                          ? 'Photo Updated! ✨'
+                          : 'Change Photo'}
+                      </span>
+                    </button>
+                  </>
+                ) : (
+                  <div
+                    onClick={() => triggerUpload(selectedMoment.id)}
+                    className="w-full h-full flex flex-col items-center justify-center p-6 text-center cursor-pointer border-2 border-dashed border-rose-400/50 hover:border-rose-300 hover:bg-rose-950/30 transition-all group/modalup"
+                  >
+                    <div className="w-14 h-14 rounded-full bg-rose-900/60 border border-rose-400/40 flex items-center justify-center text-rose-300 mb-2.5 group-hover/modalup:scale-110 transition-transform">
+                      <Camera className="w-7 h-7" />
+                    </div>
+                    <span className="text-sm font-cinzel text-rose-100 font-bold tracking-wider mb-1">
+                      {isUploading ? 'Uploading Photo...' : 'Tap to Upload Photo 📷'}
+                    </span>
+                    <span className="text-xs text-rose-300/80">
+                      Choose any picture from your device
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="p-5 rounded-2xl bg-black/40 border border-rose-400/20 mb-4">

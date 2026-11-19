@@ -1,7 +1,7 @@
 import { DEFAULT_CONFIG } from './defaultData';
 
-const CONFIG_KEY = 'saurabh_anju_love_story_config_v10';
-const PROGRESS_KEY = 'saurabh_anju_love_story_progress_v3';
+const CONFIG_KEY = 'saurabh_anju_love_story_config_v11';
+const PROGRESS_KEY = 'saurabh_anju_love_story_progress_v4';
 
 export const INITIAL_PROGRESS = {
   hasOpenedGift: false,
@@ -19,7 +19,7 @@ export function getStoredConfig() {
   try {
     // Clear out legacy cache versions
     try {
-      for (let i = 1; i <= 9; i++) {
+      for (let i = 1; i <= 10; i++) {
         localStorage.removeItem(`saurabh_anju_love_story_config_v${i}`);
       }
     } catch (_) {}

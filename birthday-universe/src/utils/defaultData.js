@@ -110,7 +110,7 @@ you would understand how incredibly special you are to me.`,
       title: "The day you came into my life",
       date: "The beginning of forever",
       caption: "I didn't know it then, but meeting you was the turning point where my world became infinitely brighter.",
-      image: "photos/photo-01.jpg",
+      image: "",
       memoryTag: "Chapter 1"
     },
     {
@@ -118,7 +118,7 @@ you would understand how incredibly special you are to me.`,
       title: "The first time we talked",
       date: "When hours felt like minutes",
       caption: "I remember smiling at my screen like an idiot. The comfort, the natural flow... I knew there was something magical about you.",
-      image: "photos/photo-03.jpg",
+      image: "",
       memoryTag: "First Sparks"
     },
     {
@@ -126,7 +126,7 @@ you would understand how incredibly special you are to me.`,
       title: "The moment I started feeling something special",
       date: "A quiet realization",
       caption: "It wasn't loud. It was a soft realization in my heart that every good thought I had, somehow began and ended with you.",
-      image: "photos/photo-05.jpg",
+      image: "",
       memoryTag: "Falling For You"
     },
     {
@@ -134,7 +134,7 @@ you would understand how incredibly special you are to me.`,
       title: "Our cutest memory",
       date: "Pure, unfiltered laughter",
       caption: "Your goofy laughs, teasing each other, making silly faces... In those moments, I knew you were my safe place.",
-      image: "photos/photo-07.jpg",
+      image: "",
       memoryTag: "Silly Us"
     },
     {
@@ -142,7 +142,7 @@ you would understand how incredibly special you are to me.`,
       title: "The moment you made me smile without even trying",
       date: "Effortless magic",
       caption: "Just seeing your name pop up, hearing your voice note, or watching you be completely yourself. You bring light wherever you go.",
-      image: "photos/photo-09.jpg",
+      image: "",
       memoryTag: "Pure Sunshine"
     },
     {
@@ -150,7 +150,7 @@ you would understand how incredibly special you are to me.`,
       title: "A moment I wish I could relive forever",
       date: "Frozen in time",
       caption: "When the whole world faded into the background, and all that mattered was your presence right beside me.",
-      image: "photos/photo-11.jpg",
+      image: "",
       memoryTag: "Timeless"
     },
     {
@@ -158,7 +158,7 @@ you would understand how incredibly special you are to me.`,
       title: "Today — your birthday",
       date: "November 20",
       caption: "Celebrating the most extraordinary girl in my universe. Today is all about you, my love, my Anju.",
-      image: "photos/photo-13.jpg",
+      image: "",
       memoryTag: "Her Special Day"
     }
   ],
@@ -266,7 +266,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "That Radiant Smile",
       date: "A Sunny Afternoon",
       caption: "The exact moment you smiled at me and made my entire world stop spinning.",
-      image: "photos/photo-01.jpg",
+      image: "",
       rotation: -2
     },
     {
@@ -274,7 +274,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "Quiet Starlight Talks",
       date: "Late Night Conversations",
       caption: "Talking about everything and nothing until 3 AM without even realizing time was flying.",
-      image: "photos/photo-02.jpg",
+      image: "",
       rotation: 3
     },
     {
@@ -282,7 +282,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "Golden Hour Glow",
       date: "Sunset Magic",
       caption: "Even the sunset looked dim compared to the warmth and beauty of your face.",
-      image: "photos/photo-03.jpg",
+      image: "",
       rotation: -3
     },
     {
@@ -290,7 +290,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "Our Unfiltered Laughter",
       date: "Pure Happiness",
       caption: "When we couldn't stop laughing at the silly inside jokes that only you and I understand.",
-      image: "photos/photo-04.jpg",
+      image: "",
       rotation: 2
     },
     {
@@ -298,7 +298,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "My Safe Place",
       date: "Every Single Day",
       caption: "No matter how chaotic life gets, knowing you are in my life brings instant peace.",
-      image: "photos/photo-05.jpg",
+      image: "",
       rotation: -1
     },
     {
@@ -306,7 +306,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "Forever Beside You",
       date: "To Infinity & Beyond",
       caption: "Standing beside you, loving you, and choosing you in this chapter and all the chapters to come.",
-      image: "photos/photo-06.jpg",
+      image: "",
       rotation: 3
     }
   ],
