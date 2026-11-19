@@ -15,27 +15,67 @@ export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
     setActivePolaroid(pol);
   };
 
-  const handleFileChange = async (e, polId) => {
+  const handleFileChange = (e, polId) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    try {
-      setIsUploading(true);
-      sounds.playSoftChime();
-      const compressed = await compressImageFile(file);
-      if (compressed && onUpdatePolaroidImage) {
-        onUpdatePolaroidImage(polId, compressed);
-        if (activePolaroid && activePolaroid.id === polId) {
-          setActivePolaroid((prev) => ({ ...prev, image: compressed }));
-        }
-        sounds.playCelebrationChord();
-        setUploadSuccess(true);
-        setTimeout(() => setUploadSuccess(false), 2500);
+    setIsUploading(true);
+    sounds.playSoftChime();
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result;
+      if (!dataUrl) {
+        setIsUploading(false);
+        return;
       }
-    } catch (err) {
-      console.error('Failed to upload polaroid photo:', err);
-    } finally {
+
+      // Try resizing on canvas for compact storage, or fall back to dataUrl
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const maxDim = 1200;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const finalUrl = canvas.toDataURL('image/jpeg', 0.85);
+          applyNewPhoto(finalUrl);
+        } catch (err) {
+          applyNewPhoto(dataUrl);
+        }
+      };
+      img.onerror = () => {
+        applyNewPhoto(dataUrl);
+      };
+      img.src = dataUrl;
+    };
+    reader.onerror = () => {
       setIsUploading(false);
+    };
+    reader.readAsDataURL(file);
+
+    function applyNewPhoto(newUrl) {
+      if (onUpdatePolaroidImage) {
+        onUpdatePolaroidImage(polId, newUrl);
+      }
+      setActivePolaroid((prev) => (prev ? { ...prev, image: newUrl } : prev));
+      sounds.playCelebrationChord();
+      setIsUploading(false);
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 2500);
       if (e.target) e.target.value = '';
     }
   };
@@ -182,36 +222,30 @@ export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
                 />
 
                 {/* Upload Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                  disabled={isUploading}
-                  className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-cinzel text-rose-100 bg-rose-950/85 hover:bg-rose-900/90 border border-rose-400/50 hover:border-rose-300 cursor-pointer shadow-lg backdrop-blur-md active:scale-95 transition-all"
+                <div
+                  className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-cinzel text-rose-100 bg-rose-950/90 hover:bg-rose-900 border border-rose-400/50 hover:border-rose-300 cursor-pointer shadow-lg backdrop-blur-md transition-all active:scale-95"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   {uploadSuccess ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                   ) : (
-                    <ImageIcon className="w-3.5 h-3.5 text-rose-300" />
+                    <ImageIcon className="w-3.5 h-3.5 text-rose-300 shrink-0" />
                   )}
-                  <span>
+                  <span className="font-semibold select-none">
                     {isUploading
                       ? 'Saving Photo...'
                       : uploadSuccess
                       ? 'Photo Updated! ✨'
                       : 'Upload Personal Photo'}
                   </span>
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onClick={(e) => e.stopPropagation()}
-                  onChange={(e) => handleFileChange(e, activePolaroid.id)}
-                />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-40"
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => handleFileChange(e, activePolaroid.id)}
+                  />
+                </div>
               </div>
 
               {/* Description */}
