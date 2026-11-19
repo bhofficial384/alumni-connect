@@ -237,15 +237,23 @@ export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig
                         className="w-full px-3 py-1.5 text-xs rounded-lg bg-black/60 border border-rose-500/30 focus:border-rose-400 text-rose-100 outline-none truncate"
                       />
                     </div>
-                    <label className="shrink-0 px-3 py-1.5 rounded-full text-xs font-cinzel text-rose-200 bg-rose-600/20 border border-rose-400/40 hover:bg-rose-600/30 cursor-pointer">
-                      <span>Upload</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handleTimelineUpload(index, e.target.files?.[0])}
-                      />
-                    </label>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById(`timeline-upload-${index}`)?.click()}
+                      className="shrink-0 px-3 py-1.5 rounded-full text-xs font-cinzel text-rose-200 bg-rose-600/20 border border-rose-400/40 hover:bg-rose-600/30 cursor-pointer"
+                    >
+                      Upload
+                    </button>
+                    <input
+                      id={`timeline-upload-${index}`}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        handleTimelineUpload(index, e.target.files?.[0]);
+                        e.target.value = '';
+                      }}
+                    />
                   </div>
                 ))}
               </div>
@@ -277,15 +285,23 @@ export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig
                         className="w-full px-3 py-1.5 text-xs rounded-lg bg-black/60 border border-rose-500/30 focus:border-rose-400 text-rose-100 outline-none truncate"
                       />
                     </div>
-                    <label className="shrink-0 px-3 py-1.5 rounded-full text-xs font-cinzel text-rose-200 bg-rose-600/20 border border-rose-400/40 hover:bg-rose-600/30 cursor-pointer">
-                      <span>Upload</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handlePolaroidUpload(index, e.target.files?.[0])}
-                      />
-                    </label>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById(`polaroid-upload-${index}`)?.click()}
+                      className="shrink-0 px-3 py-1.5 rounded-full text-xs font-cinzel text-rose-200 bg-rose-600/20 border border-rose-400/40 hover:bg-rose-600/30 cursor-pointer"
+                    >
+                      Upload
+                    </button>
+                    <input
+                      id={`polaroid-upload-${index}`}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        handlePolaroidUpload(index, e.target.files?.[0]);
+                        e.target.value = '';
+                      }}
+                    />
                   </div>
                 ))}
               </div>

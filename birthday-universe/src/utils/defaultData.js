@@ -18,23 +18,30 @@ export function compressImageFile(file, maxWidth = 1200, quality = 0.82) {
     if (!file) return resolve(null);
     const reader = new FileReader();
     reader.onload = (e) => {
+      const dataUrl = e.target?.result;
+      if (!dataUrl) return resolve(null);
       const img = new Image();
       img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
+        try {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        } catch (err) {
+          console.warn('Canvas compression fallback to raw dataUrl:', err);
+          resolve(dataUrl);
         }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', quality));
       };
-      img.onerror = () => resolve(e.target?.result);
-      img.src = e.target?.result;
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
     };
     reader.onerror = () => resolve(null);
     reader.readAsDataURL(file);

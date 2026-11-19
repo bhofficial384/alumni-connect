@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Calendar, Sparkles, Image as ImageIcon, CheckCircle2, ChevronRight, X } from 'lucide-react';
+import { Heart, Calendar, Sparkles, Image as ImageIcon, CheckCircle2, ChevronRight, X, Check } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
 import { resolveAssetUrl, compressImageFile } from '../utils/defaultData';
 
 export default function RomanticTimeline({ timeline, progress, onUpdateProgress, onUpdateTimelineImage }) {
   const [selectedMoment, setSelectedMoment] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const fileInputRef = useRef(null);
   const viewedIds = progress.viewedTimeline || [];
 
   const handleCardClick = (moment) => {
@@ -20,15 +23,26 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
 
   const handleFileUpload = async (e, momentId) => {
     const file = e.target.files?.[0];
-    if (file && onUpdateTimelineImage) {
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
       sounds.playSoftChime();
       const compressed = await compressImageFile(file);
-      if (compressed) {
+      if (compressed && onUpdateTimelineImage) {
         onUpdateTimelineImage(momentId, compressed);
         if (selectedMoment && selectedMoment.id === momentId) {
-          setSelectedMoment({ ...selectedMoment, image: compressed });
+          setSelectedMoment((prev) => ({ ...prev, image: compressed }));
         }
+        sounds.playCelebrationChord();
+        setUploadSuccess(true);
+        setTimeout(() => setUploadSuccess(false), 2500);
       }
+    } catch (err) {
+      console.error('Failed to upload timeline photo:', err);
+    } finally {
+      setIsUploading(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -201,16 +215,37 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
                   alt={selectedMoment.title}
                   className="w-full h-full object-cover"
                 />
-                <label className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-cinzel text-rose-200 glass-panel border border-rose-400/30 hover:border-rose-300 cursor-pointer shadow-lg backdrop-blur-md">
-                  <ImageIcon className="w-3.5 h-3.5" />
-                  <span>Change Photo</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => handleFileUpload(e, selectedMoment.id)}
-                  />
-                </label>
+                {/* Change Photo Button */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  disabled={isUploading}
+                  className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-cinzel text-rose-100 bg-rose-950/85 hover:bg-rose-900/90 border border-rose-400/50 hover:border-rose-300 cursor-pointer shadow-lg backdrop-blur-md active:scale-95 transition-all"
+                >
+                  {uploadSuccess ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <ImageIcon className="w-3.5 h-3.5 text-rose-300" />
+                  )}
+                  <span>
+                    {isUploading
+                      ? 'Saving Photo...'
+                      : uploadSuccess
+                      ? 'Photo Updated! ✨'
+                      : 'Change Photo'}
+                  </span>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => handleFileUpload(e, selectedMoment.id)}
+                />
               </div>
 
               <div className="p-5 rounded-2xl bg-black/40 border border-rose-400/20 mb-4">
