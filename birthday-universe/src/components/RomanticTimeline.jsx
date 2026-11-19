@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Calendar, Sparkles, Image as ImageIcon, CheckCircle2, ChevronRight, X, Check, Camera } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
@@ -6,10 +6,8 @@ import { resolveAssetUrl, compressImageFile, readFileAsDataUrl } from '../utils/
 
 export default function RomanticTimeline({ timeline, progress, onUpdateProgress, onUpdateTimelineImage }) {
   const [selectedMoment, setSelectedMoment] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [targetMomentId, setTargetMomentId] = useState(null);
-  const fileInputRef = useRef(null);
+  const [uploadingId, setUploadingId] = useState(null);
+  const [successId, setSuccessId] = useState(null);
   const viewedIds = progress.viewedTimeline || [];
 
   const handleCardClick = (moment) => {
@@ -22,39 +20,40 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
     }
   };
 
-  const triggerUpload = (momentId) => {
-    setTargetMomentId(momentId);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleFileSelected = async (e) => {
+  const handleUpload = async (e, momentId) => {
     const file = e.target.files?.[0];
-    const momentId = targetMomentId;
     if (!file || !momentId) return;
 
-    setIsUploading(true);
+    setUploadingId(momentId);
     sounds.playSoftChime();
 
     try {
-      const compressed = await compressImageFile(file, 900, 0.75);
-      const finalUrl = compressed || (await readFileAsDataUrl(file));
-      if (finalUrl) {
-        if (onUpdateTimelineImage) {
-          onUpdateTimelineImage(momentId, finalUrl);
-        }
-        setSelectedMoment((prev) => (prev && prev.id === momentId ? { ...prev, image: finalUrl } : prev));
-        sounds.playCelebrationChord();
-        setUploadSuccess(true);
-        setTimeout(() => setUploadSuccess(false), 2500);
+      // Step 1: Read raw data URL
+      const rawDataUrl = await readFileAsDataUrl(file);
+      if (!rawDataUrl) {
+        setUploadingId(null);
+        return;
       }
+
+      // Step 2: Compress to ensure safe local storage
+      const compressed = await compressImageFile(file, 800, 0.75);
+      const finalUrl = compressed || rawDataUrl;
+
+      // Step 3: Update parent config and storage
+      if (onUpdateTimelineImage) {
+        onUpdateTimelineImage(momentId, finalUrl);
+      }
+
+      // Step 4: Update open modal if applicable
+      setSelectedMoment((prev) => (prev && prev.id === momentId ? { ...prev, image: finalUrl } : prev));
+
+      sounds.playCelebrationChord();
+      setSuccessId(momentId);
+      setTimeout(() => setSuccessId(null), 2500);
     } catch (err) {
-      console.error('Failed to process timeline photo:', err);
+      console.error('Failed to upload timeline photo:', err);
     } finally {
-      setIsUploading(false);
-      setTargetMomentId(null);
+      setUploadingId(null);
       if (e.target) e.target.value = '';
     }
   };
@@ -63,15 +62,6 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
     <section id="story" className="relative min-h-screen py-24 px-4 sm:px-6 max-w-6xl mx-auto flex flex-col items-center">
       {/* Background radial aura */}
       <div className="absolute top-1/4 left-10 w-96 h-96 rounded-full bg-rose-950/20 blur-[120px] pointer-events-none" />
-
-      {/* Hidden Master File Input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleFileSelected}
-      />
 
       {/* Section Header */}
       <div className="text-center max-w-2xl mb-16 relative z-10">
@@ -117,6 +107,8 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
             const isEven = index % 2 === 0;
             const isViewed = viewedIds.includes(moment.id);
             const hasImage = Boolean(moment.image && moment.image.trim().length > 0);
+            const isCurrentUploading = uploadingId === moment.id;
+            const isCurrentSuccess = successId === moment.id;
 
             return (
               <motion.div
@@ -151,13 +143,11 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
                     onClick={() => {
                       if (hasImage) {
                         handleCardClick(moment);
-                      } else {
-                        triggerUpload(moment.id);
                       }
                     }}
                     className="group relative p-5 sm:p-6 rounded-3xl glass-panel-love border border-rose-400/25 hover:border-rose-400/50 shadow-[0_10px_30px_rgba(0,0,0,0.6)] hover:shadow-[0_0_30px_rgba(244,63,94,0.25)] transition-all cursor-pointer overflow-hidden"
                   >
-                    {/* Photo preview or Upload Placeholder */}
+                    {/* Photo preview or Direct Upload Label */}
                     <div className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 border border-rose-400/20 group-hover:scale-[1.02] transition-transform duration-500 flex items-center justify-center bg-black/40">
                       {hasImage ? (
                         <>
@@ -167,17 +157,6 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
                             className="w-full h-full object-cover"
                             loading="eager"
                             decoding="async"
-                            onError={(e) => {
-                              if (!e.currentTarget.dataset.retried) {
-                                e.currentTarget.dataset.retried = '1';
-                                const clean = moment.image.replace(/^\.?\/+/, '');
-                                if (e.currentTarget.src.includes('/alumni-connect/')) {
-                                  e.currentTarget.src = '/' + clean;
-                                } else {
-                                  e.currentTarget.src = './' + clean;
-                                }
-                              }
-                            }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
@@ -186,37 +165,51 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
                             {moment.memoryTag}
                           </span>
 
-                          {/* Quick Change button */}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              triggerUpload(moment.id);
-                            }}
-                            className="absolute bottom-2 right-2 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-cinzel text-white bg-black/75 hover:bg-rose-900 border border-rose-400/30 backdrop-blur-md transition-all active:scale-95"
+                          {/* Quick Change Native Label */}
+                          <label
+                            onClick={(e) => e.stopPropagation()}
+                            className="absolute bottom-2 right-2 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-cinzel text-white bg-black/75 hover:bg-rose-900 border border-rose-400/30 backdrop-blur-md cursor-pointer transition-all active:scale-95"
                           >
-                            <Camera className="w-3 h-3 text-rose-300" />
-                            <span>Change</span>
-                          </button>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleUpload(e, moment.id)}
+                            />
+                            {isCurrentSuccess ? (
+                              <Check className="w-3 h-3 text-emerald-400" />
+                            ) : (
+                              <Camera className="w-3 h-3 text-rose-300" />
+                            )}
+                            <span>{isCurrentUploading ? 'Saving...' : isCurrentSuccess ? 'Saved!' : 'Change'}</span>
+                          </label>
                         </>
                       ) : (
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            triggerUpload(moment.id);
-                          }}
+                        /* Direct Native Upload Label */
+                        <label
+                          onClick={(e) => e.stopPropagation()}
                           className="w-full h-full flex flex-col items-center justify-center p-4 text-center border-2 border-dashed border-rose-400/40 hover:border-rose-400/80 rounded-2xl bg-rose-950/20 hover:bg-rose-950/40 transition-all cursor-pointer group/up"
                         >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleUpload(e, moment.id)}
+                          />
                           <div className="w-11 h-11 rounded-full bg-rose-900/60 border border-rose-400/40 flex items-center justify-center text-rose-300 mb-2 group-hover/up:scale-110 transition-transform">
-                            <Camera className="w-5 h-5" />
+                            {isCurrentUploading ? (
+                              <div className="w-5 h-5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <Camera className="w-5 h-5" />
+                            )}
                           </div>
                           <span className="text-xs font-cinzel text-rose-200 font-semibold tracking-wider">
-                            Upload Photo 📷
+                            {isCurrentUploading ? 'Uploading...' : 'Upload Photo 📷'}
                           </span>
                           <span className="text-[10px] text-rose-300/70 mt-0.5">
                             Tap to pick from device
                           </span>
-                        </div>
+                        </label>
                       )}
                     </div>
 
@@ -296,57 +289,58 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
                       className="w-full h-full object-cover"
                       loading="eager"
                       decoding="async"
-                      onError={(e) => {
-                        if (!e.currentTarget.dataset.retried) {
-                          e.currentTarget.dataset.retried = '1';
-                          const clean = selectedMoment.image.replace(/^\.?\/+/, '');
-                          if (e.currentTarget.src.includes('/alumni-connect/')) {
-                            e.currentTarget.src = '/' + clean;
-                          } else {
-                            e.currentTarget.src = './' + clean;
-                          }
-                        }
-                      }}
                     />
 
                     {/* Change Photo Button */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        triggerUpload(selectedMoment.id);
-                      }}
-                      className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-cinzel text-rose-100 bg-rose-950/90 hover:bg-rose-900 border border-rose-400/50 hover:border-rose-300 cursor-pointer shadow-lg backdrop-blur-md transition-all active:scale-95"
+                    <label
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-cinzel text-rose-100 bg-rose-950/90 hover:bg-rose-900 border border-rose-400/50 hover:border-rose-300 cursor-pointer shadow-lg backdrop-blur-md transition-all active:scale-95"
                     >
-                      {uploadSuccess ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleUpload(e, selectedMoment.id)}
+                      />
+                      {successId === selectedMoment.id ? (
+                        <Check className="w-4 h-4 text-emerald-400 shrink-0" />
                       ) : (
-                        <Camera className="w-3.5 h-3.5 text-rose-300 shrink-0" />
+                        <Camera className="w-4 h-4 text-rose-300 shrink-0" />
                       )}
                       <span className="font-semibold select-none">
-                        {isUploading
+                        {uploadingId === selectedMoment.id
                           ? 'Saving Photo...'
-                          : uploadSuccess
+                          : successId === selectedMoment.id
                           ? 'Photo Updated! ✨'
                           : 'Change Photo'}
                       </span>
-                    </button>
+                    </label>
                   </>
                 ) : (
-                  <div
-                    onClick={() => triggerUpload(selectedMoment.id)}
+                  <label
+                    onClick={(e) => e.stopPropagation()}
                     className="w-full h-full flex flex-col items-center justify-center p-6 text-center cursor-pointer border-2 border-dashed border-rose-400/50 hover:border-rose-300 hover:bg-rose-950/30 transition-all group/modalup"
                   >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleUpload(e, selectedMoment.id)}
+                    />
                     <div className="w-14 h-14 rounded-full bg-rose-900/60 border border-rose-400/40 flex items-center justify-center text-rose-300 mb-2.5 group-hover/modalup:scale-110 transition-transform">
-                      <Camera className="w-7 h-7" />
+                      {uploadingId === selectedMoment.id ? (
+                        <div className="w-6 h-6 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Camera className="w-7 h-7" />
+                      )}
                     </div>
                     <span className="text-sm font-cinzel text-rose-100 font-bold tracking-wider mb-1">
-                      {isUploading ? 'Uploading Photo...' : 'Tap to Upload Photo 📷'}
+                      {uploadingId === selectedMoment.id ? 'Uploading Photo...' : 'Tap to Upload Photo 📷'}
                     </span>
                     <span className="text-xs text-rose-300/80">
                       Choose any picture from your device
                     </span>
-                  </div>
+                  </label>
                 )}
               </div>
 

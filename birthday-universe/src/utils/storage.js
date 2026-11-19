@@ -28,10 +28,10 @@ export function getStoredConfig() {
     if (!raw) return DEFAULT_CONFIG;
     const parsed = JSON.parse(raw);
 
-    // Smart merge: Preserve any saved/uploaded photo (data:) while keeping fresh default assets
+    // Smart merge: Preserve any saved/uploaded photo while keeping fresh defaults
     const mergedTimeline = DEFAULT_CONFIG.timeline.map((defItem, idx) => {
       const savedItem = parsed.timeline?.[idx] || parsed.timeline?.find((t) => t.id === defItem.id);
-      if (savedItem && savedItem.image && savedItem.image.startsWith('data:')) {
+      if (savedItem && savedItem.image && savedItem.image.trim().length > 0) {
         return { ...defItem, ...savedItem };
       }
       return defItem;
@@ -39,7 +39,7 @@ export function getStoredConfig() {
 
     const mergedPolaroids = DEFAULT_CONFIG.polaroids.map((defPol, idx) => {
       const savedPol = parsed.polaroids?.[idx] || parsed.polaroids?.find((p) => p.id === defPol.id);
-      if (savedPol && savedPol.image && savedPol.image.startsWith('data:')) {
+      if (savedPol && savedPol.image && savedPol.image.trim().length > 0) {
         return { ...defPol, ...savedPol };
       }
       return defPol;
