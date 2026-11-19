@@ -5,6 +5,14 @@ export function resolveAssetUrl(path) {
     return path;
   }
   const clean = path.replace(/^\.?\/+/, '');
+  if (typeof window !== 'undefined') {
+    const origin = window.location.origin;
+    const pathname = window.location.pathname;
+    if (pathname.includes('/alumni-connect')) {
+      return `${origin}/alumni-connect/${clean}`;
+    }
+    return `${origin}/${clean}`;
+  }
   const base = import.meta.env.BASE_URL || './';
   if (base.endsWith('/')) {
     return `${base}${clean}`;
@@ -12,8 +20,18 @@ export function resolveAssetUrl(path) {
   return `${base}/${clean}`;
 }
 
+export function readFileAsDataUrl(file) {
+  return new Promise((resolve) => {
+    if (!file) return resolve(null);
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target?.result || null);
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
 // Compress uploaded user image to prevent exceeding browser localStorage quota
-export function compressImageFile(file, maxWidth = 1200, quality = 0.82) {
+export function compressImageFile(file, maxWidth = 900, quality = 0.75) {
   return new Promise((resolve) => {
     if (!file) return resolve(null);
     const reader = new FileReader();
@@ -25,9 +43,14 @@ export function compressImageFile(file, maxWidth = 1200, quality = 0.82) {
         try {
           let width = img.width;
           let height = img.height;
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
+          if (width > maxWidth || height > maxWidth) {
+            if (width > height) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxWidth) / height);
+              height = maxWidth;
+            }
           }
           const canvas = document.createElement('canvas');
           canvas.width = width;

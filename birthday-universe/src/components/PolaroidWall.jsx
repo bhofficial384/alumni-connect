@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Sparkles, Image as ImageIcon, Calendar, X, ZoomIn, Check } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
-import { resolveAssetUrl, compressImageFile } from '../utils/defaultData';
+import { resolveAssetUrl, compressImageFile, readFileAsDataUrl } from '../utils/defaultData';
 
 export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
   const [activePolaroid, setActivePolaroid] = useState(null);
@@ -15,67 +15,29 @@ export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
     setActivePolaroid(pol);
   };
 
-  const handleFileChange = (e, polId) => {
+  const handleFileChange = async (e, polId) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
     sounds.playSoftChime();
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result;
-      if (!dataUrl) {
-        setIsUploading(false);
-        return;
-      }
-
-      // Try resizing on canvas for compact storage, or fall back to dataUrl
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const maxDim = 1200;
-          let w = img.width;
-          let h = img.height;
-          if (w > maxDim || h > maxDim) {
-            if (w > h) {
-              h = Math.round((h * maxDim) / w);
-              w = maxDim;
-            } else {
-              w = Math.round((w * maxDim) / h);
-              h = maxDim;
-            }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          const finalUrl = canvas.toDataURL('image/jpeg', 0.85);
-          applyNewPhoto(finalUrl);
-        } catch (err) {
-          applyNewPhoto(dataUrl);
+    try {
+      const compressed = await compressImageFile(file, 900, 0.75);
+      const finalUrl = compressed || (await readFileAsDataUrl(file));
+      if (finalUrl) {
+        if (onUpdatePolaroidImage) {
+          onUpdatePolaroidImage(polId, finalUrl);
         }
-      };
-      img.onerror = () => {
-        applyNewPhoto(dataUrl);
-      };
-      img.src = dataUrl;
-    };
-    reader.onerror = () => {
-      setIsUploading(false);
-    };
-    reader.readAsDataURL(file);
-
-    function applyNewPhoto(newUrl) {
-      if (onUpdatePolaroidImage) {
-        onUpdatePolaroidImage(polId, newUrl);
+        setActivePolaroid((prev) => (prev ? { ...prev, image: finalUrl } : prev));
+        sounds.playCelebrationChord();
+        setUploadSuccess(true);
+        setTimeout(() => setUploadSuccess(false), 2500);
       }
-      setActivePolaroid((prev) => (prev ? { ...prev, image: newUrl } : prev));
-      sounds.playCelebrationChord();
+    } catch (err) {
+      console.error('Photo processing error:', err);
+    } finally {
       setIsUploading(false);
-      setUploadSuccess(true);
-      setTimeout(() => setUploadSuccess(false), 2500);
       if (e.target) e.target.value = '';
     }
   };
@@ -146,7 +108,19 @@ export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
                     src={resolveAssetUrl(pol.image)}
                     alt={pol.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
+                    loading="eager"
+                    decoding="async"
+                    onError={(e) => {
+                      if (!e.currentTarget.dataset.retried) {
+                        e.currentTarget.dataset.retried = '1';
+                        const clean = pol.image.replace(/^\.?\/+/, '');
+                        if (e.currentTarget.src.includes('/alumni-connect/')) {
+                          e.currentTarget.src = '/' + clean;
+                        } else {
+                          e.currentTarget.src = './' + clean;
+                        }
+                      }
+                    }}
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
 
@@ -219,12 +193,38 @@ export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
                   src={resolveAssetUrl(activePolaroid.image)}
                   alt={activePolaroid.title}
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
+                  onError={(e) => {
+                    if (!e.currentTarget.dataset.retried) {
+                      e.currentTarget.dataset.retried = '1';
+                      const clean = activePolaroid.image.replace(/^\.?\/+/, '');
+                      if (e.currentTarget.src.includes('/alumni-connect/')) {
+                        e.currentTarget.src = '/' + clean;
+                      } else {
+                        e.currentTarget.src = './' + clean;
+                      }
+                    }
+                  }}
+                />
+
+                {/* Hidden File Input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleFileChange(e, activePolaroid.id)}
                 />
 
                 {/* Upload Button */}
-                <div
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
                   className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-cinzel text-rose-100 bg-rose-950/90 hover:bg-rose-900 border border-rose-400/50 hover:border-rose-300 cursor-pointer shadow-lg backdrop-blur-md transition-all active:scale-95"
-                  onClick={(e) => e.stopPropagation()}
                 >
                   {uploadSuccess ? (
                     <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
@@ -238,14 +238,7 @@ export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
                       ? 'Photo Updated! ✨'
                       : 'Upload Personal Photo'}
                   </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-40"
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => handleFileChange(e, activePolaroid.id)}
-                  />
-                </div>
+                </button>
               </div>
 
               {/* Description */}

@@ -1,7 +1,7 @@
 import { DEFAULT_CONFIG } from './defaultData';
 
-const CONFIG_KEY = 'saurabh_anju_love_story_config_v8';
-const PROGRESS_KEY = 'saurabh_anju_love_story_progress_v2';
+const CONFIG_KEY = 'saurabh_anju_love_story_config_v10';
+const PROGRESS_KEY = 'saurabh_anju_love_story_progress_v3';
 
 export const INITIAL_PROGRESS = {
   hasOpenedGift: false,
@@ -19,23 +19,19 @@ export function getStoredConfig() {
   try {
     // Clear out legacy cache versions
     try {
-      localStorage.removeItem('saurabh_anju_love_story_config_v1');
-      localStorage.removeItem('saurabh_anju_love_story_config_v2');
-      localStorage.removeItem('saurabh_anju_love_story_config_v3');
-      localStorage.removeItem('saurabh_anju_love_story_config_v4');
-      localStorage.removeItem('saurabh_anju_love_story_config_v5');
-      localStorage.removeItem('saurabh_anju_love_story_config_v6');
-      localStorage.removeItem('saurabh_anju_love_story_config_v7');
+      for (let i = 1; i <= 9; i++) {
+        localStorage.removeItem(`saurabh_anju_love_story_config_v${i}`);
+      }
     } catch (_) {}
 
     const raw = localStorage.getItem(CONFIG_KEY);
     if (!raw) return DEFAULT_CONFIG;
     const parsed = JSON.parse(raw);
 
-    // Smart merge: Preserve any saved/uploaded photo while filling in defaults
+    // Smart merge: Preserve any saved/uploaded photo (data:) while keeping fresh default assets
     const mergedTimeline = DEFAULT_CONFIG.timeline.map((defItem, idx) => {
       const savedItem = parsed.timeline?.[idx] || parsed.timeline?.find((t) => t.id === defItem.id);
-      if (savedItem && savedItem.image && !savedItem.image.includes('unsplash')) {
+      if (savedItem && savedItem.image && savedItem.image.startsWith('data:')) {
         return { ...defItem, ...savedItem };
       }
       return defItem;
@@ -43,7 +39,7 @@ export function getStoredConfig() {
 
     const mergedPolaroids = DEFAULT_CONFIG.polaroids.map((defPol, idx) => {
       const savedPol = parsed.polaroids?.[idx] || parsed.polaroids?.find((p) => p.id === defPol.id);
-      if (savedPol && savedPol.image && !savedPol.image.includes('unsplash')) {
+      if (savedPol && savedPol.image && savedPol.image.startsWith('data:')) {
         return { ...defPol, ...savedPol };
       }
       return defPol;
