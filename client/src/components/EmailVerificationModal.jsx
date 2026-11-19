@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 
 /**
@@ -124,9 +125,15 @@ const EmailVerificationModal = ({ isOpen, onClose, emailToVerify = '' }) => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in">
-      <div className="bg-[#0E121C] rounded-[32px] shadow-[0_30px_100px_rgba(0,0,0,0.95)] max-w-md w-full p-5 sm:p-8 relative overflow-hidden border border-white/[0.12] text-white animate-scale-in max-h-[92vh] overflow-y-auto">
+  const modalContent = (
+    <div 
+      className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-[#0E121C] rounded-[32px] shadow-[0_30px_100px_rgba(0,0,0,0.95)] max-w-md w-full p-5 sm:p-8 relative overflow-hidden border border-white/[0.12] text-white animate-scale-in max-h-[92vh] overflow-y-auto overscroll-contain"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Ambient Top Glows */}
         <div className="absolute -top-20 -right-20 w-48 h-48 bg-emerald-500/15 rounded-full blur-[70px] pointer-events-none" />
@@ -220,6 +227,10 @@ const EmailVerificationModal = ({ isOpen, onClose, emailToVerify = '' }) => {
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined'
+    ? createPortal(modalContent, document.body)
+    : modalContent;
 };
 
 export default EmailVerificationModal;

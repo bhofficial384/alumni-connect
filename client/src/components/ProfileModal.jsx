@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 import { compressAndResizeImage, compressCertificateFile, getInitials } from '../utils/imageUtils';
 import CameraCaptureModal from './CameraCaptureModal';
@@ -227,10 +228,13 @@ const ProfileModal = ({ isOpen, onClose }) => {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+  const modalContent = (
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+    >
       <div 
-        className="relative w-full max-w-lg bg-[#0E121C] border border-white/[0.12] rounded-3xl p-6 sm:p-8 shadow-[0_25px_80px_rgba(0,0,0,0.9)] max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-lg bg-[#0E121C] border border-white/[0.12] rounded-3xl p-5 sm:p-8 shadow-[0_25px_80px_rgba(0,0,0,0.95)] max-h-[92vh] overflow-y-auto overscroll-contain"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Glow ambient background */}
@@ -910,6 +914,10 @@ const ProfileModal = ({ isOpen, onClose }) => {
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined'
+    ? createPortal(modalContent, document.body)
+    : modalContent;
 };
 
 export default ProfileModal;

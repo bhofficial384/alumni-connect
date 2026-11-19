@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
  * 3. Set new password & auto-login
  */
 const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
-  const { forgotPasswordRequest, verifyResetOtp, resetPasswordWithOtp } = useAuth();
+  const { forgotPasswordRequest, verifyResetOtp, resetPasswordWithOtp, sendFirebasePasswordReset } = useAuth();
 
   const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: New Password
   const [email, setEmail] = useState(initialEmail);
@@ -68,6 +68,22 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
       setCanResend(false);
     } catch (err) {
       setError(err.message || 'Failed to send reset code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Direct Firebase password reset link sent to Gmail via Google infrastructure
+  const handleSendFirebaseReset = async () => {
+    if (!email) return setError('Please enter your email address.');
+    setLoading(true);
+    setError('');
+    setMessage('');
+    try {
+      await sendFirebasePasswordReset(email);
+      setMessage(`Firebase has sent a password reset link directly to ${email}. Check your Gmail inbox/spam folder.`);
+    } catch (err) {
+      setError(err.message || 'Failed to send Firebase reset link.');
     } finally {
       setLoading(false);
     }
@@ -235,6 +251,24 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
               className="w-full py-3.5 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-sm shadow-[0_8px_25px_rgba(37,99,235,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {loading ? 'Dispatching OTP...' : 'Send 6-Digit Code →'}
+            </button>
+
+            <div className="relative flex py-1 items-center">
+              <div className="flex-grow border-t border-white/[0.08]"></div>
+              <span className="flex-shrink mx-3 text-slate-500 text-[11px] uppercase tracking-wider">or</span>
+              <div className="flex-grow border-t border-white/[0.08]"></div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSendFirebaseReset}
+              disabled={loading}
+              className="w-full py-3 rounded-full bg-[#131826] hover:bg-[#1A2035] border border-white/[0.12] hover:border-cyan-500/40 text-slate-200 hover:text-white font-medium text-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+            >
+              <svg className="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3.89 15.672L6.255.476A.54.54 0 0 1 7.27.31l3.528 6.643-6.908 8.72zm15.426-3.81L16.48 4.298a.54.54 0 0 0-.965-.084L12.77 9.17l6.546 2.693zm-9.355 7.159l-6.19-3.484a.54.54 0 0 1-.22-.686l2.128-4.225 4.282 8.395zm.908.435a.54.54 0 0 0 .506 0l9.349-5.26-2.585-6.34-7.27 11.6z"/>
+              </svg>
+              <span>Send Reset Link via Firebase to Gmail</span>
             </button>
           </form>
         )}

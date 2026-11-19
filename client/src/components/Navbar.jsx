@@ -161,7 +161,7 @@ const Navbar = () => {
                       </span>
                     )}
                   </div>
-                  <span className={`text-xs font-medium hidden 2xl:inline ${isDark ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                  <span className={`text-xs font-semibold hidden lg:inline ${isDark ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'}`}>
                     Profile
                   </span>
                 </button>
@@ -206,17 +206,46 @@ const Navbar = () => {
           <div className="flex md:hidden items-center gap-1.5 xs:gap-2">
             <ThemeToggle />
             {user && (
-              <button
-                type="button"
-                onClick={logout}
-                className="px-2 py-1 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-rose-100 text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0 active:scale-95"
-                title="Logout"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                <span className="hidden xs:inline">Logout</span>
-              </button>
+              <>
+                {/* 1-tap Mobile Profile Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowProfileModal(true)}
+                  className={`p-1 rounded-full border transition-all cursor-pointer shrink-0 active:scale-95 ${
+                    isDark
+                      ? 'bg-white/[0.06] hover:bg-white/[0.14] border-white/10'
+                      : 'bg-slate-100 hover:bg-slate-200 border-slate-300'
+                  }`}
+                  title="My Profile & Photo"
+                  aria-label="Open My Profile"
+                >
+                  <div className="relative w-6 h-6 rounded-full overflow-hidden p-[1px] bg-gradient-to-tr from-cyan-400 via-blue-500 to-purple-500 flex items-center justify-center shrink-0">
+                    {user.profileImage ? (
+                      <img
+                        src={user.profileImage}
+                        alt={user.name}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="w-full h-full rounded-full bg-[#0E121C] text-[9px] font-bold text-white flex items-center justify-center">
+                        {getInitials(user.name)}
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="px-2 py-1 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-rose-100 text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0 active:scale-95"
+                  title="Logout"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span className="hidden xs:inline">Logout</span>
+                </button>
+              </>
             )}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -311,9 +340,13 @@ const Navbar = () => {
               ) : (
                 <div className="space-y-3 pt-1">
                   {/* User Profile summary on mobile */}
-                  <div className={`flex items-center gap-3 p-2.5 rounded-2xl border ${
-                    isDark ? 'bg-white/[0.04] border-white/10' : 'bg-slate-100 border-slate-200'
-                  }`}>
+                  <div 
+                    onClick={() => { setShowProfileModal(true); setMobileMenuOpen(false); }}
+                    className={`flex items-center gap-3 p-2.5 rounded-2xl border transition-all cursor-pointer active:scale-[0.98] ${
+                      isDark ? 'bg-white/[0.04] hover:bg-white/[0.08] border-white/10' : 'bg-slate-100 hover:bg-slate-200 border-slate-200'
+                    }`}
+                    title="Tap to view and edit profile"
+                  >
                     <div className="w-10 h-10 rounded-full overflow-hidden p-[1.5px] bg-gradient-to-tr from-cyan-400 via-blue-500 to-purple-500 shrink-0">
                       {user.profileImage ? (
                         <img src={user.profileImage} alt={user.name} className="w-full h-full rounded-full object-cover" />

@@ -1,6 +1,6 @@
 import { DEFAULT_CONFIG } from './defaultData';
 
-const CONFIG_KEY = 'saurabh_anju_love_story_config_v2';
+const CONFIG_KEY = 'saurabh_anju_love_story_config_v5';
 const PROGRESS_KEY = 'saurabh_anju_love_story_progress_v2';
 
 export const INITIAL_PROGRESS = {
@@ -17,16 +17,26 @@ export const INITIAL_PROGRESS = {
 
 export function getStoredConfig() {
   try {
+    // Clear out legacy cache versions
+    try {
+      localStorage.removeItem('saurabh_anju_love_story_config_v1');
+      localStorage.removeItem('saurabh_anju_love_story_config_v2');
+      localStorage.removeItem('saurabh_anju_love_story_config_v3');
+      localStorage.removeItem('saurabh_anju_love_story_config_v4');
+    } catch (_) {}
+
     const raw = localStorage.getItem(CONFIG_KEY);
     if (!raw) return DEFAULT_CONFIG;
     const parsed = JSON.parse(raw);
 
-    // If cached config has placeholder unsplash photos, upgrade to real photos
-    const hasUnsplash =
-      parsed.timeline?.some((t) => t.image?.includes('unsplash')) ||
-      parsed.polaroids?.some((p) => p.image?.includes('unsplash'));
+    // If cached config has old paths, fewer than 13 polaroids, or unsplash, upgrade to latest DEFAULT_CONFIG photos
+    const needsPhotoUpgrade =
+      !parsed.polaroids ||
+      parsed.polaroids.length < DEFAULT_CONFIG.polaroids.length ||
+      parsed.timeline?.some((t) => !t.image || t.image.includes('unsplash') || t.image.startsWith('/photos/')) ||
+      parsed.polaroids?.some((p) => !p.image || p.image.includes('unsplash') || p.image.startsWith('/photos/'));
 
-    if (hasUnsplash) {
+    if (needsPhotoUpgrade) {
       const upgraded = {
         ...DEFAULT_CONFIG,
         ...parsed,

@@ -1,3 +1,17 @@
+// Helper to resolve asset paths across root, subpath (GitHub Pages), or dev
+export function resolveAssetUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+    return path;
+  }
+  const clean = path.replace(/^\.?\/+/, '');
+  const base = import.meta.env.BASE_URL || './';
+  if (base.endsWith('/')) {
+    return `${base}${clean}`;
+  }
+  return `${base}/${clean}`;
+}
+
 export const DEFAULT_CONFIG = {
   authorName: "Saurabh",
   recipientName: "Anju",
@@ -37,7 +51,7 @@ you would understand how incredibly special you are to me.`,
       title: "The day you came into my life",
       date: "The beginning of forever",
       caption: "I didn't know it then, but meeting you was the turning point where my world became infinitely brighter.",
-      image: "/photos/photo-01.jpg",
+      image: "photos/photo-01.jpg",
       memoryTag: "Chapter 1"
     },
     {
@@ -45,7 +59,7 @@ you would understand how incredibly special you are to me.`,
       title: "The first time we talked",
       date: "When hours felt like minutes",
       caption: "I remember smiling at my screen like an idiot. The comfort, the natural flow... I knew there was something magical about you.",
-      image: "/photos/photo-03.jpg",
+      image: "photos/photo-03.jpg",
       memoryTag: "First Sparks"
     },
     {
@@ -53,7 +67,7 @@ you would understand how incredibly special you are to me.`,
       title: "The moment I started feeling something special",
       date: "A quiet realization",
       caption: "It wasn't loud. It was a soft realization in my heart that every good thought I had, somehow began and ended with you.",
-      image: "/photos/photo-05.jpg",
+      image: "photos/photo-05.jpg",
       memoryTag: "Falling For You"
     },
     {
@@ -61,7 +75,7 @@ you would understand how incredibly special you are to me.`,
       title: "Our cutest memory",
       date: "Pure, unfiltered laughter",
       caption: "Your goofy laughs, teasing each other, making silly faces... In those moments, I knew you were my safe place.",
-      image: "/photos/photo-15.jpg",
+      image: "photos/photo-07.jpg",
       memoryTag: "Silly Us"
     },
     {
@@ -69,7 +83,7 @@ you would understand how incredibly special you are to me.`,
       title: "The moment you made me smile without even trying",
       date: "Effortless magic",
       caption: "Just seeing your name pop up, hearing your voice note, or watching you be completely yourself. You bring light wherever you go.",
-      image: "/photos/photo-07.jpg",
+      image: "photos/photo-09.jpg",
       memoryTag: "Pure Sunshine"
     },
     {
@@ -77,7 +91,7 @@ you would understand how incredibly special you are to me.`,
       title: "A moment I wish I could relive forever",
       date: "Frozen in time",
       caption: "When the whole world faded into the background, and all that mattered was your presence right beside me.",
-      image: "/photos/photo-18.jpg",
+      image: "photos/photo-11.jpg",
       memoryTag: "Timeless"
     },
     {
@@ -85,7 +99,7 @@ you would understand how incredibly special you are to me.`,
       title: "Today — your birthday",
       date: "November 18",
       caption: "Celebrating the most extraordinary girl in my universe. Today is all about you, my love, my Anju.",
-      image: "/photos/photo-17.jpg",
+      image: "photos/photo-13.jpg",
       memoryTag: "Her Special Day"
     }
   ],
@@ -193,39 +207,39 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "That Radiant Smile",
       date: "A Sunny Afternoon",
       caption: "The exact moment you smiled at me and made my entire world stop spinning.",
-      image: "/photos/photo-10.jpg",
-      rotation: -3
+      image: "photos/photo-02.jpg",
+      rotation: -2
     },
     {
       id: "pol-2",
       title: "Quiet Starlight Talks",
       date: "Late Night Conversations",
       caption: "Talking about everything and nothing until 3 AM without even realizing time was flying.",
-      image: "/photos/photo-20.jpg",
-      rotation: 2
+      image: "photos/photo-04.jpg",
+      rotation: 3
     },
     {
       id: "pol-3",
       title: "Golden Hour Glow",
       date: "Sunset Magic",
       caption: "Even the sunset looked dim compared to the warmth and beauty of your face.",
-      image: "/photos/photo-06.jpg",
-      rotation: -2
+      image: "photos/photo-06.jpg",
+      rotation: -3
     },
     {
       id: "pol-4",
       title: "Our Unfiltered Laughter",
       date: "Pure Happiness",
       caption: "When we couldn't stop laughing at the silly inside jokes that only you and I understand.",
-      image: "/photos/photo-08.jpg",
-      rotation: 3
+      image: "photos/photo-08.jpg",
+      rotation: 2
     },
     {
       id: "pol-5",
       title: "My Safe Place",
       date: "Every Single Day",
       caption: "No matter how chaotic life gets, knowing you are in my life brings instant peace.",
-      image: "/photos/photo-02.jpg",
+      image: "photos/photo-10.jpg",
       rotation: -1
     },
     {
@@ -233,8 +247,64 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "Forever Beside You",
       date: "To Infinity & Beyond",
       caption: "Standing beside you, loving you, and choosing you in this chapter and all the chapters to come.",
-      image: "/photos/photo-12.jpg",
+      image: "photos/photo-12.jpg",
+      rotation: 3
+    },
+    {
+      id: "pol-7",
+      title: "Eyes That Speak To My Soul",
+      date: "Unspoken Love",
+      caption: "One glance into your eyes and every worry disappears. You have the kindest gaze in the universe.",
+      image: "photos/photo-14.jpg",
+      rotation: -2
+    },
+    {
+      id: "pol-8",
+      title: "The Sweetest Moments",
+      date: "Treasured Time",
+      caption: "Every second with you is a memory I want to hold on to forever and never let go.",
+      image: "photos/photo-15.jpg",
+      rotation: 1
+    },
+    {
+      id: "pol-9",
+      title: "Cute Little Habits",
+      date: "All The Little Things",
+      caption: "The way you pout, laugh, and get excited over little things... You are impossibly adorable.",
+      image: "photos/photo-16.jpg",
+      rotation: -3
+    },
+    {
+      id: "pol-10",
+      title: "Birthday Girl Vibes",
+      date: "Celebrating You",
+      caption: "The queen of my heart, looking as gorgeous and radiant as ever.",
+      image: "photos/photo-17.jpg",
       rotation: 2
+    },
+    {
+      id: "pol-11",
+      title: "My Favorite Chapter",
+      date: "Our Beautiful Journey",
+      caption: "Out of all the stories ever told, our little love story is my absolute favorite.",
+      image: "photos/photo-18.jpg",
+      rotation: -1
+    },
+    {
+      id: "pol-12",
+      title: "Holding On To Forever",
+      date: "Promise of Love",
+      caption: "No matter where life takes us, I promise to hold your hand through every high and low.",
+      image: "photos/photo-19.jpg",
+      rotation: 3
+    },
+    {
+      id: "pol-13",
+      title: "My Entire Universe",
+      date: "Always & Forever",
+      caption: "In a thousand lifetimes, across a million stars, I would still look for you and choose you.",
+      image: "photos/photo-20.jpg",
+      rotation: -2
     }
   ],
 

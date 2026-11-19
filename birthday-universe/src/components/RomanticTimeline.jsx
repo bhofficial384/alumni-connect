@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Calendar, Sparkles, Image as ImageIcon, CheckCircle2, ChevronRight, X } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
+import { resolveAssetUrl } from '../utils/defaultData';
 
 export default function RomanticTimeline({ timeline, progress, onUpdateProgress, onUpdateTimelineImage }) {
   const [selectedMoment, setSelectedMoment] = useState(null);
@@ -119,13 +120,10 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
                     {/* Polaroid-style photo preview */}
                     <div className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 border border-rose-400/20 group-hover:scale-[1.02] transition-transform duration-500">
                       <img
-                        src={moment.image}
+                        src={resolveAssetUrl(moment.image)}
                         alt={moment.title}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src =
-                            'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=1200&q=80';
-                        }}
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
@@ -202,7 +200,7 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
 
               <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden mb-6 border border-rose-400/30 shadow-inner group">
                 <img
-                  src={selectedMoment.image}
+                  src={resolveAssetUrl(selectedMoment.image)}
                   alt={selectedMoment.title}
                   className="w-full h-full object-cover"
                 />

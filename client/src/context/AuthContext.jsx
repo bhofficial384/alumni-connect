@@ -6,6 +6,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification,
+  sendPasswordResetEmail,
   reload
 } from 'firebase/auth';
 
@@ -427,6 +428,29 @@ export const AuthProvider = ({ children }) => {
     return true;
   };
 
+  // Firebase Auth: Send password reset email directly to Gmail via Google infrastructure
+  const sendFirebasePasswordReset = async (targetEmail) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const cleanEmail = (targetEmail || '').trim();
+      if (!cleanEmail) throw new Error('Please enter a valid email address.');
+      await sendPasswordResetEmail(auth, cleanEmail);
+      return { success: true, message: `Password reset link sent to ${cleanEmail} via Firebase.` };
+    } catch (fbErr) {
+      let msg = fbErr.message || 'Failed to send password reset email via Firebase.';
+      if (fbErr.code === 'auth/user-not-found') {
+        msg = 'No user registered with this email in Firebase.';
+      } else if (fbErr.code === 'auth/invalid-email') {
+        msg = 'Invalid email address provided.';
+      }
+      setError(msg);
+      throw new Error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Firebase Auth: Finalize verification with backend MongoDB Atlas
   const completeFirebaseVerification = async ({ email, password, role }) => {
     setLoading(true);
@@ -482,6 +506,7 @@ export const AuthProvider = ({ children }) => {
         checkFirebaseEmailVerified,
         resendFirebaseVerification,
         completeFirebaseVerification,
+        sendFirebasePasswordReset,
         sendEmailVerificationOtp,
         verifyEmailOtp,
         sendPhoneVerificationOtp,

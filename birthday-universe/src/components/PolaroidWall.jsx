@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Sparkles, Image as ImageIcon, Calendar, X, ZoomIn } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
+import { resolveAssetUrl } from '../utils/defaultData';
 
 export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
   const [activePolaroid, setActivePolaroid] = useState(null);
@@ -91,13 +92,10 @@ export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
                 {/* Photo container */}
                 <div className="relative w-full h-64 sm:h-72 rounded-lg overflow-hidden bg-neutral-900 border border-neutral-300/40 mb-3.5">
                   <img
-                    src={pol.image}
+                    src={resolveAssetUrl(pol.image)}
                     alt={pol.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80';
-                    }}
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
 
@@ -167,7 +165,7 @@ export default function PolaroidWall({ polaroids, onUpdatePolaroidImage }) {
               {/* Large Image View */}
               <div className="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden mb-5 border border-rose-400/30 shadow-inner group">
                 <img
-                  src={activePolaroid.image}
+                  src={resolveAssetUrl(activePolaroid.image)}
                   alt={activePolaroid.title}
                   className="w-full h-full object-cover"
                 />

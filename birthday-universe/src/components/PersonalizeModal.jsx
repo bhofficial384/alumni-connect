@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Save, RotateCcw, User, Image, Heart, Sparkles, Check, Calendar, Mail } from 'lucide-react';
 import { resetStoredData } from '../utils/storage';
 import { sounds } from '../utils/soundEffects';
+import { resolveAssetUrl } from '../utils/defaultData';
 
 export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig, onResetProgress }) {
   const [recipient, setRecipient] = useState(config.recipientName || 'Anju');
@@ -215,7 +216,7 @@ export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig
                     className="p-3.5 rounded-2xl glass-panel border border-rose-500/20 flex flex-col sm:flex-row items-center gap-4"
                   >
                     <div className="w-16 h-16 rounded-xl overflow-hidden border border-rose-400/30 shrink-0">
-                      <img src={mem.image} alt={mem.title} className="w-full h-full object-cover" />
+                      <img src={resolveAssetUrl(mem.image)} alt={mem.title} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0 w-full space-y-1">
                       <p className="text-xs font-cinzel text-rose-200 truncate font-semibold">
@@ -255,7 +256,7 @@ export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig
                     className="p-3.5 rounded-2xl glass-panel border border-rose-500/20 flex flex-col sm:flex-row items-center gap-4"
                   >
                     <div className="w-16 h-16 rounded-xl overflow-hidden border border-rose-400/30 shrink-0">
-                      <img src={pol.image} alt={pol.title} className="w-full h-full object-cover" />
+                      <img src={resolveAssetUrl(pol.image)} alt={pol.title} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0 w-full space-y-1">
                       <p className="text-xs font-cinzel text-rose-200 truncate font-semibold">

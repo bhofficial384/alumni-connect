@@ -9,6 +9,7 @@ const nodemailer = require('nodemailer');
  * Configure Nodemailer transporter with Gmail credentials and fast direct delivery
  */
 let cachedTransporter = null;
+let cachedFallbackTransporter = null;
 
 const getTransporter = () => {
   if (cachedTransporter) return cachedTransporter;
@@ -17,16 +18,38 @@ const getTransporter = () => {
   const pass = (process.env.SMTP_PASS || 'xmaz whqk yvti qksx').replace(/\s+/g, ''); // Auto-clean spaces from Google App Passwords
 
   if (user && pass) {
+    // Primary: direct SSL on port 465 (fastest, robust on all networks without STARTTLS hang)
     cachedTransporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: { user, pass },
-      pool: true,
-      maxConnections: 5,
-      maxMessages: 100,
-      socketTimeout: 10000,
-      connectionTimeout: 4000
+      pool: false,
+      socketTimeout: 25000,
+      connectionTimeout: 15000
     });
     return cachedTransporter;
+  }
+  return null;
+};
+
+const getFallbackTransporter = () => {
+  if (cachedFallbackTransporter) return cachedFallbackTransporter;
+
+  const user = (process.env.SMTP_USER || 'bhofficialcollege@gmail.com').trim();
+  const pass = (process.env.SMTP_PASS || 'xmaz whqk yvti qksx').replace(/\s+/g, '');
+
+  if (user && pass) {
+    cachedFallbackTransporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: { user, pass },
+      pool: false,
+      socketTimeout: 25000,
+      connectionTimeout: 15000
+    });
+    return cachedFallbackTransporter;
   }
   return null;
 };
@@ -115,8 +138,11 @@ const sendPasswordResetOtp = async ({ toEmail, name, otp }) => {
 /**
  * Send Admin Notification for New Contact Form Submission
  */
+/**
+ * Send Admin Notification for New Contact Form Submission
+ */
 const sendContactNotificationEmail = async ({ name, email, subject: msgSubject, message }) => {
-  const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || 'admin@alumniconnect.com';
+  const adminEmail = (process.env.ADMIN_EMAIL || process.env.SMTP_USER || 'bhofficialcollege@gmail.com').trim();
   const subject = `📬 New Contact Inquiry: ${msgSubject} (from ${name})`;
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0E121C; color: #FFFFFF; border-radius: 20px; padding: 32px; border: 1px solid rgba(255,255,255,0.1);">
@@ -136,51 +162,69 @@ const sendContactNotificationEmail = async ({ name, email, subject: msgSubject, 
       </p>
     </div>
   `;
+  const text = `From: ${name} <${email}>\nSubject: ${msgSubject}\n\nMessage:\n${message}`;
 
-  const transporter = getTransporter();
-  let delivered = false;
+  // 1. Send notification to platform admin with replyTo set to sender
+  const adminRes = await dispatchEmail({ toEmail: adminEmail, subject, html, text, replyTo: email });
 
-  if (transporter && adminEmail) {
-    try {
-      await transporter.sendMail({
-        from: process.env.SMTP_FROM || '"AlumniConnect Notifications" <notifications@alumniconnect.com>',
-        to: adminEmail,
-        replyTo: email,
-        subject,
-        html,
-      });
-      delivered = true;
-    } catch (err) {
-      console.warn('SMTP delivery for contact inquiry failed:', err.message);
-    }
-  }
+  // 2. Also send user acknowledgment confirmation email
+  const userConfirmSubject = `We received your message: "${msgSubject}" - AlumniConnect`;
+  const userConfirmHtml = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; background: #0E121C; color: #FFFFFF; border-radius: 20px; padding: 32px; border: 1px solid rgba(255,255,255,0.1);">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h1 style="color: #FFFFFF; font-size: 24px; font-weight: 800; margin: 0;">AlumniConnect</h1>
+        <p style="color: #38BDF8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-top: 6px;">Message Received</p>
+      </div>
+      <p style="color: #94A3B8; font-size: 14px; line-height: 1.6;">Hello ${name},</p>
+      <p style="color: #CBD5E1; font-size: 14px; line-height: 1.6;">
+        Thank you for contacting AlumniConnect! We have received your inquiry regarding "<strong>${msgSubject}</strong>" and our team will get back to you shortly.
+      </p>
+      <div style="background: #131826; border-radius: 12px; padding: 18px; border: 1px solid rgba(255,255,255,0.08); margin: 20px 0;">
+        <p style="margin: 0; color: #94A3B8; font-size: 12px; line-height: 1.6; font-style: italic;">"${message}"</p>
+      </div>
+      <p style="color: #64748B; font-size: 12px; line-height: 1.5; text-align: center;">
+        If you have urgent questions, you can also connect directly via the student or mentor dashboards.
+      </p>
+      <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 24px; padding-top: 16px; text-align: center; font-size: 11px; color: #64748B;">
+        © ${new Date().getFullYear()} AlumniConnect. All rights reserved.
+      </div>
+    </div>
+  `;
+  const userConfirmText = `Hello ${name},\n\nThank you for contacting AlumniConnect! We have received your message regarding "${msgSubject}". Our team will reply shortly.\n\nAlumniConnect Team`;
+
+  dispatchEmail({ toEmail: email, subject: userConfirmSubject, html: userConfirmHtml, text: userConfirmText }).catch(err => {
+    console.warn('Sender confirmation email error:', err.message);
+  });
 
   console.log(`\n======================================================`);
   console.log(`📬 [EMAIL SERVICE] New Contact Form Inquiry Received`);
   console.log(`From: ${name} (${email})`);
   console.log(`Subject: ${msgSubject}`);
   console.log(`Message Preview: ${message.slice(0, 100)}...`);
-  console.log(`Forwarded to Admin (${adminEmail}): ${delivered ? 'YES' : 'NO (Dev Simulation Mode)'}`);
+  console.log(`Forwarded to Admin (${adminEmail}): ${adminRes?.delivered ? 'YES ✅' : 'FAILED ❌'}`);
   console.log(`======================================================\n`);
 
-  return { delivered };
+  return { delivered: adminRes?.delivered };
 };
 
 /**
- * Core email dispatcher with primary SMTP (Gmail) and fallback Resend HTTPS
+ * Core email dispatcher with primary direct SSL (port 465), fallback TLS (port 587), and Resend HTTPS
  */
-const dispatchEmail = async ({ toEmail, subject, html, text }) => {
+const dispatchEmail = async ({ toEmail, subject, html, text, replyTo }) => {
   let delivered = false;
   let deliveryError = null;
 
-  // 1. Cloud HTTPS Relay (Google Apps Script Web App - bypasses Render SMTP port blocks completely)
+  const senderUser = (process.env.SMTP_USER || 'bhofficialcollege@gmail.com').trim();
+  const fromAddress = `"AlumniConnect" <${senderUser}>`;
+
+  // 1. Cloud HTTPS Relay (Google Apps Script Web App)
   const googleScriptUrl = (process.env.GOOGLE_SCRIPT_URL || '').trim();
   if (googleScriptUrl) {
     try {
       const resp = await fetch(googleScriptUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: toEmail, subject, text, html })
+        body: JSON.stringify({ to: toEmail, subject, text, html, replyTo })
       });
       const data = await resp.json();
       if (data && (data.delivered || data.status === 'success' || data.success)) {
@@ -193,28 +237,51 @@ const dispatchEmail = async ({ toEmail, subject, html, text }) => {
     }
   }
 
-  // 2. SMTP Transporter (Gmail) - Delivers to ANY email without domain restrictions (Works on Localhost & Vercel)
+  // 2a. Primary SMTP Transporter: direct SSL on port 465 (Instant, reliable, unblocked)
   const transporter = getTransporter();
   if (transporter) {
     try {
-      const fromAddress = process.env.SMTP_FROM || `"AlumniConnect" <${process.env.SMTP_USER || 'bhofficialcollege@gmail.com'}>`;
-      const info = await transporter.sendMail({
+      const mailOptions = {
         from: fromAddress,
         to: toEmail,
         subject,
         text,
-        html
-      });
+        html,
+        ...(replyTo && { replyTo })
+      };
+      const info = await transporter.sendMail(mailOptions);
       delivered = true;
-      console.log(`✅ [SMTP Delivery] Email sent successfully to ${toEmail} | Subject: "${subject}" | MessageId: ${info?.messageId || 'OK'}`);
-      return { delivered: true, provider: 'smtp', messageId: info?.messageId };
+      console.log(`✅ [SMTP Port 465 Delivery] Email sent successfully to ${toEmail} | Subject: "${subject}" | MessageId: ${info?.messageId || 'OK'}`);
+      return { delivered: true, provider: 'smtp_465', messageId: info?.messageId };
     } catch (smtpErr) {
-      deliveryError = smtpErr.message;
-      console.warn(`⚠️ [SMTP Delivery Failed for ${toEmail}]:`, smtpErr.message, 'Trying Resend fallback...');
+      deliveryError = `Port 465: ${smtpErr.message}`;
+      console.warn(`⚠️ [SMTP Port 465 Failed for ${toEmail}]:`, smtpErr.message, 'Trying port 587 fallback...');
     }
   }
 
-  // 2. Fallback: Resend HTTPS API (Works for account owner / verified custom domain)
+  // 2b. Fallback SMTP Transporter: port 587 with STARTTLS
+  const fallbackTransporter = getFallbackTransporter();
+  if (!delivered && fallbackTransporter) {
+    try {
+      const mailOptions = {
+        from: fromAddress,
+        to: toEmail,
+        subject,
+        text,
+        html,
+        ...(replyTo && { replyTo })
+      };
+      const info = await fallbackTransporter.sendMail(mailOptions);
+      delivered = true;
+      console.log(`✅ [SMTP Port 587 Delivery] Email sent successfully to ${toEmail} | Subject: "${subject}" | MessageId: ${info?.messageId || 'OK'}`);
+      return { delivered: true, provider: 'smtp_587', messageId: info?.messageId };
+    } catch (err587) {
+      deliveryError = `${deliveryError} | Port 587: ${err587.message}`;
+      console.warn(`⚠️ [SMTP Port 587 Failed for ${toEmail}]:`, err587.message, 'Trying Resend fallback...');
+    }
+  }
+
+  // 3. Fallback: Resend HTTPS API (Works for account owner or verified domain)
   const resendApiKey = (process.env.RESEND_API_KEY || '').trim();
   if (!delivered && resendApiKey) {
     try {
@@ -226,7 +293,8 @@ const dispatchEmail = async ({ toEmail, subject, html, text }) => {
         to: toEmail,
         subject,
         html,
-        text
+        text,
+        ...(replyTo && { reply_to: replyTo })
       });
 
       if (!resendResult.error) {
@@ -234,11 +302,11 @@ const dispatchEmail = async ({ toEmail, subject, html, text }) => {
         console.log(`✅ [RESEND API] Email delivered successfully to ${toEmail} | Subject: "${subject}"`);
         return { delivered: true, provider: 'resend', id: resendResult.data?.id };
       } else {
-        deliveryError = resendResult.error.message || 'Resend error';
-        console.warn(`⚠️ [Resend API Note for ${toEmail}]: ${deliveryError}`);
+        deliveryError = `${deliveryError} | Resend: ${resendResult.error.message || 'Error'}`;
+        console.warn(`⚠️ [Resend API Note for ${toEmail}]: ${resendResult.error.message}`);
       }
     } catch (err) {
-      deliveryError = deliveryError ? `${deliveryError} | Resend: ${err.message}` : err.message;
+      deliveryError = `${deliveryError} | Resend Exception: ${err.message}`;
       console.warn(`⚠️ [Resend API Failed for ${toEmail}]:`, err.message);
     }
   }
