@@ -243,7 +243,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "That Radiant Smile",
       date: "A Sunny Afternoon",
       caption: "The exact moment you smiled at me and made my entire world stop spinning.",
-      image: "photos/photo-02.jpg",
+      image: "photos/photo-01.jpg",
       rotation: -2
     },
     {
@@ -251,7 +251,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "Quiet Starlight Talks",
       date: "Late Night Conversations",
       caption: "Talking about everything and nothing until 3 AM without even realizing time was flying.",
-      image: "photos/photo-04.jpg",
+      image: "photos/photo-02.jpg",
       rotation: 3
     },
     {
@@ -259,7 +259,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "Golden Hour Glow",
       date: "Sunset Magic",
       caption: "Even the sunset looked dim compared to the warmth and beauty of your face.",
-      image: "photos/photo-06.jpg",
+      image: "photos/photo-03.jpg",
       rotation: -3
     },
     {
@@ -267,7 +267,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "Our Unfiltered Laughter",
       date: "Pure Happiness",
       caption: "When we couldn't stop laughing at the silly inside jokes that only you and I understand.",
-      image: "photos/photo-08.jpg",
+      image: "photos/photo-04.jpg",
       rotation: 2
     },
     {
@@ -275,7 +275,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "My Safe Place",
       date: "Every Single Day",
       caption: "No matter how chaotic life gets, knowing you are in my life brings instant peace.",
-      image: "photos/photo-10.jpg",
+      image: "photos/photo-05.jpg",
       rotation: -1
     },
     {
@@ -283,7 +283,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       title: "Forever Beside You",
       date: "To Infinity & Beyond",
       caption: "Standing beside you, loving you, and choosing you in this chapter and all the chapters to come.",
-      image: "photos/photo-12.jpg",
+      image: "photos/photo-06.jpg",
       rotation: 3
     }
   ],
