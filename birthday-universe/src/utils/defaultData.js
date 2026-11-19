@@ -229,7 +229,7 @@ Loving you isn't something I have to try to do — it is as natural as breathing
     }
   ],
 
-  // SCENE 6 — OUR MEMORIES (Polaroid Wall Gallery)
+  // SCENE 6 — OUR MEMORIES (Polaroid Wall Gallery - Best 6 Cherished Moments)
   polaroids: [
     {
       id: "pol-1",
@@ -278,62 +278,6 @@ Loving you isn't something I have to try to do — it is as natural as breathing
       caption: "Standing beside you, loving you, and choosing you in this chapter and all the chapters to come.",
       image: "photos/photo-12.jpg",
       rotation: 3
-    },
-    {
-      id: "pol-7",
-      title: "Eyes That Speak To My Soul",
-      date: "Unspoken Love",
-      caption: "One glance into your eyes and every worry disappears. You have the kindest gaze in the universe.",
-      image: "photos/photo-14.jpg",
-      rotation: -2
-    },
-    {
-      id: "pol-8",
-      title: "The Sweetest Moments",
-      date: "Treasured Time",
-      caption: "Every second with you is a memory I want to hold on to forever and never let go.",
-      image: "photos/photo-15.jpg",
-      rotation: 1
-    },
-    {
-      id: "pol-9",
-      title: "Cute Little Habits",
-      date: "All The Little Things",
-      caption: "The way you pout, laugh, and get excited over little things... You are impossibly adorable.",
-      image: "photos/photo-16.jpg",
-      rotation: -3
-    },
-    {
-      id: "pol-10",
-      title: "Birthday Girl Vibes",
-      date: "Celebrating You",
-      caption: "The queen of my heart, looking as gorgeous and radiant as ever.",
-      image: "photos/photo-17.jpg",
-      rotation: 2
-    },
-    {
-      id: "pol-11",
-      title: "My Favorite Chapter",
-      date: "Our Beautiful Journey",
-      caption: "Out of all the stories ever told, our little love story is my absolute favorite.",
-      image: "photos/photo-18.jpg",
-      rotation: -1
-    },
-    {
-      id: "pol-12",
-      title: "Holding On To Forever",
-      date: "Promise of Love",
-      caption: "No matter where life takes us, I promise to hold your hand through every high and low.",
-      image: "photos/photo-19.jpg",
-      rotation: 3
-    },
-    {
-      id: "pol-13",
-      title: "My Entire Universe",
-      date: "Always & Forever",
-      caption: "In a thousand lifetimes, across a million stars, I would still look for you and choose you.",
-      image: "photos/photo-20.jpg",
-      rotation: -2
     }
   ],
 
