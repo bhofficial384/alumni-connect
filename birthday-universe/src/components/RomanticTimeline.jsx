@@ -17,62 +17,71 @@ export default function RomanticTimeline({ timeline, progress, onUpdateProgress,
     }
   };
 
-  // Simple, robust photo upload handler
+  // Ultra-fast zero-delay instant photo upload handler
   const handlePhotoUpload = (e, momentId) => {
     const file = e.target.files?.[0];
     if (!file || !momentId) return;
 
     sounds.playSoftChime();
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const src = event.target?.result;
-      if (!src) return;
+    // 1. INSTANT ZERO-DELAY PREVIEW (0ms latency)
+    let instantUrl = null;
+    try {
+      instantUrl = URL.createObjectURL(file);
+      if (onUpdateTimelineImage) {
+        onUpdateTimelineImage(momentId, instantUrl);
+      }
+      setSelectedMoment((prev) => (prev && prev.id === momentId ? { ...prev, image: instantUrl } : prev));
+      sounds.playCelebrationChord();
+    } catch (_) {}
 
-      // Simple canvas resize to keep image lightweight (~50KB)
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const maxDim = 800;
-          let w = img.width;
-          let h = img.height;
-          if (w > maxDim || h > maxDim) {
-            if (w > h) {
-              h = Math.round((h * maxDim) / w);
-              w = maxDim;
-            } else {
-              w = Math.round((w * maxDim) / h);
-              h = maxDim;
-            }
+    // 2. Fast background canvas optimization (saves lightweight ~50KB base64 permanently)
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const maxDim = 800;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
           }
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          const compressed = canvas.toDataURL('image/jpeg', 0.72);
-          if (onUpdateTimelineImage) {
-            onUpdateTimelineImage(momentId, compressed);
-          }
-          setSelectedMoment((prev) => (prev && prev.id === momentId ? { ...prev, image: compressed } : prev));
-          sounds.playCelebrationChord();
-        } catch (_) {
-          if (onUpdateTimelineImage) {
-            onUpdateTimelineImage(momentId, src);
-          }
-          setSelectedMoment((prev) => (prev && prev.id === momentId ? { ...prev, image: src } : prev));
-          sounds.playCelebrationChord();
         }
-      };
-      img.onerror = () => {
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.72);
         if (onUpdateTimelineImage) {
-          onUpdateTimelineImage(momentId, src);
+          onUpdateTimelineImage(momentId, compressedBase64);
         }
-        setSelectedMoment((prev) => (prev && prev.id === momentId ? { ...prev, image: src } : prev));
-      };
-      img.src = src;
+        setSelectedMoment((prev) => (prev && prev.id === momentId ? { ...prev, image: compressedBase64 } : prev));
+        if (instantUrl) URL.revokeObjectURL(instantUrl);
+      } catch (_) {
+        const reader = new FileReader();
+        reader.onload = (rev) => {
+          if (rev.target?.result && onUpdateTimelineImage) {
+            onUpdateTimelineImage(momentId, rev.target.result);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => {
+      const reader = new FileReader();
+      reader.onload = (rev) => {
+        if (rev.target?.result && onUpdateTimelineImage) {
+          onUpdateTimelineImage(momentId, rev.target.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+    img.src = instantUrl || URL.createObjectURL(file);
     e.target.value = '';
   };
 
