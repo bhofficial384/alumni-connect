@@ -9,10 +9,22 @@ export default function RomanticHero({ recipientName, authorName, heroData, star
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const [timeTogether, setTimeTogether] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
+  // Helper to parse dates safely (including DD/MM/YYYY)
+  const parseStartDate = (dateStr) => {
+    if (!dateStr) return new Date('2025-01-09T00:00:00');
+    if (typeof dateStr === 'string') {
+      const match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (match) {
+        return new Date(parseInt(match[3], 10), parseInt(match[2], 10) - 1, parseInt(match[1], 10));
+      }
+    }
+    return new Date(dateStr);
+  };
+
   // Calculate live relationship counter
   useEffect(() => {
     const calculateTime = () => {
-      const start = new Date(startDate || '2024-01-01').getTime();
+      const start = parseStartDate(startDate || '2025-01-09').getTime();
       const now = new Date().getTime();
       const diff = Math.max(0, now - start);
 
@@ -119,8 +131,11 @@ export default function RomanticHero({ recipientName, authorName, heroData, star
           className="mb-10 inline-flex flex-col sm:flex-row items-center gap-4 px-6 py-3 rounded-2xl glass-panel border border-rose-400/20 text-xs sm:text-sm font-cinzel text-rose-200"
         >
           <div className="flex items-center gap-2 text-rose-300">
-            <Clock className="w-4 h-4" />
+            <Clock className="w-4 h-4 text-rose-400" />
             <span>Cherishing Anju For:</span>
+            <span className="text-[11px] text-rose-300 font-sans tracking-normal bg-rose-950/70 px-2.5 py-0.5 rounded-full border border-rose-400/30 shadow-xs font-semibold">
+              09/01/2025
+            </span>
           </div>
           <div className="flex items-center gap-3 font-semibold text-rose-100">
             <span><strong className="text-rose-400 text-base">{timeTogether.days}</strong> Days</span>

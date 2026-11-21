@@ -45,9 +45,14 @@ export function getStoredConfig() {
       return defPol;
     });
 
+    const relationshipStartDate = (parsed.relationshipStartDate && parsed.relationshipStartDate !== '2024-01-01')
+      ? parsed.relationshipStartDate
+      : '2025-01-09';
+
     return {
       ...DEFAULT_CONFIG,
       ...parsed,
+      relationshipStartDate,
       timeline: mergedTimeline,
       polaroids: mergedPolaroids,
     };

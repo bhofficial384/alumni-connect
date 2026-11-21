@@ -8,7 +8,7 @@ import { resolveAssetUrl, compressImageFile } from '../utils/defaultData';
 export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig, onResetProgress }) {
   const [recipient, setRecipient] = useState(config.recipientName || 'Anju');
   const [author, setAuthor] = useState(config.authorName || 'Saurabh');
-  const [startDate, setStartDate] = useState(config.relationshipStartDate || '2024-01-01');
+  const [startDate, setStartDate] = useState(config.relationshipStartDate || '2025-01-09');
   const [timeline, setTimeline] = useState(config.timeline || []);
   const [polaroids, setPolaroids] = useState(config.polaroids || []);
   const [activeTab, setActiveTab] = useState('general');
@@ -20,7 +20,7 @@ export default function PersonalizeModal({ isOpen, onClose, config, onSaveConfig
     if (isOpen) {
       setRecipient(config.recipientName || 'Anju');
       setAuthor(config.authorName || 'Saurabh');
-      setStartDate(config.relationshipStartDate || '2024-01-01');
+      setStartDate(config.relationshipStartDate || '2025-01-09');
       setTimeline(config.timeline || []);
       setPolaroids(config.polaroids || []);
     }

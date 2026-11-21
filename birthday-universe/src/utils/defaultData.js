@@ -74,7 +74,7 @@ export function compressImageFile(file, maxWidth = 900, quality = 0.75) {
 export const DEFAULT_CONFIG = {
   authorName: "Saurabh",
   recipientName: "Anju",
-  relationshipStartDate: "2024-01-01", // Customizable in personalization modal
+  relationshipStartDate: "2025-01-09", // Customizable in personalization modal (09/01/2025)
   websiteTitle: "To Anju, From Saurabh — My Favorite Love Story ❤️",
 
   // SCENE 1 — THE SECRET GIFT
